@@ -188,7 +188,7 @@ process trim {
     --fastqc \
     --illumina \
     --gzip \
-    --basename !{parameters.name}_trimmed_1.fq \
+    --basename !{parameters.name}_trimmed \
     --cores !{task.cpus} \
     !{parameters.read1} \
     !{parameters.read2}
@@ -210,6 +210,7 @@ process hicup {
 
     """
     hicup --example
+    grep -v fastq.gz hicup_example.conf > hicup_run.conf
 
     """
 }
