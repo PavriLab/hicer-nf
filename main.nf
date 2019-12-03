@@ -199,15 +199,15 @@ process hicup {
 
     tag { name }
 
-    publishDir path: "${params.outputDir}/${name}",
+    publishDir path: "${params.outputDir}",
                mode: 'copy',
                overwrite: 'true',
-               saveAs: {filename ->
-                   if (filename.indexOf(".sam") > 0) "$filename"
-                   else if (filename.indexOf(".normalized.txt") > 0) "$filename"
-                   else if (filename.indexOf(".html") > 0) "$filename"
-                   else null
-               }
+               pattern: "*/*sam"
+
+     publishDir path: "${params.outputDir}",
+                mode: 'copy',
+                overwrite: 'true',
+                pattern: "*/*html"
 
     input:
     file index from bowtie2Index.collect()
