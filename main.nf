@@ -73,6 +73,7 @@ if (params.help) {
 }
 
 params.hicdigest = params.genome ? params.genomes[ params.genome ].hicdigest ?: false : false
+params.hicRestriction = params.genome ? params.genomes[ params.genome ].hicRestriction ?: false : false
 params.bowtie2 = params.genome ? params.genomes[ params.genome ].bowtie2 ?: false : false
 
 log.info ""
@@ -83,13 +84,14 @@ log.info " Genome                   : ${params.genome}"
 log.info " Fasta                    : ${params.fasta}"
 log.info " Bowtie2 index            : ${params.bowtie2}"
 log.info " HiC Digest               : ${params.hicdigest}"
+log.info " HiC Restriction          : ${params.hicRestriction}"
 log.info " output directory         : ${params.outputDir}"
 log.info " ======================"
 log.info ""
 
 if (params.bowtie2) {
   bowtie2Index = Channel
-      .fromPath(params.star_index, checkIfExists: true)
+      .fromPath(params.bowtie2, checkIfExists: true)
       .ifEmpty { exit 1, "Bowtie2 index not found: ${params.bowtie2}" }
 } else if (params.fasta) {
   fastaForBowtie2 = Channel.fromPath(params.fasta, checkIfExists: true)
@@ -98,10 +100,13 @@ if (params.bowtie2) {
     exit 1, "No reference genome files specified!"
 }
 
-if (params.hicdigest) {
+if (params.hicdigest && params.hicRestriction) {
   hicdigestIndex = Channel
-      .fromPath(params.star_index, checkIfExists: true)
+      .fromPath(params.hicdigest, checkIfExists: true)
       .ifEmpty { exit 1, "HiCdigest not found: ${params.hicdigest}" }
+  hicRestrictionIndex = Channel
+      .fromPath(params.hicRestriction, checkIfExists: true)
+      .ifEmpty { exit 1, "HiCRestriction not found: ${params.hicRestriction}" }
 } else if (params.fasta) {
   fastaForHicdigest = Channel.fromPath(params.fasta, checkIfExists: true)
       .ifEmpty { exit 1, "Genome fasta file not found: ${params.fasta}" }
@@ -117,7 +122,8 @@ if (!params.hicdigest && params.fasta) {
           file fasta from fastaForHicdigest
 
           output:
-          file ("MboI_restriction_sites.bed") into hicdigestIndex
+          file ("Digest*.txt") into hicdigestIndex
+          file ("MboI_restriction_sites.bed") into hicRestrictionIndex
 
           shell:
           """
@@ -179,30 +185,22 @@ process trim {
     """
 }
 
-process trim {
+process hicup {
 
     tag { parameters.name }
 
     input:
-    val(parameters) from samples
+    val(parameters) from resultsTrimming
 
     output:
-    file "*_fastqc.{zip,html}" into fastqcResults
-    file "*trimming_report.txt" into trimgaloreResults
-    set val("${parameters.name}"), file('*_trimmed_val_1.fq.gz'), file('*_trimmed_val_2.fq.gz') into resultsTrimming
+    set val("${parameters.name}"), file('hicup_example.conf') into resultsHicup
 
     shell:
 
     """
-    trim_galore --paired \
-    --quality 20 \
-    --fastqc \
-    --illumina \
-    --gzip \
-    --basename !{parameters.name}_trimmed_1.fq \
-    --cores !{task.cpus} \
-    !{parameters.read1} \
-    !{parameters.read2}
+    hicup --example
+
+    hicup_example.conf
     """
 }
 
