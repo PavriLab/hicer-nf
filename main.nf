@@ -71,7 +71,7 @@ if (params.help) {
 log.info ""
 log.info " parameters "
 log.info " ======================"
-log.info " input directory          : ${params.samples}"
+log.info " samples list             : ${params.samples}"
 log.info " output directory         : ${params.outputDir}"
 log.info " ======================"
 log.info ""
