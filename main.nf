@@ -90,10 +90,18 @@ log.info " ======================"
 log.info ""
 
 if (params.bowtie2) {
-  bowtie2Index = Channel
-      .fromPath(params.bowtie2, checkIfExists: true)
-      .ifEmpty { exit 1, "Bowtie2 index not found: ${params.bowtie2}" }
+
+  lastPath = params.bowtie2.lastIndexOf(File.separator)
+  bwt2_dir =  params.bowtie2.substring(0,lastPath+1)
+  bwt2_base = params.bowtie2.substring(lastPath+1)
+
+  bowtie2Index = Channel.fromPath( bwt2_dir , checkIfExists: true)
+      .ifEmpty { exit 1, "Genome index: Provided index not found: ${params.bowtie2}" }
+
 } else if (params.fasta) {
+  lastPath = params.fasta.lastIndexOf(File.separator)
+  bwt2_base = params.fasta.substring(lastPath+1)
+
   fastaForBowtie2 = Channel.fromPath(params.fasta, checkIfExists: true)
       .ifEmpty { exit 1, "Genome fasta file not found: ${params.fasta}" }
 } else {
@@ -136,20 +144,22 @@ if (!params.hicdigest && params.fasta) {
 
 if (!params.bowtie2 && params.fasta) {
       process buildBowtie2Index {
-          tag "$fasta"
+          tag "$bwt2_base"
 
           input:
           file fasta from fastaForBowtie2
 
           output:
-          file "bowtie2" into bowtie2Index
+          file "bowtie2Index" into bowtie2Index
 
           shell:
+          bwt2_base = fasta.toString() - ~/(\.fa)?(\.fasta)?(\.fas)?$/
           """
-          mkdir -p bowtie2Index
+          mkdir bowtie2Index
 
-          bowtie2-build -f !{fasta} bowtie2Index/genome --threads !{task.cpus}
-          """
+	        bowtie2-build ${fasta} bowtie2Index/${bwt2_base} --threads !{task.cpus}
+	        """
+
       }
 }
 
@@ -190,6 +200,7 @@ process hicup {
     tag { parameters.name }
 
     input:
+    file index from bowtie2Index.collect()
     val(parameters) from resultsTrimming
 
     output:
