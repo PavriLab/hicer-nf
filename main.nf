@@ -210,6 +210,8 @@ process hicup {
     shell:
 
     '''
+    mkdir -p !{name}
+    
     hicup \
     --bowtie2 $(which bowtie2) \
     --index !{index}/!{bwt2_base} \
