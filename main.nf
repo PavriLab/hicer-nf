@@ -199,19 +199,31 @@ process hicup {
 
     tag { name }
 
+    publishDir path: "${params.outputDir}/${name}",
+               mode: 'copy',
+               overwrite: 'true',
+               saveAs: {filename ->
+                   if (filename.indexOf(".sam") > 0) "$filename"
+                   else if (filename.indexOf(".normalized.txt") > 0) "$filename"
+                   else if (filename.indexOf(".html") > 0) "$filename"
+                   else null
+               }
+
     input:
     file index from bowtie2Index.collect()
     file digest from hicdigestIndex
     set val(name), file(fastq1), file(fastq2) from resultsTrimming
 
     output:
-    file("hicup_run.conf") into resultsHicup
+    file("${name}/*sam") into resultsHicup
+    file("${name}/*html") into htmlHicup
+    file("${name}/HiCUP_summary_report*") into multiqcHicup
 
     shell:
 
     '''
     mkdir -p !{name}
-    
+
     hicup \
     --bowtie2 $(which bowtie2) \
     --index !{index}/!{bwt2_base} \
@@ -236,6 +248,7 @@ process multiqc {
     input:
     file (fastqc: 'fastqc/*') from fastqcResults.collect()
     file (trim: 'trim/*') from trimgaloreResults.collect()
+    file (hicpt: 'hicup/*') from multiqcHicup.collect()
 
     output:
     file "*multiqc_report.html" into multiqc_report
