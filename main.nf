@@ -211,7 +211,7 @@ process hicup {
 
     '''
     hicup \
-    --bowtie $(which bowtie2) \
+    --bowtie2 $(which bowtie2) \
     --index !{index}/!{bwt2_base} \
     --digest !{digest} \
     --format Sanger \
