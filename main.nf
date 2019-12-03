@@ -201,7 +201,7 @@ process hicup {
 
     input:
     file index from bowtie2Index.collect()
-    set val(name), file(fastq1), files(fastq2) from resultsTrimming
+    set val(name), file(fastq1), file(fastq2) from resultsTrimming
 
     output:
     file("hicup_run.conf") into resultsHicup
