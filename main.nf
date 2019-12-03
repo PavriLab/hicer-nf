@@ -197,14 +197,14 @@ process trim {
 
 process hicup {
 
-    tag { parameters.name }
+    tag { name }
 
     input:
     file index from bowtie2Index.collect()
-    val(parameters) from resultsTrimming
+    set val(name), file(fastq1), files(fastq2) from resultsTrimming
 
     output:
-    set val("${parameters.name}"), file('hicup_example.conf') into resultsHicup
+    file("hicup_run.conf") into resultsHicup
 
     shell:
 
