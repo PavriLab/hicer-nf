@@ -209,7 +209,7 @@ process hicup {
 
     shell:
 
-    """
+    '''
     hicup \
     --bowtie $(which bowtie2) \
     --index !{index}/!{bwt2_base} \
@@ -220,7 +220,7 @@ process hicup {
     !{fastq1} \
     !{fastq2}
 
-    """
+    '''
 }
 
 process multiqc {
