@@ -217,7 +217,7 @@ process hicup {
     set val(name), file(fastq1), file(fastq2) from resultsTrimming
 
     output:
-    set val("${parameters.name}"), file("${name}/*sam") into resultsHicup
+    set val(name), file("${name}/*sam") into resultsHicup
     file("${name}/*html") into htmlHicup
     file("${name}/HiCUP_summary_report*") into multiqcHicup
 
