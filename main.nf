@@ -210,8 +210,8 @@ process hicup {
                 pattern: "*/*html"
 
     input:
-    // file index from bowtie2Index.collect()
-    //file digest from hicdigestIndex
+    file index from bowtie2Index.collect()
+    file digest from hicdigestIndex.collect()
     set val(name), file(fastq1), file(fastq2) from resultsTrimming
 
     output:
@@ -226,6 +226,8 @@ process hicup {
 
     hicup \
     --bowtie2 $(which bowtie2) \
+    --index !{index}/!{bwt2_base} \
+    --digest !{digest} \
     --format Sanger \
     --outdir !{name} \
     --threads !{task.cpus} \
