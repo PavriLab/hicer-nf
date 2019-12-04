@@ -197,7 +197,7 @@ process trim {
 
 process hicup {
 
-    tag { name }
+    //tag { name }
 
     publishDir path: "${params.outputDir}",
                mode: 'copy',
@@ -237,7 +237,7 @@ process hicup {
     '''
 }
 
-process multiqc {
+/*process multiqc {
 
     tag { 'all' }
 
@@ -259,7 +259,7 @@ process multiqc {
     export LANG=C.UTF-8
     multiqc -f -x *.run .
     """
-}
+}*/
 
 workflow.onComplete {
 	println ( workflow.success ? "COMPLETED!" : "FAILED" )
