@@ -198,7 +198,9 @@ process trim {
     !{parameters.read2}
 
     mv !{read1Base}_trimming_report.txt !{parameters.name}_trimmed_val_1.fq.gz_trimming_report.txt
+    sed -i 's/Command line parameters:.*$/Command line parameters: !{name}_trimmed_val_1/g' !{parameters.name}_trimmed_val_1.fq.gz_trimming_report.txt
     mv !{read2Base}_trimming_report.txt !{parameters.name}_trimmed_val_2.fq.gz_trimming_report.txt
+    sed -i 's/Command line parameters:.*$/Command line parameters: !{name}_trimmed_val_2/g' !{parameters.name}_trimmed_val_2.fq.gz_trimming_report.txt
     """
 }
 
@@ -250,7 +252,7 @@ process bamPreparation {
 
     tag { name }
 
-    publishDir path: "${params.outputDir}",
+    publishDir path: "${params.outputDir}/${name}",
                mode: 'copy',
                overwrite: 'true',
                pattern: "*bam"
