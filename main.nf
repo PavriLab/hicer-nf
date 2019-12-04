@@ -197,7 +197,7 @@ process trim {
 
 process hicup {
 
-    //tag { name }
+    tag { name }
 
     publishDir path: "${params.outputDir}",
                mode: 'copy',
@@ -210,8 +210,8 @@ process hicup {
                 pattern: "*/*html"
 
     input:
-    file index from bowtie2Index.collect()
-    file digest from hicdigestIndex
+    // file index from bowtie2Index.collect()
+    //file digest from hicdigestIndex
     set val(name), file(fastq1), file(fastq2) from resultsTrimming
 
     output:
@@ -226,8 +226,6 @@ process hicup {
 
     hicup \
     --bowtie2 $(which bowtie2) \
-    --index !{index}/!{bwt2_base} \
-    --digest !{digest} \
     --format Sanger \
     --outdir !{name} \
     --threads !{task.cpus} \
@@ -237,7 +235,7 @@ process hicup {
     '''
 }
 
-/*process multiqc {
+process multiqc {
 
     tag { 'all' }
 
@@ -259,7 +257,7 @@ process hicup {
     export LANG=C.UTF-8
     multiqc -f -x *.run .
     """
-}*/
+}
 
 workflow.onComplete {
 	println ( workflow.success ? "COMPLETED!" : "FAILED" )
