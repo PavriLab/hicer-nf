@@ -192,17 +192,15 @@ process trim {
     --cores !{task.cpus} \
     !{parameters.read1} \
     !{parameters.read2}
+
+    mv !{parameters.read1}_trimming_report.txt !{parameters.name}_trimmed_val_1.fq.gz_trimming_report.txt
+    mv !{parameters.read2}_trimming_report.txt !{parameters.name}_trimmed_val_2.fq.gz_trimming_report.txt
     """
 }
 
 process hicup {
 
     tag { name }
-
-    publishDir path: "${params.outputDir}",
-               mode: 'copy',
-               overwrite: 'true',
-               pattern: "*/*sam"
 
      publishDir path: "${params.outputDir}",
                 mode: 'copy',
@@ -215,7 +213,7 @@ process hicup {
     set val(name), file(fastq1), file(fastq2) from resultsTrimming
 
     output:
-    file("${name}/*sam") into resultsHicup
+    set val("${parameters.name}"), file("${name}/*sam") into resultsHicup
     file("${name}/*html") into htmlHicup
     file("${name}/HiCUP_summary_report*") into multiqcHicup
 
@@ -234,8 +232,43 @@ process hicup {
     !{fastq1} \
     !{fastq2}
 
+    mv !{name}/*sam !{name}/!{name}.hicup.sam
+    mv !{name}/*sam !{name}/!{name}.hicup.sam
+
+    sed -i 's/^.*sam\t/!{name}.hicup.sam\t/g' HiCUP_summary_report*txt
+    sed -i 's/WRAP CHAR>[^<]*/WRAP CHAR>!{name}/g' HiCUP_summary_report*txt
+    sed -i 's/HiCUP Processing Report - [^<]*/HiCUP Processing Report - !{name}/g' !{name}/*.HiCUP_summary_report.html
+
     '''
 }
+
+process bamPreparation {
+
+    tag { name }
+
+    publishDir path: "${params.outputDir}",
+               mode: 'copy',
+               overwrite: 'true',
+               pattern: "*bam"
+
+    input:
+    set val(name), file(sam) from resultsHicup
+
+    output:
+    file("*bam*") into resultsSamToBam
+
+    shell:
+
+    '''
+    samtools view -@ !{task.cpus} -b !{sam} > !{name}.hicup.bam
+
+    samtools view -@ !{task.cpus} -b -f 65 !{name}.hicup.bam > !{name}.hicup.first.bam
+
+    samtools view -@ !{task.cpus} -b -f 129 !{name}.hicup.bam > !{name}.hicup.second.bam
+
+    '''
+}
+
 
 process multiqc {
 
