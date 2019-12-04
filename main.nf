@@ -181,6 +181,10 @@ process trim {
     set val("${parameters.name}"), file('*_trimmed_val_1.fq.gz'), file('*_trimmed_val_2.fq.gz') into resultsTrimming
 
     shell:
+    lastPath = parameters.read1.lastIndexOf(File.separator)
+    read1Base = parameters.read1.substring(lastPath+1)
+    lastPath = parameters.read2.lastIndexOf(File.separator)
+    read2Base = parameters.read2.substring(lastPath+1)
 
     """
     trim_galore --paired \
@@ -193,8 +197,8 @@ process trim {
     !{parameters.read1} \
     !{parameters.read2}
 
-    mv !{parameters.read1}_trimming_report.txt !{parameters.name}_trimmed_val_1.fq.gz_trimming_report.txt
-    mv !{parameters.read2}_trimming_report.txt !{parameters.name}_trimmed_val_2.fq.gz_trimming_report.txt
+    mv !{read1Base}_trimming_report.txt !{parameters.name}_trimmed_val_1.fq.gz_trimming_report.txt
+    mv !{read2Base}_trimming_report.txt !{parameters.name}_trimmed_val_2.fq.gz_trimming_report.txt
     """
 }
 
