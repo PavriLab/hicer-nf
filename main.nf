@@ -242,6 +242,8 @@ process hicup {
 
     sed -i 's/^.*sam\t/!{name}.hicup.sam\t/g' !{name}/HiCUP_summary_report*txt
 
+    mv !{name}/HiCUP_summary_report*txt !{name}/HiCUP_summary_report_!{name}.txt
+
     sed -i 's/HiCUP Processing Report - [^<]*/HiCUP Processing Report - !{name}/g' !{name}/*.HiCUP_summary_report.html
     sed -i 's/WRAP CHAR>[^<]*/WRAP CHAR>!{name}/g' !{name}/*.HiCUP_summary_report.html
 
