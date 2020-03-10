@@ -270,11 +270,9 @@ process bamPreparation {
     shell:
 
     '''
-    #samtools view -@ !{task.cpus} -b !{sam} > !{name}.hicup.bam
+    samtools view -@ !{task.cpus} -b -f 65 !{sam} > !{name}.hicup.first.bam
 
-    samtools view -@ !{task.cpus} -b -f 65 !{name}.hicup.bam > !{name}.hicup.first.bam
-
-    samtools view -@ !{task.cpus} -b -f 129 !{name}.hicup.bam > !{name}.hicup.second.bam
+    samtools view -@ !{task.cpus} -b -f 129 !{sam} > !{name}.hicup.second.bam
 
     '''
 }
