@@ -265,7 +265,7 @@ process bamPreparation {
     set val(name), file(sam) from resultsHicup
 
     output:
-    set val(name), file("first.bam"), file("*second.bam") into resultsSamToBam
+    set val(name), file("*first.bam"), file("*second.bam") into resultsSamToBam
 
     shell:
 
