@@ -44,6 +44,8 @@ def helpMessage() {
                             - read1: Read file with first read mates (R1) in fastq(.gz) format
                             - read2: Read file with second read mates (R2) in fastq(.gz) format
 
+        --resolution     Resolution of the matrix in kb (default: 200)
+
         --outputDir      Directory name to save results to. (Defaults to
                          'results')
 
@@ -263,16 +265,42 @@ process bamPreparation {
     set val(name), file(sam) from resultsHicup
 
     output:
-    file("*bam*") into resultsSamToBam
+    set val(name), file("first.bam"), file("*second.bam") from resultsSamToBam
 
     shell:
 
     '''
-    samtools view -@ !{task.cpus} -b !{sam} > !{name}.hicup.bam
+    #samtools view -@ !{task.cpus} -b !{sam} > !{name}.hicup.bam
 
     samtools view -@ !{task.cpus} -b -f 65 !{name}.hicup.bam > !{name}.hicup.first.bam
 
     samtools view -@ !{task.cpus} -b -f 129 !{name}.hicup.bam > !{name}.hicup.second.bam
+
+    '''
+}
+
+process matrixBuilder {
+
+    tag { name }
+
+    publishDir path: "${params.outputDir}/${name}",
+               mode: 'copy',
+               overwrite: 'true',
+               pattern: "*kb.h5"
+
+    input:
+    set val(name), file(first), file(second) from resultsSamToBam
+
+    output:
+    file("*kb.h5") into resultsMatrixBuilder
+
+    shell:
+
+    '''
+
+    hicBuildMatrix -s !{first} !{second} -o !{name}_base.h5 --skipDuplicationCheck --binSize 5000 --QCfolder hicQC -ga mm9 --minDistance 150 --maxLibraryInsertSize 850 --threads !{task.cpus}
+
+    hicMergeMatrixBins -m !{name}_base.h5 -o !{name}_!{params.hicdigest}kb.h5 -nb !{params.hicdigest / 5}
 
     '''
 }
