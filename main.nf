@@ -298,7 +298,7 @@ process matrixBuilder {
 
     hicBuildMatrix -s !{first} !{second} -o !{name}_base.h5 --skipDuplicationCheck --binSize 5000 --QCfolder hicQC -ga mm9 --minDistance 150 --maxLibraryInsertSize 850 --threads !{task.cpus}
 
-    hicMergeMatrixBins -m !{name}_base.h5 -o !{name}_!{params.hicdigest}kb.h5 -nb !{params.hicdigest / 5}
+    hicMergeMatrixBins -m !{name}_base.h5 -o !{name}_!{params.hicdigest}kb.h5 -nb !{params.hicdigest.toInteger() / 5}
 
     '''
 }
