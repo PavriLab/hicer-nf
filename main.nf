@@ -281,11 +281,6 @@ process matrixBuilder {
 
     tag { name }
 
-    publishDir path: "${params.outputDir}/${name}",
-               mode: 'copy',
-               overwrite: 'true',
-               pattern: "*kb.h5"
-
     input:
     set val(name), file(first), file(second) from resultsSamToBam
 
@@ -311,7 +306,7 @@ process matrixSubsetter {
     set val(name), file(matrix) from resultsMatrixBuilder
 
     output:
-    file("*canonical*.h5") into resultsMatrixSubsetter
+    set val(name), file("*canonical.h5"), file("*withX.h5") into resultsMatrixSubsetter
 
     shell:
 
@@ -319,6 +314,29 @@ process matrixSubsetter {
     util/subsetcontactmatrix.py -m !{matrix} --includeChroms chr1 chr2 chr3 chr4 chr5 chr6 chr7 chr8 chr9 chr10 chr11 chr12 chr13 chr14 chr15 chr16 chr17 chr18 chr19 -o !{name}_!{params.resolution}kb_canonical.h5
 	  util/subsetcontactmatrix.py -m !{matrix} --includeChroms chr1 chr2 chr3 chr4 chr5 chr6 chr7 chr8 chr9 chr10 chr11 chr12 chr13 chr14 chr15 chr16 chr17 chr18 chr19 chrX -o !{name}_!{params.resolution}kb_canonical_withX.h5
 
+    '''
+}
+
+process matrixNormalizer {
+
+    publishDir path: "${params.outputDir}/${name}",
+             mode: 'copy',
+             overwrite: 'true',
+             pattern: "*h5"
+
+    tag { name }
+
+    input:
+    set val(name), file(chromosomeMatrix), file(XMatrix) from resultsMatrixSubsetter
+
+    output:
+    file("*canonical*.h5") into resultsMatrixNormalizer
+
+    shell:
+
+    '''
+    hicCorrectMatrix correct -m !{chromosomeMatrix} --correctionMethod KR -o !{name}_!{params.resolution}kb_canonical_KR.h5
+	  hicCorrectMatrix correct -m !{XMatrix} --correctionMethod KR -o !{name}_!{params.resolution}kb_canonical_withX_KR.h5
     '''
 }
 
