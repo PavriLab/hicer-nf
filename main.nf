@@ -290,7 +290,7 @@ process matrixBuilder {
     set val(name), file(first), file(second) from resultsSamToBam
 
     output:
-    file("*kb.h5") into resultsMatrixBuilder
+    set val(name), file("*kb.h5") into resultsMatrixBuilder
 
     shell:
 
@@ -299,6 +299,25 @@ process matrixBuilder {
     hicBuildMatrix -s !{first} !{second} -o !{name}_base.h5 --skipDuplicationCheck --binSize 5000 --QCfolder hicQC -ga mm9 --minDistance 150 --maxLibraryInsertSize 850 --threads !{task.cpus}
 
     hicMergeMatrixBins -m !{name}_base.h5 -o !{name}_!{params.resolution}kb.h5 -nb !{params.resolution.toInteger() / 5}
+
+    '''
+}
+
+process matrixSubsetter {
+
+    tag { name }
+
+    input:
+    set val(name), file(matrix) from resultsMatrixBuilder
+
+    output:
+    file("*canonical*.h5") into resultsMatrixSubsetter
+
+    shell:
+
+    '''
+    util/subsetcontactmatrix.py -m !{matrix} --includeChroms chr1 chr2 chr3 chr4 chr5 chr6 chr7 chr8 chr9 chr10 chr11 chr12 chr13 chr14 chr15 chr16 chr17 chr18 chr19 -o !{name}_!{params.resolution}kb_canonical.h5
+	  util/subsetcontactmatrix.py -m !{matrix} --includeChroms chr1 chr2 chr3 chr4 chr5 chr6 chr7 chr8 chr9 chr10 chr11 chr12 chr13 chr14 chr15 chr16 chr17 chr18 chr19 chrX -o !{name}_!{params.resolution}kb_canonical_withX.h5
 
     '''
 }
