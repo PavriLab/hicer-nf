@@ -353,7 +353,7 @@ process matrixEO {
     set val(name), file(chromosomeMatrix), file(XMatrix) from resultsMatrixNormalizer
 
     output:
-    set val(name), file("*canonical_KR.h5"), file("*withX_KR.h5") into resultsMatrixEO
+    set val(name), file("*canonical_EO.h5"), file("*withX_EO.h5") into resultsMatrixEO
 
     shell:
 
