@@ -330,7 +330,7 @@ process matrixNormalizer {
     set val(name), file(chromosomeMatrix), file(XMatrix) from resultsMatrixSubsetter
 
     output:
-    file("*canonical*.h5") into resultsMatrixNormalizer
+    set val(name), file("*canonical_KR.h5"), file("*withX_KR.h5") into resultsMatrixNormalizer
 
     shell:
 
@@ -340,6 +340,28 @@ process matrixNormalizer {
     '''
 }
 
+process matrixEO {
+
+    publishDir path: "${params.outputDir}/${name}",
+             mode: 'copy',
+             overwrite: 'true',
+             pattern: "*h5"
+
+    tag { name }
+
+    input:
+    set val(name), file(chromosomeMatrix), file(XMatrix) from resultsMatrixNormalizer
+
+    output:
+    set val(name), file("*canonical_KR.h5"), file("*withX_KR.h5") into resultsMatrixEO
+
+    shell:
+
+    '''
+    hicTransform -m !{chromosomeMatrix} --method obs_exp_lieberman -o !{name}_!{params.resolution}kb_canonical_EO.h5
+	  hicTransform -m !{XMatrix} --method obs_exp_lieberman -o !{name}_!{params.resolution}kb_canonical_withX_EO.h5
+    '''
+}
 
 process multiqc {
 
