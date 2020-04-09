@@ -28,7 +28,7 @@ def toString(s):
     return s
 
 
-def loadH5subset(filename, includechroms=None):
+def loadH5subset(filename, includechroms=None, dtype = int):
     '''
     loadH5(filename, includechroms=None, csr=True)
 
@@ -51,7 +51,7 @@ def loadH5subset(filename, includechroms=None):
             exit(1)
 
         matrix = csr_matrix(tuple([parts['data'], parts['indices'], parts['indptr']]),
-                            shape=parts['shape'], dtype = int)
+                            shape=parts['shape'], dtype = dtype)
 
         intervals = {}
         for interval_part in ('chr_list', 'start_list', 'end_list', 'extra_list'):
