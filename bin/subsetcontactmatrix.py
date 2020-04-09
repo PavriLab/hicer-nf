@@ -37,7 +37,7 @@ def loadH5subset(filename, includechroms=None, dtype = int):
     :param filename:        name of the *.h5 file containing the matrix
     :param includechroms:   list of chromosomes to include in the returned objects
                             if not given all chromosomes in the *.h5 file are included
-    :param csr:             if True returns a csr_matrix object else a full numpy.array
+    :param dtype:           type of matrix entries
 
     :return:                csr_matrix containing the data in the matrix
     '''
