@@ -399,8 +399,7 @@ process compartmentalization {
     shell:
 
     '''
-    touch dummy.bw
-    #generateEigenvectorBigWig.py -m !{XMatrix} -g !{params.bed12} -r !{params.resolution.toInteger() * 1000} --chromLengths /groups/zuber/zubarchive/USERS/tobias/mm9/mm9.chr_lengths.txt -o !{name}_!{params.resolution}kb_eigv.bw
+    generateEigenvectorBigWig.py -m !{XMatrix} -g !{params.bed12} -r !{params.resolution.toInteger() * 1000} --chromLengths /groups/zuber/zubarchive/USERS/tobias/mm9/mm9.chr_lengths.txt -o !{name}_!{params.resolution}kb_eigv.bw
     '''
 }
 

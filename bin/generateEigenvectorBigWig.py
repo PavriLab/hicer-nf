@@ -25,9 +25,33 @@
 import argparse as ap
 import pyBigWig as bw
 import numpy as np
+import scipy.stats as scistats
 import scipy.linalg as scilin
+from scipy.sparse import csr_matrix
+import tables
 import warnings
 import logging
+
+def toString(s):
+    """
+    This takes care of python2/3 differences
+    """
+    if isinstance(s, str):
+        return s
+
+    if isinstance(s, bytes):  # or isinstance(s, np.bytes_):
+        if sys.version_info[0] == 2:
+            return str(s)
+        return s.decode('ascii')
+
+    if isinstance(s, list):
+        return [toString(x) for x in s]
+
+    if isinstance(s, np.ndarray):
+        return s.astype(str)
+
+    return s
+
 
 def loadH5(filename, includechroms=None, csr=True, returnintervals = False, dtype = int):
     '''
