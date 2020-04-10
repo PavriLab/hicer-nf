@@ -77,6 +77,7 @@ if (params.help) {
 params.hicdigest = params.genome ? params.genomes[ params.genome ].hicdigest ?: false : false
 params.hicRestriction = params.genome ? params.genomes[ params.genome ].hicRestriction ?: false : false
 params.bowtie2 = params.genome ? params.genomes[ params.genome ].bowtie2 ?: false : false
+params.bed12 = params.genome ? params.genomes[ params.genome ].bed12 ?: false : false
 
 log.info ""
 log.info " parameters "
@@ -309,7 +310,7 @@ process matrixResolutioner {
   shell:
 
   '''
-  hicMergeMatrixBins -m !{matrix} -o !{name}_!{params.resolution}kb.h5 -nb !{params.resolution.toInteger()}
+  hicMergeMatrixBins -m !{matrix} -o !{name}_!{params.resolution}kb.h5 -nb !{params.resolution}
 
   '''
 }
@@ -376,6 +377,28 @@ process matrixEO {
     '''
     hicTransform -m !{chromosomeMatrix} --method obs_exp_lieberman -o !{name}_!{params.resolution}kb_canonical_EO.h5
 	  hicTransform -m !{XMatrix} --method obs_exp_lieberman -o !{name}_!{params.resolution}kb_canonical_withX_EO.h5
+    '''
+}
+
+process compartmentalization {
+
+    publishDir path: "${params.outputDir}/${name}",
+             mode: 'copy',
+             overwrite: 'true',
+             pattern: "*bw"
+
+    tag { name }
+
+    input:
+    set val(name), file(chromosomeMatrix), file(XMatrix) from resultsMatrixEO
+
+    output:
+    set val(name), file("*.bw") into resultsCompartmentalization
+
+    shell:
+
+    '''
+    generateEigenvectorBigWig.py -m !{XMatrix} -g !{params.bed12} -r !{params.resolution.toInteger() * 1000} --chromLengths /groups/zuber/zubarchive/USERS/tobias/mm9/mm9.chr_lengths.txt -o !{name}_!{params.resolution}kb_eigv.bw
     '''
 }
 
