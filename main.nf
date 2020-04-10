@@ -285,17 +285,33 @@ process matrixBuilder {
     set val(name), file(first), file(second) from resultsSamToBam
 
     output:
-    set val(name), file("*kb.h5") into resultsMatrixBuilder
+    set val(name), file("*kb.h5") into resultsMatrixBuilder, mcoolBuilderProcess
 
     shell:
 
     '''
 
-    hicBuildMatrix -s !{first} !{second} -o !{name}_base.h5 --skipDuplicationCheck --binSize 5000 --QCfolder hicQC -ga mm9 --minDistance 150 --maxLibraryInsertSize 850 --threads !{task.cpus}
-
-    hicMergeMatrixBins -m !{name}_base.h5 -o !{name}_!{params.resolution}kb.h5 -nb !{params.resolution.toInteger() / 5}
+    hicBuildMatrix -s !{first} !{second} -o !{name}_base.h5 --skipDuplicationCheck --binSize 1000 --QCfolder hicQC -ga mm9 --minDistance 150 --maxLibraryInsertSize 850 --threads !{task.cpus}
 
     '''
+}
+
+process matrixResolutioner {
+
+  tag { name }
+
+  input:
+  set val(name), file(matrix) from resultsMatrixBuilder
+
+  output:
+  set val(name), file("*kb.h5") into resultsMatrixResolutioner
+
+  shell:
+
+  '''
+  hicMergeMatrixBins -m !{matrix} -o !{name}_!{params.resolution}kb.h5 -nb !{params.resolution.toInteger()}
+
+  '''
 }
 
 process matrixSubsetter {
@@ -303,7 +319,7 @@ process matrixSubsetter {
     tag { name }
 
     input:
-    set val(name), file(matrix) from resultsMatrixBuilder
+    set val(name), file(matrix) from resultsMatrixResolutioner
 
     output:
     set val(name), file("*canonical.h5"), file("*withX.h5") into resultsMatrixSubsetter
@@ -361,6 +377,35 @@ process matrixEO {
     hicTransform -m !{chromosomeMatrix} --method obs_exp_lieberman -o !{name}_!{params.resolution}kb_canonical_EO.h5
 	  hicTransform -m !{XMatrix} --method obs_exp_lieberman -o !{name}_!{params.resolution}kb_canonical_withX_EO.h5
     '''
+}
+
+process mcoolBuilder {
+
+  tag { name }
+
+  publishDir path: "${params.outputDir}/${name}",
+           mode: 'copy',
+           overwrite: 'true',
+           pattern: "*.mcool"
+
+  input:
+  set val(name), file(matrix) from mcoolBuilderProcess
+
+  output:
+  set val(name), file("*.mcool") into resultsmcoolBuilder
+
+  shell:
+
+  '''
+  for i in 5 10 25 50 100 500 1000;
+  do
+    hicMergeMatrixBins -m !{matrix} -o !{name}_${i}kb.h5 -nb ${i}
+    hicCorrectMatrix correct -m !{name}_${i}kb.h5 --correctionMethod KR -o !{name}_${i}kb_KR.h5
+  done
+
+  h5toCool.py -m *KR.h5 -o !{name}.mcool --merge
+
+  '''
 }
 
 process multiqc {
