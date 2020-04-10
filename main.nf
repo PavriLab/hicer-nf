@@ -86,6 +86,7 @@ log.info " samples list             : ${params.samples}"
 log.info " Genome                   : ${params.genome}"
 log.info " Fasta                    : ${params.fasta}"
 log.info " Bowtie2 index            : ${params.bowtie2}"
+log.info " Genes bed                : ${params.bed12}"
 log.info " HiC Digest               : ${params.hicdigest}"
 log.info " HiC Restriction          : ${params.hicRestriction}"
 log.info " output directory         : ${params.outputDir}"
@@ -286,7 +287,7 @@ process matrixBuilder {
     set val(name), file(first), file(second) from resultsSamToBam
 
     output:
-    set val(name), file("*kb.h5") into resultsMatrixBuilder, mcoolBuilderProcess
+    set val(name), file("*.h5") into resultsMatrixBuilder, mcoolBuilderProcess
 
     shell:
 
