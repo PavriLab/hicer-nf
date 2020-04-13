@@ -48,7 +48,7 @@ def writeSizeSummary(insertSizes, outputFileName):
     meanidx = np.argmax(histogram)
 
     width = 25
-    symmetryValue = np.abs(meanidx - width)
+    symmetryValue = np.abs(meanidx - width) if meanidx - width < 0 else 0
     lowidx = meanidx - width if meanidx >= width else 0
     highidx = meanidx + width - symmetryValue
     lowBound, highBound = bins[lowidx], bins[highidx] + 10
