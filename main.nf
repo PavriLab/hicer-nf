@@ -116,7 +116,7 @@ if (params.hicdigest && params.hicRestriction) {
   Channel
       .fromPath(params.hicdigest, checkIfExists: true)
       .ifEmpty { exit 1, "HiCdigest not found: ${params.hicdigest}" }
-      .set{hicdigestIndex ; hicdigestIndexForInsertSize}
+      .into{hicdigestIndex ; hicdigestIndexForInsertSize}
   hicRestrictionIndex = Channel
       .fromPath(params.hicRestriction, checkIfExists: true)
       .ifEmpty { exit 1, "HiCRestriction not found: ${params.hicRestriction}" }
@@ -274,7 +274,7 @@ process insertSize {
     shell:
 
     '''
-    getInsertSizeInterval.py -i !{same} -d !{digest} -o !{name}_insertSize_histogram.txt
+    getInsertSizeInterval.py -i !{sam} -d !{digest} -o !{name}_insertSize_histogram.txt
     '''
 }
 
@@ -317,8 +317,8 @@ process matrixBuilder {
     shell:
 
     '''
-    MIN=$(grep "#minInsertSize" !{insertSize} | sed -e "s/.*\s//g")
-    MAX=$(grep "#maxInsertSize" !{insertSize} | sed -e "s/.*\s//g")
+    MIN=$(grep "#minInsertSize" !{insertSize} | sed -e "s/.*\\s//g")
+    MAX=$(grep "#maxInsertSize" !{insertSize} | sed -e "s/.*\\s//g")
 
     hicBuildMatrix -s !{first} !{second} -o !{name}_base.h5 --skipDuplicationCheck --binSize 1000 --QCfolder hicQC -ga mm9 --minDistance $MIN --maxLibraryInsertSize $MAX --threads !{task.cpus}
 
