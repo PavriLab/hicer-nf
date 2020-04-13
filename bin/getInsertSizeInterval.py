@@ -67,11 +67,16 @@ def computeInsertLengths(reads1, reads2, reFragmentRanges):
 
 def writeSizeSummary(insertSizes, outputFileName):
     histogram, bins = np.histogram(insertSizes, bins=np.arange(0, 1500, 10))
-    maxidx = np.argmax(histogram)
-    highBound = bins[2 * maxidx] + 10
+    meanidx = np.argmax(histogram)
 
-    meanValue = insertSizes[insertSizes < highBound].mean()
-    standardDeviation = insertSizes[insertSizes < highBound].std()
+    width = 25
+    symmetryValue = np.abs(meanidx - width) if meanidx - width < 0 else 0
+    lowidx = meanidx - width if meanidx >= width else 0
+    highidx = meanidx + width - symmetryValue
+    lowBound, highBound = bins[lowidx], bins[highidx] + 10
+
+    meanValue = insertSizes[insertSizes >= lowBound][insertSizes <= highBound].mean()
+    standardDeviation = insertSizes[insertSizes >= lowBound][insertSizes <= highBound].std()
 
     minInsertSize = 10 - int(meanValue - standardDeviation * 3) % 10 + int(meanValue - standardDeviation * 3)
     maxInsertSize = 10 - int(meanValue + standardDeviation * 3) % 10 + int(meanValue + standardDeviation * 3)
