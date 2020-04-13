@@ -113,9 +113,10 @@ if (params.bowtie2) {
 }
 
 if (params.hicdigest && params.hicRestriction) {
-  hicdigestIndex = Channel
+  Channel
       .fromPath(params.hicdigest, checkIfExists: true)
       .ifEmpty { exit 1, "HiCdigest not found: ${params.hicdigest}" }
+      .set{hicdigestIndex ; hicdigestIndexForInsertSize}
   hicRestrictionIndex = Channel
       .fromPath(params.hicRestriction, checkIfExists: true)
       .ifEmpty { exit 1, "HiCRestriction not found: ${params.hicRestriction}" }
@@ -134,7 +135,7 @@ if (!params.hicdigest && params.fasta) {
           file fasta from fastaForHicdigest
 
           output:
-          file ("Digest*.txt") into hicdigestIndex
+          file ("Digest*.txt") into hicdigestIndex, hicdigestIndexForInsertSize
           file ("MboI_restriction_sites.bed") into hicRestrictionIndex
 
           shell:
@@ -223,7 +224,7 @@ process hicup {
     set val(name), file(fastq1), file(fastq2) from resultsTrimming
 
     output:
-    set val(name), file("${name}/*sam") into resultsHicup
+    set val(name), file("${name}/*sam") into resultsHicup, resultsHicupForInsertSize
     file("${name}/*html") into htmlHicup
     file("${name}/HiCUP_summary_report*") into multiqcHicup
 
@@ -251,6 +252,29 @@ process hicup {
     sed -i 's/HiCUP Processing Report - [^<]*/HiCUP Processing Report - !{name}/g' !{name}/*.HiCUP_summary_report.html
     sed -i 's/WRAP CHAR>[^<]*/WRAP CHAR>!{name}/g' !{name}/*.HiCUP_summary_report.html
 
+    '''
+}
+
+process insertSize {
+
+    tag { name }
+
+     publishDir path: "${params.outputDir}/${name}",
+                mode: 'copy',
+                overwrite: 'true',
+                pattern: "*insertSize_histogram.txt"
+
+    input:
+    set val(name), file(sam) from resultsHicupForInsertSize
+    file digest from hicdigestIndexForInsertSize.collect()
+
+    output:
+    set val(name), file("*insertSize_histogram.txt") into resultsInsertSize
+
+    shell:
+
+    '''
+    getInsertSizeInterval.py -i !{same} -d !{digest} -o !{name}_insertSize_histogram.txt
     '''
 }
 
@@ -285,6 +309,7 @@ process matrixBuilder {
 
     input:
     set val(name), file(first), file(second) from resultsSamToBam
+    set val(name), file(insertSize) from resultsInsertSize
 
     output:
     set val(name), file("*.h5") into resultsMatrixBuilder, mcoolBuilderProcess
