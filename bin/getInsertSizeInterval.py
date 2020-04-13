@@ -22,6 +22,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import os
+os.environ['NUMEXPR_MAX_THREADS'] = '64'
+
 import argparse as ap
 import pandas as pd
 import pyranges as pr
@@ -78,7 +81,7 @@ def writeSizeSummary(insertSizes, outputFileName):
     meanValue = insertSizes[insertSizes >= lowBound][insertSizes <= highBound].mean()
     standardDeviation = insertSizes[insertSizes >= lowBound][insertSizes <= highBound].std()
 
-    minInsertSize = 10 - int(meanValue - standardDeviation * 3) % 10 + int(meanValue - standardDeviation * 3)
+    minInsertSize = max(0,10 - int(meanValue - standardDeviation * 3) % 10 + int(meanValue - standardDeviation * 3))
     maxInsertSize = 10 - int(meanValue + standardDeviation * 3) % 10 + int(meanValue + standardDeviation * 3)
 
     with open(outputFileName, 'w') as ofile:

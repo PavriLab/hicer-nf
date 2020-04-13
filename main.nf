@@ -317,8 +317,10 @@ process matrixBuilder {
     shell:
 
     '''
+    MIN=$(grep "#minInsertSize" !{insertSize} | sed -e "s/.*\s//g")
+    MAX=$(grep "#maxInsertSize" !{insertSize} | sed -e "s/.*\s//g")
 
-    hicBuildMatrix -s !{first} !{second} -o !{name}_base.h5 --skipDuplicationCheck --binSize 1000 --QCfolder hicQC -ga mm9 --minDistance 150 --maxLibraryInsertSize 850 --threads !{task.cpus}
+    hicBuildMatrix -s !{first} !{second} -o !{name}_base.h5 --skipDuplicationCheck --binSize 1000 --QCfolder hicQC -ga mm9 --minDistance $MIN --maxLibraryInsertSize $MAX --threads !{task.cpus}
 
     '''
 }
