@@ -52,6 +52,7 @@ def helpMessage() {
         References:
         --genome         Name of reference (hg38, mm10)
         --fasta          Alternatively, path to genome fasta file which will be digested
+        --bowtie2        Optional: Path to bowtie2 index
         --bed12          Genes
         --hicdigest      Restriction site digest index
 

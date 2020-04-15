@@ -15,16 +15,14 @@ We loosely follow the steps proposed by [Rao et al, Cell 2014](https://www.ncbi.
 1. Raw read QC ([`FastQC`](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/))
 2. Adapter trimming ([`Trim Galore!`](https://www.bioinformatics.babraham.ac.uk/projects/trim_galore/))
 3. Alignment ([`HiCUP`](https://www.bioinformatics.babraham.ac.uk/projects/hicup/))
-4. Build 1kb resolution contact matrix ([`HiCExplorer`](https://hicexplorer.readthedocs.io/en/latest/))
-5. Merge bins to desired resolution and remove non-canonical chromosomes ([`HiCExplorer`](https://hicexplorer.readthedocs.io/en/latest/))
-6. [KR normalize](https://doi.org/10.1093/imanum/drs019) contact matrix ([`HiCExplorer`](https://hicexplorer.readthedocs.io/en/latest/))
-7. Calculate observed / expected matrix ([`HiCExplorer`](https://hicexplorer.readthedocs.io/en/latest/))
-8. Normalize RT-tracks:
-   * Loess-smoothened raw tracks
-   * Quantile-normalized raw tracks across all samples
-   * Loess-smoothened quantile-normalized tracks across all samples
-9. Create bigWig files [`bedGraphToBigWig`](http://hgdownload.soe.ucsc.edu/admin/exe/))
-10. Present QC for raw reads, alignment and filtering [`MultiQC`](http://multiqc.info/)
+4. Insert size calculation
+5. Build 1kb resolution contact matrix ([`HiCExplorer`](https://hicexplorer.readthedocs.io/en/latest/))
+6. Merge bins to desired resolution and remove non-canonical chromosomes ([`HiCExplorer`](https://hicexplorer.readthedocs.io/en/latest/))
+7. [KR normalize](https://doi.org/10.1093/imanum/drs019) contact matrix ([`HiCExplorer`](https://hicexplorer.readthedocs.io/en/latest/))
+8. Calculate observed / expected matrix ([`HiCExplorer`](https://hicexplorer.readthedocs.io/en/latest/))
+9. Create Eigenvector bigwig tracks for A/B compartmentalization ([`pyBigWig`](https://github.com/deeptools/pyBigWig))
+10. Create `mcooler` files for use in [HiGlass](http://higlass.io/) ([`cooler`](https://mirnylab.github.io/cooler/))
+11. Present QC for raw reads, alignment and filtering [`MultiQC`](http://multiqc.info/)
 
 ## Quick Start
 
@@ -35,7 +33,7 @@ ii. Install one of [`docker`](https://docs.docker.com/engine/installation/), [`s
 iii. Start running your own analysis!
 
 ```bash
-nextflow run t-neumann/repliseq-nf --design design.txt --genome mm9 --singleEnd
+nextflow run t-neumann/hicer-nf --design design.txt --genome mm9 --singleEnd
 ```
 
 ## Main arguments
@@ -48,51 +46,33 @@ If `-profile` is not specified at all the pipeline will be run locally and expec
 
 * `docker`
   * A generic configuration profile to be used with [Docker](http://docker.com/)
-  * Pulls software from dockerhub: [`zuberlab/repliseq-nf`](http://hub.docker.com/r/zuberlab/repliseq-nf/)
+  * Pulls software from dockerhub: [`zuberlab/hicer-nf`](http://hub.docker.com/r/zuberlab/hicer-nf/)
 * `singularity`
   * A generic configuration profile to be used with [Singularity](http://singularity.lbl.gov/)
-  * Pulls software from DockerHub: [`zuberlab/repliseq-nf`](http://hub.docker.com/r/zuberlab/repliseq-nf/)
+  * Pulls software from DockerHub: [`zuberlab/repliseq-nf`](http://hub.docker.com/r/zuberlab/hicer-nf/)
 
-### `--design`
+### `--samples`
 
-You will need to create a design file with information about the samples in your experiment before running the pipeline. Use this parameter to specify its location. It has to be a comma-separated file with 5 columns, and a header row as shown in the examples below.
+You will need to create a design file with information about the samples in your experiment before running the pipeline. Use this parameter to specify its location. It has to be a comma-separated file with 3 columns, and a header row as shown in the examples below.
 
 ```bash
---design '[path to design file]'
+--samples '[path to design file]'
 ```
 
-#### Multiple replicates
-
-The `condition` identifier is the same for the individual early (E) and late (L) `phase` samples. For each `condition`, exactly one `E` and one `L` phase group have to be present in order to calculate proper replication timing (RT) tracks from the E/L ratio. When you have multiple replicates from the same `phase`, just increment the `replicate` identifier appropriately. The first replicate value for any given experimental group must be 1. A final design file may look something like the one below. This is for two experimental conditions each, with each phase in duplicates.
-
 ```bash
 
-condition,phase,replicate,fastq_1,fastq_2
-shLacZ,E,1,shLacZ_S_rep1.fastq.gz,
-shLacZ,E,2,shLacZ_S_rep2.fastq.gz,
-shLacZ,L,1,shLacZ_L_rep1.fastq.gz,
-shLacZ,L,2,shLacZ_L_rep2.fastq.gz,
-shKD,E,1,shKD_S_rep1.fastq.gz,
-shKD,E,2,shKD_S_rep2.fastq.gz,
-shKD,L,1,shKD_L_rep1.fastq.gz,
-shKD,L,2,shKD_L_rep2.fastq.gz,
+name,read1,read2
+WT,WT_1.fastq.gz,WT_2.fastq.gz
+KD,KD_1.fastq.gz,KD_2.fastq.gz
 ```
 
 | Column      | Description                                                                                                 |
 |-------------|-------------------------------------------------------------------------------------------------------------|
-| `condition` | Condition of this sample. This will be identical for all phases / replicate samples from the same experimental condition. |
-| `phase`     | Phase identifier for sample. Either "E" or "L" for early / late samples. This will be identical for replicate samples from the same phase group. |
-| `replicate` | Integer representing replicate number. Must start from `1..<number of replicates>`.                         |
-| `fastq_1`   | Full path to FastQ file for read 1. File has to be zipped and have the extension ".fastq.gz" or ".fq.gz".   |
-| `fastq_2`   | Full path to FastQ file for read 2. File has to be zipped and have the extension ".fastq.gz" or ".fq.gz".   |
+| `name` | Name of this sample.
+| `read1`   | Full path to FastQ file for read 1. File has to be zipped and have the extension ".fastq.gz" or ".fq.gz".   |
+| `read2`   | Full path to FastQ file for read 2. File has to be zipped and have the extension ".fastq.gz" or ".fq.gz".   |
 
 ## Generic arguments
-
-### `--single_end`
-
-By default, the pipeline expects paired-end data. If you have single-end data, specify `--single_end` on the command line when you launch the pipeline.
-
-It is not possible to run a mixture of single-end and paired-end files in one run.
 
 ## Reference genomes
 
@@ -139,28 +119,36 @@ Full path to fasta file containing reference genome (*mandatory* if `--genome` i
 --fasta '[path to FASTA reference]'
 ```
 
-### `--bwa`
+### `--bowtie2`
 
-Full path to an existing BWA index for your reference genome including the base name for the index.
+Full path to an existing Bowtie index for your reference genome including the base name for the index.
 
 ```bash
---bwa '[directory containing BWA index]/genome.fa'
+--bowtie2 '[directory containing bowtie2 index]/genome.fa'
 ```
 
-### `--windowSize`
+### `--bed12`
 
-Window size in which to calculate E/L ratios (default: 5000).
+Full path to an existing gene bed file for A/B compartmentalization.
 
 ```bash
---windowSize '[size of windows in bp]'
+--bed12 '[bed file with gene coordinates]'
 ```
 
-### `--loessSpan`
+### `--hicdigest`
 
-Span size of the loess smoothing (default: 300000).
+File with digested genome of a given restriction enzyme as produced with `hicup_digester`.
 
 ```bash
---loessSpan '[span size in bp]'
+--hicdigest '[file with digested genome]'
+```
+
+### `--resolution`
+
+Resolution of the matrix for KR-normalization, expected/observed calculation and A/B compartment track calculation.
+
+```bash
+--resolution '[resolution in kb]'
 ```
 
 ### `--outputDir`
