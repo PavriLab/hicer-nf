@@ -52,6 +52,8 @@ def helpMessage() {
         References:
         --genome         Name of reference (hg38, mm10)
         --fasta          Alternatively, path to genome fasta file which will be digested
+        --bed12          Genes
+        --hicdigest      Restriction site digest index
 
      Profiles:
         standard         local execution
@@ -213,7 +215,7 @@ process hicup {
 
     tag { name }
 
-     publishDir path: "${params.outputDir}",
+     publishDir path: "${params.outputDir}/QC/",
                 mode: 'copy',
                 overwrite: 'true',
                 pattern: "*/*html"
@@ -259,7 +261,7 @@ process insertSize {
 
     tag { name }
 
-     publishDir path: "${params.outputDir}/${name}",
+     publishDir path: "${params.outputDir}/${name}/QC/",
                 mode: 'copy',
                 overwrite: 'true',
                 pattern: "*insertSize_histogram.txt"
@@ -282,7 +284,7 @@ process bamPreparation {
 
     tag { name }
 
-    publishDir path: "${params.outputDir}/${name}",
+    publishDir path: "${params.outputDir}/${name}/bam/",
                mode: 'copy',
                overwrite: 'true',
                pattern: "*bam"
@@ -345,6 +347,11 @@ process matrixResolutioner {
 
 process matrixSubsetter {
 
+    publishDir path: "${params.outputDir}/${name}/matrices/",
+           mode: 'copy',
+           overwrite: 'true',
+           pattern: "*h5"
+
     tag { name }
 
     input:
@@ -364,10 +371,10 @@ process matrixSubsetter {
 
 process matrixNormalizer {
 
-    publishDir path: "${params.outputDir}/${name}",
+    publishDir path: "${params.outputDir}/${name}/matrices/",
              mode: 'copy',
              overwrite: 'true',
-             pattern: "*h5"
+             pattern: "*KR.h5"
 
     tag { name }
 
@@ -385,12 +392,12 @@ process matrixNormalizer {
     '''
 }
 
-process matrixEO {
+process matrixOE {
 
-    publishDir path: "${params.outputDir}/${name}",
+    publishDir path: "${params.outputDir}/${name}/matrices/",
              mode: 'copy',
              overwrite: 'true',
-             pattern: "*h5"
+             pattern: "*OE.h5"
 
     tag { name }
 
@@ -398,19 +405,19 @@ process matrixEO {
     set val(name), file(chromosomeMatrix), file(XMatrix) from resultsMatrixNormalizer
 
     output:
-    set val(name), file("*canonical_EO.h5"), file("*withX_EO.h5") into resultsMatrixEO
+    set val(name), file("*canonical_OE.h5"), file("*withX_OE.h5") into resultsMatrixEO
 
     shell:
 
     '''
-    hicTransform -m !{chromosomeMatrix} --method obs_exp_lieberman -o !{name}_!{params.resolution}kb_canonical_EO.h5
-	  hicTransform -m !{XMatrix} --method obs_exp_lieberman -o !{name}_!{params.resolution}kb_canonical_withX_EO.h5
+    hicTransform -m !{chromosomeMatrix} --method obs_exp_lieberman -o !{name}_!{params.resolution}kb_canonical_OE.h5
+	  hicTransform -m !{XMatrix} --method obs_exp_lieberman -o !{name}_!{params.resolution}kb_canonical_withX_OE.h5
     '''
 }
 
 process compartmentalization {
 
-    publishDir path: "${params.outputDir}/${name}",
+    publishDir path: "${params.outputDir}/${name}/bigwigs/",
              mode: 'copy',
              overwrite: 'true',
              pattern: "*bw"
@@ -434,7 +441,7 @@ process mcoolBuilder {
 
   tag { name }
 
-  publishDir path: "${params.outputDir}/${name}",
+  publishDir path: "${params.outputDir}/${name}/mcool/",
            mode: 'copy',
            overwrite: 'true',
            pattern: "*.mcool"
