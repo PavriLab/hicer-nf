@@ -56,7 +56,7 @@ If `-profile` is not specified at all the pipeline will be run locally and expec
 You will need to create a design file with information about the samples in your experiment before running the pipeline. Use this parameter to specify its location. It has to be a comma-separated file with 3 columns, and a header row as shown in the examples below.
 
 ```bash
---samples '[path to design file]'
+--samples '[path to samples file]'
 ```
 
 ```bash
@@ -174,23 +174,17 @@ Many thanks to others who have helped out along the way too, including (but not 
 * [Nextflow](https://www.ncbi.nlm.nih.gov/pubmed/28398311/)
   > Di Tommaso P, Chatzou M, Floden EW, Barja PP, Palumbo E, Notredame C. Nextflow enables reproducible computational workflows. Nat Biotechnol. 2017 Apr 11;35(4):316-319. doi: 10.1038/nbt.3820. PubMed PMID: 28398311.
 
-* [BWA](https://www.ncbi.nlm.nih.gov/pubmed/19451168/)
-  > Li H, Durbin R. Fast and accurate short read alignment with Burrows-Wheeler transform. Bioinformatics. 2009 Jul 15;25(14):1754-60. doi: 10.1093/bioinformatics/btp324. Epub 2009 May 18. PubMed PMID: 19451168; PubMed Central PMCID: PMC2705234.
+* [Bowtie 2](https://www.ncbi.nlm.nih.gov/pubmed/22388286/)
+  > Langmead B, Salzberg SL. Fast gapped-read alignment with Bowtie 2. Nat Methods. 2012 Mar 4;9(4):357-9. doi: 10.1038/nmeth.1923. PubMed PMID: 22388286; PubMed Central PMCID: PMC3322381.
 
-* [BEDTools](https://www.ncbi.nlm.nih.gov/pubmed/20110278/)
-  > Quinlan AR, Hall IM. BEDTools: a flexible suite of utilities for comparing genomic features. Bioinformatics. 2010 Mar 15;26(6):841-2. doi: 10.1093/bioinformatics/btq033. Epub 2010 Jan 28. PubMed PMID: 20110278; PubMed Central PMCID: PMC2832824.
+* [HiCUP](https://www.ncbi.nlm.nih.gov/pubmed/26835000)
+  > Wingett SW, Ewels P, Furlan-Magaril M, Nagano T, Schoenfelder S, Fraser P, Simon Andrews S. HiCUP: pipeline for mapping and processing Hi-C data. F1000Research. 2015 4:1310. doi: 10.12688/f1000research.7334.1
+
+* [HiCExplorer](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5768762/)
+  > Wingett SW, Ewels P, Furlan-Magaril M, Nagano T, Schoenfelder S, Fraser P, Simon Andrews S. High-resolution TADs reveal DNA sequences underlying genome organization in flies. Nature Communications. 2018 9:189. doi: 10.1038/s41467-017-02525-w. PubMed PMID: 5768762.
 
 * [SAMtools](https://www.ncbi.nlm.nih.gov/pubmed/19505943/)
   > Li H, Handsaker B, Wysoker A, Fennell T, Ruan J, Homer N, Marth G, Abecasis G, Durbin R; 1000 Genome Project Data Processing Subgroup. The Sequence Alignment/Map format and SAMtools. Bioinformatics. 2009 Aug 15;25(16):2078-9. doi: 10.1093/bioinformatics/btp352. Epub 2009 Jun 8. PubMed PMID: 19505943; PubMed Central PMCID: PMC2723002.
-
-* [BamTools](https://www.ncbi.nlm.nih.gov/pubmed/21493652/)
-  > Barnett DW, Garrison EK, Quinlan AR, Strömberg MP, Marth GT. BamTools: a C++ API and toolkit for analyzing and managing BAM files. Bioinformatics. 2011 Jun 15;27(12):1691-2. doi: 10.1093/bioinformatics/btr174. Epub 2011 Apr 14. PubMed PMID: 21493652; PubMed Central PMCID: PMC3106182.
-
-* [UCSC tools](https://www.ncbi.nlm.nih.gov/pubmed/20639541/)
-  > Kent WJ, Zweig AS, Barber G, Hinrichs AS, Karolchik D. BigWig and BigBed: enabling browsing of large distributed datasets. Bioinformatics. 2010 Sep 1;26(17):2204-7. doi: 10.1093/bioinformatics/btq351. Epub 2010 Jul 17. PubMed PMID: 20639541; PubMed Central PMCID: PMC2922891.
-
-* [deepTools](https://www.ncbi.nlm.nih.gov/pubmed/27079975/)
-  > Ramírez F, Ryan DP, Grüning B, Bhardwaj V, Kilpert F, Richter AS, Heyne S, Dündar F, Manke T. deepTools2: a next generation web server for deep-sequencing data analysis. Nucleic Acids Res. 2016 Jul 8;44(W1):W160-5. doi: 10.1093/nar/gkw257. Epub 2016 Apr 13. PubMed PMID: 27079975; PubMed Central PMCID: PMC4987876.
 
 * [MultiQC](https://www.ncbi.nlm.nih.gov/pubmed/27312411/)
   > Ewels P, Magnusson M, Lundin S, Käller M. MultiQC: summarize analysis results for multiple tools and samples in a single report. Bioinformatics. 2016 Oct 1;32(19):3047-8. doi: 10.1093/bioinformatics/btw354. Epub 2016 Jun 16. PubMed PMID: 27312411; PubMed Central PMCID: PMC5039924.
@@ -199,18 +193,7 @@ Many thanks to others who have helped out along the way too, including (but not 
 
 * [Trim Galore!](https://www.bioinformatics.babraham.ac.uk/projects/trim_galore/)
 
-* [picard-tools](http://broadinstitute.github.io/picard)
-
-### R packages
-
-* [R](https://www.R-project.org/)
-  > R Core Team (2017). R: A language and environment for statistical computing. R Foundation for Statistical Computing, Vienna, Austria.
-
-* [preprocessCore](https://cran.r-project.org/web/packages/getopt/index.html)
-  > Bolstad B (2019). preprocessCore: A collection of pre-processing functions.
-
-* [getopt](https://cran.r-project.org/web/packages/getopt/index.html)
-  > Trevor L Davis (2010). getopt: C-Like 'getopt' Behavior.
+### Python packages
 
 ### Software packaging/containerisation tools
 
