@@ -195,6 +195,18 @@ Many thanks to others who have helped out along the way too, including (but not 
 
 ### Python packages
 
+* [pysam](https://pysam.readthedocs.io/en/latest/index.html)
+  > Li H, Handsaker B, Wysoker A, Fennell T, Ruan J, Homer N, Marth G, Abecasis G, Durbin R; 1000 Genome Project Data Processing Subgroup. The Sequence Alignment/Map format and SAMtools. Bioinformatics. 2009 Aug 15;25(16):2078-9. doi: 10.1093/bioinformatics/btp352. Epub 2009 Jun 8. PubMed PMID: 19505943; PubMed Central PMCID: PMC2723002.
+
+* [pyranges](https://github.com/biocore-ntnu/pyranges)
+  > Stovner EB, Sætrom P; PyRanges: efficient comparison of genomic intervals in Python. Bioinformatics. 2020 Feb 1;36(3):918-919. doi: 10.1093/bioinformatics/btz615. PMID: 31373614
+
+* [pandas](https://pandas.pydata.org/docs/index.html)
+  > Wes McKinney. Data Structures for Statistical Computing in Python, Proceedings of the 9th Python in Science Conference, 51-56 (2010)
+  
+* [numpy](https://numpy.org/)
+  > Stéfan van der Walt, S. Chris Colbert and Gaël Varoquaux. The NumPy Array: A Structure for Efficient Numerical Computation, Computing in Science & Engineering, 13, 22-30 (2011). doi: 10.1109/MCSE.2011.37
+
 ### Software packaging/containerisation tools
 
 * [Bioconda](https://www.ncbi.nlm.nih.gov/pubmed/29967506/)
