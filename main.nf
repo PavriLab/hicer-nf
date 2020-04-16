@@ -174,14 +174,14 @@ if (!params.bowtie2 && params.fasta) {
 Channel
     .fromPath( params.samples )
     .splitCsv(sep: '\t', header: true)
-    .set { samples }
+    .into { samplesChannel, insertSizeChannel }
 
 process trim {
 
     tag { parameters.name }
 
     input:
-    val(parameters) from samples
+    val(parameters) from samplesChannel
 
     output:
     file "*_fastqc.{zip,html}" into fastqcResults
@@ -268,6 +268,7 @@ process insertSize {
                 pattern: "*insertSize_histogram.txt"
 
     input:
+    val(parameters) from insertSizeChannel
     set val(name), file(sam) from resultsHicupForInsertSize
     file digest from hicdigestIndexForInsertSize.collect()
 
@@ -275,10 +276,16 @@ process insertSize {
     set val(name), file("*insertSize_histogram.txt") into resultsInsertSize
 
     shell:
-
-    '''
-    getInsertSizeInterval.py -i !{sam} -d !{digest} -o !{name}_insertSize_histogram.txt
-    '''
+    if (parameters.minInsert == "" && parameters.maxInsert == "") {
+      '''
+      getInsertSizeInterval.py -i !{sam} -d !{digest} -o !{name}_insertSize_histogram.txt
+      '''
+    } else {
+      '''
+      echo !{params.minInsert}
+      echo !{params.maxInsert}
+      '''
+    }
 }
 
 process bamPreparation {
@@ -403,7 +410,7 @@ process matrixEO {
     set val(name), file(matrix) from resultsMatrixNormalizer
 
     output:
-    set val(name), file("*canonical_EO.h5"), into resultsMatrixEO
+    set val(name), file("*canonical_EO.h5") into resultsMatrixEO
 
     shell:
 
