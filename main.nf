@@ -174,7 +174,7 @@ if (!params.bowtie2 && params.fasta) {
 Channel
     .fromPath( params.samples )
     .splitCsv(sep: '\t', header: true)
-    .into { samplesChannel, insertSizeChannel }
+    .into { samplesChannel ; insertSizeChannel }
 
 process trim {
 
