@@ -274,7 +274,7 @@ process insertSize {
 
     output:
     file("*insertSize_histogram.txt") optional true into histogramInsertSize
-    set env(min), env(max) into resultsInsertSize
+    set env("min"), env("max") into resultsInsertSize
 
     shell:
     if (parameters.minInsert == "" && parameters.maxInsert == "") {
