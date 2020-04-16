@@ -315,7 +315,7 @@ process matrixBuilder {
     set val(name), file(insertSize) from resultsInsertSize
 
     output:
-    set val(name), file("*.h5") into resultsMatrixBuilder, mcoolBuilderProcess
+    set val(name), file("*.h5") into resultsMatrixBuilder
 
     shell:
 
@@ -328,12 +328,34 @@ process matrixBuilder {
     '''
 }
 
+process matrixSubsetter {
+
+    publishDir path: "${params.outputDir}/${name}/matrices/",
+           mode: 'copy',
+           overwrite: 'true',
+           pattern: "*canonical.h5"
+
+    tag { name }
+
+    input:
+    set val(name), file(matrix) from resultsMatrixBuilder
+
+    output:
+    set val(name), file("*canonical.h5") into resultsMatrixSubsetter, mcoolBuilderProcess
+
+    shell:
+
+    '''
+    hicAdjustMatrix -m !{matrix} --chromosomes chr1 chr2 chr3 chr4 chr5 chr6 chr7 chr8 chr9 chr10 chr11 chr12 chr13 chr14 chr15 chr16 chr17 chr18 chr19 chrX chrY --action keep -o !{name}_!{params.resolution}kb_canonical.h5
+    '''
+}
+
 process matrixResolutioner {
 
   tag { name }
 
   input:
-  set val(name), file(matrix) from resultsMatrixBuilder
+  set val(name), file(matrix) from resultsMatrixSubsetter
 
   output:
   set val(name), file("*kb.h5") into resultsMatrixResolutioner
@@ -346,29 +368,6 @@ process matrixResolutioner {
   '''
 }
 
-process matrixSubsetter {
-
-    publishDir path: "${params.outputDir}/${name}/matrices/",
-           mode: 'copy',
-           overwrite: 'true',
-           pattern: "*h5"
-
-    tag { name }
-
-    input:
-    set val(name), file(matrix) from resultsMatrixResolutioner
-
-    output:
-    set val(name), file("*canonical.h5"), file("*withX.h5") into resultsMatrixSubsetter
-
-    shell:
-
-    '''
-    hicAdjustMatrix -m !{matrix} --chromosomes chr1 chr2 chr3 chr4 chr5 chr6 chr7 chr8 chr9 chr10 chr11 chr12 chr13 chr14 chr15 chr16 chr17 chr18 chr19 --action keep -o !{name}_!{params.resolution}kb_canonical.h5
-    hicAdjustMatrix -m !{matrix} --chromosomes chr1 chr2 chr3 chr4 chr5 chr6 chr7 chr8 chr9 chr10 chr11 chr12 chr13 chr14 chr15 chr16 chr17 chr18 chr19 chrX --action keep -o !{name}_!{params.resolution}kb_canonical_withX.h5
-    '''
-}
-
 process matrixNormalizer {
 
     publishDir path: "${params.outputDir}/${name}/matrices/",
@@ -379,39 +378,37 @@ process matrixNormalizer {
     tag { name }
 
     input:
-    set val(name), file(chromosomeMatrix), file(XMatrix) from resultsMatrixSubsetter
+    set val(name), file(matrix) from resultsMatrixResolutioner
 
     output:
-    set val(name), file("*canonical_KR.h5"), file("*withX_KR.h5") into resultsMatrixNormalizer
+    set val(name), file("*canonical_KR.h5") into resultsMatrixNormalizer
 
     shell:
 
     '''
-    hicCorrectMatrix correct -m !{chromosomeMatrix} --correctionMethod KR -o !{name}_!{params.resolution}kb_canonical_KR.h5
-	  hicCorrectMatrix correct -m !{XMatrix} --correctionMethod KR -o !{name}_!{params.resolution}kb_canonical_withX_KR.h5
+    hicCorrectMatrix correct -m !{matrix} --correctionMethod KR -o !{name}_!{params.resolution}kb_canonical_KR.h5
     '''
 }
 
-process matrixOE {
+process matrixEO {
 
     publishDir path: "${params.outputDir}/${name}/matrices/",
              mode: 'copy',
              overwrite: 'true',
-             pattern: "*OE.h5"
+             pattern: "*EO.h5"
 
     tag { name }
 
     input:
-    set val(name), file(chromosomeMatrix), file(XMatrix) from resultsMatrixNormalizer
+    set val(name), file(matrix) from resultsMatrixNormalizer
 
     output:
-    set val(name), file("*canonical_OE.h5"), file("*withX_OE.h5") into resultsMatrixEO
+    set val(name), file("*canonical_EO.h5"), into resultsMatrixEO
 
     shell:
 
     '''
-    hicTransform -m !{chromosomeMatrix} --method obs_exp_lieberman -o !{name}_!{params.resolution}kb_canonical_OE.h5
-	  hicTransform -m !{XMatrix} --method obs_exp_lieberman -o !{name}_!{params.resolution}kb_canonical_withX_OE.h5
+    hicTransform -m !{matrix} --method obs_exp_lieberman -o !{name}_!{params.resolution}kb_canonical_EO.h5
     '''
 }
 
@@ -425,7 +422,7 @@ process compartmentalization {
     tag { name }
 
     input:
-    set val(name), file(chromosomeMatrix), file(XMatrix) from resultsMatrixEO
+    set val(name), file(matrix) from resultsMatrixEO
 
     output:
     set val(name), file("*.bw") into resultsCompartmentalization
@@ -433,7 +430,7 @@ process compartmentalization {
     shell:
 
     '''
-    generateEigenvectorBigWig.py -m !{XMatrix} -g !{params.bed12} -r !{params.resolution.toInteger() * 1000} --chromLengths /groups/zuber/zubarchive/USERS/tobias/mm9/mm9.chr_lengths.txt -o !{name}_!{params.resolution}kb_eigv.bw
+    generateEigenvectorBigWig.py -m !{matrix} -g !{params.bed12} -r !{params.resolution.toInteger() * 1000} --chromLengths /groups/zuber/zubarchive/USERS/tobias/mm9/mm9.chr_lengths.txt -o !{name}_!{params.resolution}kb_eigv.bw
     '''
 }
 
