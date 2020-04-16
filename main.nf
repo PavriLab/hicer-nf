@@ -274,19 +274,19 @@ process insertSize {
 
     output:
     file("*insertSize_histogram.txt") optional true into histogramInsertSize
-    set env(MIN), env(MAX) into resultsInsertSize
+    set env(min), env(max) into resultsInsertSize
 
     shell:
     if (parameters.minInsert == "" && parameters.maxInsert == "") {
       '''
       getInsertSizeInterval.py -i !{sam} -d !{digest} -o !{name}_insertSize_histogram.txt
-      MIN=$(grep "#minInsertSize" !{name}_insertSize_histogram.txt | sed -e "s/.*\\s//g")
-      MAX=$(grep "#maxInsertSize" !{name}_insertSize_histogram.txt | sed -e "s/.*\\s//g")
+      min=$(grep "#minInsertSize" !{name}_insertSize_histogram.txt | sed -e "s/.*\\s//g")
+      max=$(grep "#maxInsertSize" !{name}_insertSize_histogram.txt | sed -e "s/.*\\s//g")
       '''
     } else {
       '''
-      MIN=!{params.minInsert}
-      MAX=!{params.maxInsert}
+      min=!{params.minInsert}
+      max=!{params.maxInsert}
       '''
     }
 }
@@ -322,7 +322,7 @@ process matrixBuilder {
 
     input:
     set val(name), file(first), file(second) from resultsSamToBam
-    set env(MIN), env(MAX) from resultsInsertSize
+    set env(min), env(max) from resultsInsertSize
 
     output:
     set val(name), file("*.h5") into resultsMatrixBuilder
@@ -331,7 +331,7 @@ process matrixBuilder {
 
     '''
 
-    hicBuildMatrix -s !{first} !{second} -o !{name}_base.h5 --skipDuplicationCheck --binSize 1000 --QCfolder hicQC -ga mm9 --minDistance $MIN --maxLibraryInsertSize $MAX --threads !{task.cpus}
+    hicBuildMatrix -s !{first} !{second} -o !{name}_base.h5 --skipDuplicationCheck --binSize 1000 --QCfolder hicQC -ga mm9 --minDistance $min --maxLibraryInsertSize $max --threads !{task.cpus}
 
     '''
 }
