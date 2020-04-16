@@ -206,6 +206,8 @@ Many thanks to others who have helped out along the way too, including (but not 
   
 * [numpy](https://numpy.org/)
   > Stéfan van der Walt, S. Chris Colbert and Gaël Varoquaux. The NumPy Array: A Structure for Efficient Numerical Computation, Computing in Science & Engineering, 13, 22-30 (2011). doi: 10.1109/MCSE.2011.37
+  
+* [HiCMatrix](https://github.com/deeptools/HiCMatrix)
 
 ### Software packaging/containerisation tools
 
