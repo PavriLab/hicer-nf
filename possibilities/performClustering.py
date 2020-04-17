@@ -514,7 +514,7 @@ for key, even in zip(['even', 'odd'], [True, False]):
 
 
 logging.info('performing clustering for clusters k between %i and %i' % (args.mink, args.maxk))
-ICdict = {clustering: {IC: np.zeros(shape = args.maxk) for IC in ['AIC', 'BIC']} for clustering in ['even', 'odd']}
+ICdict = {key: np.zeros(shape = args.maxk) for key in ['evenAIC', 'oddAIC', 'evenBIC', 'oddBIC']}
 cfig, caxs = plt.subplots(1, 2)
 clusterassignments = {}
 basename = ntpath.basename(args.matrix).split('.')[0]
@@ -522,7 +522,7 @@ cmap = plt.get_cmap('jet')
 for clustering in ['even', 'odd']:
     for k in range(args.mink, args.maxk + 1):
         clusters, model = clusterMatrix(clustmats[clustering], k)
-        ICdict[clustering]['AIC'][k - 1], ICdict[clustering]['BIC'][k - 1] = \
+        ICdict[clustering + 'AIC'][k - 1], ICdict[clustering]['BIC'][k - 1] = \
             computeInformationCriteria(model, clustmats[clustering], k)
 
         clusterassignments[clustering + 'k' + str(k)] = clusters
