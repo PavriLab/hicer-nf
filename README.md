@@ -161,7 +161,7 @@ Name of the folder to which the output will be saved (default: results)
 
 ## Credits
 
-The pipeline was developed by [Tobias Neumann](mailto:tobias.neumann.at@gmail.com) for use at the [IMP](https://www.imp.ac.at/), Vienna.
+The pipeline was developed by [Tobias Neumann](mailto:tobias.neumann.at@gmail.com) and [Daniel Malzl](mailto:daniel.malzl@gmx.at) for use at the [IMP](https://www.imp.ac.at/), Vienna.
 
 The [nf-core/rnaseq](https://github.com/nf-core/rnaseq) and [nf-core/chipseq](https://github.com/nf-core/chipseq) pipelines developed by Phil Ewels were initially used as a template for this pipeline. Many thanks to Phil for all of his help and advice, and the team at SciLifeLab.
 
