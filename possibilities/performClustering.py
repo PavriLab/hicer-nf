@@ -539,7 +539,7 @@ for clustering in ['even', 'odd']:
         plt.close(fig)
 
     for criterion, cax in zip(['AIC', 'BIC'], caxs):
-        plotInformationCriterion(ICdict[clustering][criterion], clustering, args.mink, args.maxk, criterion, cax)
+        plotInformationCriterion(ICdict[clustering + criterion], clustering, args.mink, args.maxk, criterion, cax)
 
 cfig.set_figwidth(8)
 cfig.set_figheight(4)
