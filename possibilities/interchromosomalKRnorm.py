@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import argparse as ap
 import numpy as np
 from krbalancing import kr_balancing
