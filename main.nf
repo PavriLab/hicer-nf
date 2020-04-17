@@ -277,20 +277,11 @@ process insertSize {
     set env(MIN), env(MAX) into resultsInsertSize
 
     shell:
-    parameters.minInsert ? parameters.minInsert : false
-    parameters.maxInsert ? parameters.maxInsert : false
-    if (!parameters.minInsert && !parameters.maxInsert) {
-      '''
-      getInsertSizeInterval.py -i !{sam} -d !{digest} -o !{name}_insertSize_histogram.txt
-      MIN=$(grep "#minInsertSize" !{name}_insertSize_histogram.txt | sed -e "s/.*\\s//g")
-      MAX=$(grep "#maxInsertSize" !{name}_insertSize_histogram.txt | sed -e "s/.*\\s//g")
-      '''
-    } else {
-      '''
-      MIN=!{params.minInsert}
-      MAX=!{params.maxInsert}
-      '''
-    }
+    '''
+    getInsertSizeInterval.py -i !{sam} -d !{digest} -o !{name}_insertSize_histogram.txt
+    MIN=$(grep "#minInsertSize" !{name}_insertSize_histogram.txt | sed -e "s/.*\\s//g")
+    MAX=$(grep "#maxInsertSize" !{name}_insertSize_histogram.txt | sed -e "s/.*\\s//g")
+    '''
 }
 
 process bamPreparation {
@@ -440,7 +431,9 @@ process compartmentalization {
     shell:
 
     '''
-    generateEigenvectorBigWig.py -m !{matrix} -g !{params.bed12} -r !{params.resolution.toInteger() * 1000} --chromLengths /groups/zuber/zubarchive/USERS/tobias/mm9/mm9.chr_lengths.txt -o !{name}_!{params.resolution}kb_eigv.bw
+    hicAdjustMatrix -m !{matrix} --chromosomes chr10 chr11 chr12 chr13 chr14 chr15 chr16 chr17 chr18 chr19 chr1 chr2 chr3 chr4 chr5 chr6 chr7 chr8 chr9 chrX chrY --action keep -o tmp.h5
+
+    generateEigenvectorBigWig.py -m tmp.h5 -g !{params.bed12} -r !{params.resolution.toInteger() * 1000} --chromLengths /groups/zuber/zubarchive/USERS/tobias/mm9/mm9.chr_lengths.txt -o !{name}_!{params.resolution}kb_eigv.bw
     '''
 }
 
