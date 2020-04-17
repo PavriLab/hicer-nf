@@ -433,8 +433,8 @@ def computeInformationCriteria(model, data, n, covariance_type = 'diag'):
     return AIC, BIC
 
 def plotInformationCriterion(values, label, mink, maxk, title, ax):
-    ax.plot(np.arange(mink, maxk + 1), values, label = label, ls = '--', zorder = 1)
-    ax.scatter(np.arange(mink, maxk + 1), values, marker = '.', color = 'dimgrey')
+    ax.plot(np.arange(mink, maxk + 1), values[mink - 1:], label = label, ls = '--', zorder = 1)
+    ax.scatter(np.arange(mink, maxk + 1), values[mink - 1:], marker = '.', color = 'dimgrey')
 
     ax.set_ylabel(title)
     ax.set_xlabel('n clusters')
