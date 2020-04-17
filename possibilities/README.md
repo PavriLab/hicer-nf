@@ -23,13 +23,13 @@ This file is a compressed collection of numpy arrays and contains several compon
  :        :
  |── oddk${maxk}
  |
- |── evenremrows;
+ |── evenremrows; numpy.array holding indices of rows that were removed from the matrix during generation of the even chromosome clustermatrix
  |
- |── evenremcols;
+ |── evenremcols; numpy.array holding indices of columns that were removed from the matrix during generation of the even chromosome clustering matrix
  |
- |── oddremrows;
+ |── oddremrows; numpy.array holding indices of rows that were removed from the matrix during generation of the odd chromosome clustermatrix
  |
- |── oddremcols;
+ |── oddremcols; numpy.array holding indices of columns that were removed from the matrix during generation of the odd chromosome clustermatrix
  |
  |── evenAIC; numpy.array holding AIC values for all models from mink to maxk for even chromosomes
  |
@@ -40,6 +40,13 @@ This file is a compressed collection of numpy arrays and contains several compon
  └── oddBIC; numpy.array holding BIC values for all models from mink to maxk for odd chromosomes
     
 ```
+The contained data can easily be retrieved using `numpy.load`
+
+2. `*_informationcriterion.pdf`
+Visualization of AIC and BIC for even and odd clustering matrices (is saved to the directory specified with `-pd`)
+
+3. `*_[even|odd]_k${k}.png`
+Visualization of the different clustering results for the clustering matrices where `${k}` is between `--mink` and `--maxk` (is saved to the directory specified with `-pd`)
 
 ## Genome-wide interchromosomal contact normalization
 One of the downstream analysis steps of the subcompartment inference is the computation of correspondence between clusters on the even chromsosomes and clusters on the odd chromosomes. This is done by computing the enrichment of contacts between bins of a cluster on the even chromosomes and a cluster on the odd chromosomes. In order to remove biases introduced by intrachromosomal contacts (which are naturally more frequent than interchromosomal contacts) we construct a special KR-normalized matrix in which we remove intrachromosomal contacts by setting them to 0 before KR-normalization. To do so we can use the `interchromosomalKRnorm.py` script which is invoked as follows:
@@ -47,4 +54,20 @@ One of the downstream analysis steps of the subcompartment inference is the comp
 interchromosomalKRnorm.py -m CH12_HiC_200kb_raw.h5 -o correctedHiC/CH12_HiC_200kb_interKR.npz
 ```
 
+The generated file `*_interKR.npz` is similar to the clustering matrices where rows are bins on odd chromosomes and columns are bins on even chromosomes.
+
 ## Python Packages
+* [numpy](https://numpy.org/)
+  > Stéfan van der Walt, S. Chris Colbert and Gaël Varoquaux. The NumPy Array: A Structure for Efficient Numerical Computation, Computing in Science & Engineering, 13, 22-30 (2011). doi: 10.1109/MCSE.2011.37
+
+* [scipy](https://www.scipy.org/)
+  > Virtanen, P., Gommers, R., Oliphant, T.E. et al. SciPy 1.0: fundamental algorithms for scientific computing in Python. Nat Methods 17, 261–272 (2020). doi: 10.1038/s41592-019-0686-2
+  
+* [pytables](https://www.pytables.org/)
+
+* [hmmlearn](https://github.com/hmmlearn/hmmlearn)
+
+* [matplotlib](https://matplotlib.org/)
+  > John D. Hunter. Matplotlib: A 2D Graphics Environment, Computing in Science & Engineering, 9, 90-95 (2007). doi: 10.1109/MCSE.2007.55
+
+* [krbalancing](https://github.com/deeptools/Knight-Ruiz-Matrix-balancing-algorithm)
