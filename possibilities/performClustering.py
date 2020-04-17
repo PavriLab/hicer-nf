@@ -512,7 +512,9 @@ for key, even in zip(['even', 'odd'], [True, False]):
 
     nr, nc = clustmats[key].shape
     logging.info('removed %0.2f percent of rows and %0.2f percent of cols with > %0.2f percent 0 entries for clustermatrix of %s chromosomes'
-                 % ((1 - nr / (nr + len(remrows))) * 100, (1 - nc / (nc + len(remcols))) * 100, args.removelim * 100, key))
+                 % ((1 - nr / (nr + len(remrows[key + 'remrows']))) * 100,
+                    (1 - nc / (nc + len(remcols[key + 'remcols']))) * 100,
+                    args.removelim * 100, key))
 
 
 logging.info('performing clustering for clusters k between %i and %i' % (args.mink, args.maxk))
