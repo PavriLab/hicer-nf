@@ -230,8 +230,6 @@ logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO)
 parser = ap.ArgumentParser()
 parser.add_argument('-m', '--matrix', required = True,
                     help = 'matrix to plot in *.h5 format')
-parser.add_argument('-c', '--chromosomes', default = None, nargs = '*',
-                    help = 'space separated list of chromosomes to include in the plot')
 parser.add_argument('--vMax', default = None,
                     help = 'max value of the colormap')
 parser.add_argument('-o', '--out', required = True,
@@ -239,7 +237,7 @@ parser.add_argument('-o', '--out', required = True,
 args = parser.parse_args()
 
 logging.info('reading %s' % args.matrix)
-matrix, inds, chrlist = loadH5(args.matrix, includechroms = args.chromosomes, csr = False, dtype = float)
+matrix, inds, chrlist = loadH5(args.matrix, csr = False, dtype = float)
 
 logging.info('generating plot')
 fig, ax = plt.subplots()
