@@ -5,6 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.colors as clr
 from hmmlearn.hmm import GaussianHMM
+import scipy.stats as scistats
 import logging
 import os, ntpath
 import tables
