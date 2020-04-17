@@ -523,7 +523,7 @@ for clustering in ['even', 'odd']:
     for k in range(args.mink, args.maxk + 1):
         clusters, model = clusterMatrix(clustmats[clustering], k)
         ICdict[clustering]['AIC'][k - 1], ICdict[clustering]['BIC'][k - 1] = \
-            computeInformationCriteria(clustmats[clustering], model, k)
+            computeInformationCriteria(model, clustmats[clustering], k)
 
         clusterassignments[clustering + 'k' + str(k)] = clusters
 
