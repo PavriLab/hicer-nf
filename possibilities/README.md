@@ -9,6 +9,37 @@ performClustering.py -m CH12_HiC_200kb_KR.h5 --mink 1 --maxk 15 -r 0.3 -o CH12_H
 ```
 
 where `--mink` and `--maxk` denote the minimum and maximum number of clusters for which the clustering should be computed, `-r` specifies the fraction of 0 entries a given row is allowed to have (otherwise it is removed from the matrix before clustering; this value is usually set such that at most 5 - 10% of rows are removed). `--imputerows` and `--imputecols` specify a submatrix in the genome-wide matrix for which the values should be exchanged by imputed values (this is mainly necessary if there are small regions that show unusually strong interchromosomal interaction between an even and an odd chromosome, which would otherwise interfer with the training of the HMM). `-pd` specifies the directory to which the generated clustering visualizations are written.
+The script performs model training and inference of the most probable sequence of clusterassignments over all rows in the cluster matrix and generates multiple result files:
+
+1.  `*_cluster.npz`
+This file is a compressed collection of numpy arrays and contains several components as follows:
+```
+/
+ |── evenk${mink}; numpy.array holding bin clusterassignments of even chromosomes for HMM with k components
+ :        :
+ |── evenk${maxk}
+ |
+ |── oddk${mink}; numpy.array holding bin clusterassignments of odd chromosomes for HMM with k components
+ :        :
+ |── oddk${maxk}
+ |
+ |── evenremrows;
+ |
+ |── evenremcols;
+ |
+ |── oddremrows;
+ |
+ |── oddremcols;
+ |
+ |── evenAIC; numpy.array holding AIC values for all models from mink to maxk for even chromosomes
+ |
+ |── evenBIC; numpy.array holding BIC values for all models from mink to maxk for even chromosomes
+ |
+ |── oddAIC; numpy.array holding AIC values for all models from mink to maxk for odd chromosomes
+ |
+ └── oddBIC; numpy.array holding BIC values for all models from mink to maxk for odd chromosomes
+    
+```
 
 ## Genome-wide interchromosomal contact normalization
 One of the downstream analysis steps of the subcompartment inference is the computation of correspondence between clusters on the even chromsosomes and clusters on the odd chromosomes. This is done by computing the enrichment of contacts between bins of a cluster on the even chromosomes and a cluster on the odd chromosomes. In order to remove biases introduced by intrachromosomal contacts (which are naturally more frequent than interchromosomal contacts) we construct a special KR-normalized matrix in which we remove intrachromosomal contacts by setting them to 0 before KR-normalization. To do so we can use the `interchromosomalKRnorm.py` script which is invoked as follows:
