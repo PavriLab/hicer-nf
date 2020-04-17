@@ -501,8 +501,10 @@ if args.exclude:
         excluderows += list(range(i1, i2))
 
 clustmats = {'odd': None, 'even': None}
+remcols = {'oddremcols': None, 'evenremcols': None}
+remrows = {'oddremrows': None, 'evenremrows': None}
 for key, even in zip(['even', 'odd'], [True, False]):
-    clustmats[key], remrows, remcols = \
+    clustmats[key], remrows[key + 'remrows'], remcols[key + 'remcols'] = \
         constructClusterContactMatrix(gwmat, chrlist, indarr, even = even,
                                       withX = args.withX, excluderows = excluderows.copy(),
                                       imputerows = imputerows.copy(), imputecols = imputecols.copy(),
@@ -545,4 +547,4 @@ cfig.tight_layout()
 cfig.savefig(os.path.join(args.plotdir, '_'.join([basename, 'informationcriterion.pdf'])))
 
 logging.info('saving arrays')
-np.savez(args.out, **clusterassignments, **ICdict)
+np.savez(args.out, **clusterassignments, **ICdict, **remcols, **remrows)
