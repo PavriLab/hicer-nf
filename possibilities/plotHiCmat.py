@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import argparse as ap
 import numpy as np
 from scipy.sparse.csr import csr_matrix
