@@ -62,12 +62,12 @@ The generated file `*_interKR.npz` is similar to the clustering matrices where r
 
 * [scipy](https://www.scipy.org/)
   > Virtanen, P., Gommers, R., Oliphant, T.E. et al. SciPy 1.0: fundamental algorithms for scientific computing in Python. Nat Methods 17, 261–272 (2020). doi: 10.1038/s41592-019-0686-2
+
+* [matplotlib](https://matplotlib.org/)
+  > John D. Hunter. Matplotlib: A 2D Graphics Environment, Computing in Science & Engineering, 9, 90-95 (2007). doi: 10.1109/MCSE.2007.55
   
 * [pytables](https://www.pytables.org/)
 
 * [hmmlearn](https://github.com/hmmlearn/hmmlearn)
-
-* [matplotlib](https://matplotlib.org/)
-  > John D. Hunter. Matplotlib: A 2D Graphics Environment, Computing in Science & Engineering, 9, 90-95 (2007). doi: 10.1109/MCSE.2007.55
 
 * [krbalancing](https://github.com/deeptools/Knight-Ruiz-Matrix-balancing-algorithm)
