@@ -7,7 +7,7 @@ The `plotHiCmat.py` script is a lightweight utility to visualize your generated 
 plotHiCmat.py -m CH12_HiC_200kb_KR.h5 --vMax 50 -o CH12_HiC_200kb_plot.jpg
 ```
 
-The `--vMax` specifies the maximum value for the colormap used to plot the matrix
+The `--vMax` specifies the maximum value for the colormap used to plot the matrix. Alternatively one can specify the chromosomes to plot by using `--chromosomes`.
 
 ## Performing clustering of bins using a Gaussian HMM
 In order to do so we first need to perform clustering as described using a Gaussian HMM. This can be done with the `performClustering.py` utility which takes a KR-normalized genome-wide matrix, transforms it into a clustering matrix as described and trains a Gaussian HMM to infer a segmentation of the genome for different numbers of clusters.
