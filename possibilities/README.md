@@ -1,6 +1,14 @@
 # Possibilities for downstream analysis
 The jupyter notebook in this section shows a possible downstream analysis of high sequencing depth data in which we infer subcompartments from Hi-C data only as described in [Rao et al. 2014](https://www.cell.com/cell/fulltext/S0092-8674(14)01497-4).
 
+## Plotting contact matrices
+The `plotHiCmat.py` script is a lightweight utility to visualize your generated contact matrices. An example command would be:
+```
+plotHiCmat.py -m CH12_HiC_200kb_KR.h5 --vMax 50 -o CH12_HiC_200kb_plot.jpg
+```
+
+The `--vMax` specifies the maximum value for the colormap used to plot the matrix
+
 ## Performing clustering of bins using a Gaussian HMM
 In order to do so we first need to perform clustering as described using a Gaussian HMM. This can be done with the `performClustering.py` utility which takes a KR-normalized genome-wide matrix, transforms it into a clustering matrix as described and trains a Gaussian HMM to infer a segmentation of the genome for different numbers of clusters.
 A usual command to invoke the clustering would be as follows:
