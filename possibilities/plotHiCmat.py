@@ -237,7 +237,7 @@ parser.add_argument('-o', '--out', required = True,
 args = parser.parse_args()
 
 logging.info('reading %s' % args.matrix)
-matrix, inds, chrlist = loadH5(args.matrix, includechroms = args.chromosomes, csr = False)
+matrix, inds, chrlist = loadH5(args.matrix, includechroms = args.chromosomes, csr = False, dtype = float)
 
 logging.info('generating plot')
 fig, ax = plt.subplots()
