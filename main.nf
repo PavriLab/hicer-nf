@@ -331,11 +331,6 @@ process matrixBuilder {
 
 process matrixSubsetter {
 
-    publishDir path: "${params.outputDir}/${name}/matrices/",
-           mode: 'copy',
-           overwrite: 'true',
-           pattern: "*canonical.h5"
-
     tag { name }
 
     input:
@@ -352,6 +347,11 @@ process matrixSubsetter {
 }
 
 process matrixResolutioner {
+
+  publishDir path: "${params.outputDir}/${name}/matrices/",
+         mode: 'copy',
+         overwrite: 'true',
+         pattern: "*kb.h5"
 
   tag { name }
 
