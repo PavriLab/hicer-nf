@@ -438,6 +438,9 @@ process compartmentalization {
     output:
     set val(name), file("*.bw") into resultsCompartmentalization
 
+    when:
+    params.resolution.toInteger() >= 50
+
     shell:
 
     '''
