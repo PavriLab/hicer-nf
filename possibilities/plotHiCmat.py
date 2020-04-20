@@ -104,19 +104,14 @@ def loadH5(filename, includechroms=None, csr=True, returnintervals = False, dtyp
                     ncuts.append(tmpe)
                     tmpe = e - s + tmpe
 
-            if csr:
-                matrix = matrix[matrixinds, :][:, matrixinds]
 
-            else:
-                matrix = matrix.toarray()
-                xi, yi = np.triu_indices(matrix.shape[0], k=1)
-                matrix[yi, xi] = matrix[xi, yi]
+            matrix = matrix[matrixinds, :][:, matrixinds]
 
             inds = ncuts
 
             chr_list = filterchrs
 
-    if not includechroms and not csr:
+    if not csr:
         x = matrix.toarray()
         xi, yi = np.triu_indices(x.shape[0], k=1)
         x[yi, xi] = x[xi, yi]
@@ -230,20 +225,35 @@ logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO)
 parser = ap.ArgumentParser()
 parser.add_argument('-m', '--matrix', required = True,
                     help = 'matrix to plot in *.h5 format')
-parser.add_argument('--vMax', default = None,
+parser.add_argument('-c', '--chromosomes', nargs = '*', default = None,
+                    help = 'space-separated list of chromosomes to include for plotting')
+parser.add_argument('--vMin', default = None, type = float,
+                    help = 'min value of the colormap')
+parser.add_argument('--colorMap', default = 'redmap',
+                    help = 'colormap to use for plotting (either redmap (default) or any other named colormap see matplotlib for available options)')
+parser.add_argument('--vMax', default = None, type = float,
                     help = 'max value of the colormap')
 parser.add_argument('-o', '--out', required = True,
                     help = 'name of the plot file to be created')
 args = parser.parse_args()
 
 logging.info('reading %s' % args.matrix)
-matrix, inds, chrlist = loadH5(args.matrix, csr = False, dtype = float)
+matrix, inds, chrlist = loadH5(args.matrix,
+                              csr = False,
+                              includechroms = args.chromosomes,
+                              dtype = float)
 
 logging.info('generating plot')
 fig, ax = plt.subplots()
-ax, im = plotmatrix(matrix, redmap, vmax = args.vMax, ax = ax,
-                    yticks = inds, xticks = inds,
-                    ychroms = list(chrlist), xchroms = list(chrlist))
+ax, im = plotmatrix(matrix,
+                    redmap if args.colorMap == 'redmap' else args.colorMap,
+                    vmin = args.vMin,
+                    vmax = args.vMax,
+                    ax = ax,
+                    yticks = inds,
+                    xticks = inds,
+                    ychroms = list(chrlist),
+                    xchroms = list(chrlist))
 
 fig.set_figheight(14)
 fig.set_figwidth(14)
