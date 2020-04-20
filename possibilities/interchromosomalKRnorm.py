@@ -100,19 +100,14 @@ def loadH5(filename, includechroms=None, csr=True, returnintervals = False, dtyp
                     ncuts.append(tmpe)
                     tmpe = e - s + tmpe
 
-            if csr:
-                matrix = matrix[matrixinds, :][:, matrixinds]
 
-            else:
-                matrix = matrix.toarray()
-                xi, yi = np.triu_indices(matrix.shape[0], k=1)
-                matrix[yi, xi] = matrix[xi, yi]
+            matrix = matrix[matrixinds, :][:, matrixinds]
 
             inds = ncuts
 
             chr_list = filterchrs
 
-    if not includechroms and not csr:
+    if not csr:
         x = matrix.toarray()
         xi, yi = np.triu_indices(x.shape[0], k=1)
         x[yi, xi] = x[xi, yi]
