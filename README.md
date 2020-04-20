@@ -53,7 +53,7 @@ If `-profile` is not specified at all the pipeline will be run locally and expec
 
 ### `--samples`
 
-You will need to create a design file with information about the samples in your experiment before running the pipeline. Use this parameter to specify its location. It has to be a comma-separated file with 3 columns, and a header row as shown in the examples below.
+You will need to create a design file with information about the samples in your experiment before running the pipeline. Use this parameter to specify its location. It has to be a tab-separated file with 3 columns, and a header row as shown in the examples below.
 
 ```bash
 --samples '[path to samples file]'
@@ -61,9 +61,9 @@ You will need to create a design file with information about the samples in your
 
 ```bash
 
-name,read1,read2
-WT,WT_1.fastq.gz,WT_2.fastq.gz
-KD,KD_1.fastq.gz,KD_2.fastq.gz
+name read1 read2
+WT WT_1.fastq.gz WT_2.fastq.gz
+KD KD_1.fastq.gz KD_2.fastq.gz
 ```
 
 | Column      | Description                                                                                                 |
