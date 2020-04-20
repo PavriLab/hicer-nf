@@ -227,7 +227,7 @@ process hicup {
     set val(name), file(fastq1), file(fastq2) from resultsTrimming
 
     output:
-    set val(name), file("${name}/*sam") into resultsHicup, resultsHicupForInsertSize, resultsHicupForInsertSize1
+    set val(name), file("${name}/*sam") into resultsHicup, resultsHicupForInsertSize
     file("${name}/*html") into htmlHicup
     file("${name}/HiCUP_summary_report*") into multiqcHicup
 
@@ -259,13 +259,8 @@ process hicup {
 }
 
 optionalDiscoveryChannel
-    .map { row -> def flag = true ; if (row.insertSizeMin == null || row.insertSizeMin == '' || row.insertSizeMax == null || row.insertSizeMax == null){ flag = false}; [row,flag] }
-    .into { insertSizeChannel ; insertSizeChannel1}
-
-resultsHicupForInsertSize1
-    .join { insertSizeChannel1 }
-    .set{testchannel}
-    .subscribe{println it}
+    .map { row -> def flag = true ; if (row.insertSizeMin == null || row.insertSizeMin == '' || row.insertSizeMax == null || row.insertSizeMax == null){ flag = false}; [row.name,row,flag] }
+    .set { insertSizeChannel }
 
 process insertSize {
 
@@ -277,8 +272,7 @@ process insertSize {
                 pattern: "*insertSize_histogram.txt"
 
     input:
-    set val(parameters), val(insertSize) from testchannel
-    set val(name), file(sam) from resultsHicupForInsertSize
+    set val(name), val(parameters), val(insertSize), file(sam) from insertSizeChannel.join(resultsHicupForInsertSize)
     file digest from hicdigestIndexForInsertSize.collect()
 
     output:
