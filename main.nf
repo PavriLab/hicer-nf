@@ -176,10 +176,6 @@ Channel
     .splitCsv(sep: '\t', header: true)
     .into { samplesChannel ; optionalDiscoveryChannel }
 
-optionalDiscoveryChannel
-    .map { row -> def flag = true ; if (row.insertSizeMin == null || row.insertSizeMax == null){ flag = false}; [row,flag] }
-    .set { insertSizeChannel }
-
 process trim {
 
     tag { parameters.name }
@@ -231,7 +227,7 @@ process hicup {
     set val(name), file(fastq1), file(fastq2) from resultsTrimming
 
     output:
-    set val(name), file("${name}/*sam") into resultsHicup, resultsHicupForInsertSize
+    set val(name), file("${name}/*sam") into resultsHicup, resultsHicupForInsertSize, resultsHicupForInsertSize1
     file("${name}/*html") into htmlHicup
     file("${name}/HiCUP_summary_report*") into multiqcHicup
 
@@ -262,6 +258,14 @@ process hicup {
     '''
 }
 
+optionalDiscoveryChannel
+    .map { row -> def flag = true ; if (row.insertSizeMin == null || row.insertSizeMin == '' || row.insertSizeMax == null || row.insertSizeMax == null){ flag = false}; [row,flag] }
+    .into { insertSizeChannel ; insertSizeChannel1}
+
+resultsHicupForInsertSize1
+    .join { insertSizeChannel1 }
+    .subscribe{println it}
+
 process insertSize {
 
     tag { name }
@@ -289,8 +293,8 @@ process insertSize {
       '''
     } else {
       '''
-      MIN=$MIN
-      MAX=$MAX
+      MIN=!{parameters.insertSizeMin}
+      MAX=!{parameters.insertSizeMax}
       '''
     }
 }
