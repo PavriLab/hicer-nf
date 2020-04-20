@@ -64,7 +64,6 @@ def loadH5(filename, includechroms=None, csr=True, returnintervals = False, dtyp
                             if not given all chromosomes in the *.h5 file are included
     :param csr:             if True returns a csr_matrix object else a full numpy.array
     :param returnintervals: if True also returns the intervals read
-    :param dtype:           type of matrix entries
 
     :return:                csr_matrix containing the data in the matrix
     '''
@@ -126,19 +125,14 @@ def loadH5(filename, includechroms=None, csr=True, returnintervals = False, dtyp
                     ncuts.append(tmpe)
                     tmpe = e - s + tmpe
 
-            if csr:
-                matrix = matrix[matrixinds, :][:, matrixinds]
 
-            else:
-                matrix = matrix.toarray()
-                xi, yi = np.triu_indices(matrix.shape[0], k=1)
-                matrix[yi, xi] = matrix[xi, yi]
+            matrix = matrix[matrixinds, :][:, matrixinds]
 
             inds = ncuts
 
             chr_list = filterchrs
 
-    if not includechroms and not csr:
+    if not csr:
         x = matrix.toarray()
         xi, yi = np.triu_indices(x.shape[0], k=1)
         x[yi, xi] = x[xi, yi]
@@ -149,6 +143,7 @@ def loadH5(filename, includechroms=None, csr=True, returnintervals = False, dtyp
 
     else:
         return matrix, np.array(inds), np.array(chr_list)
+
 
 def readGeneTrack(bedfile, chr, chrbins, resolution):
     '''
