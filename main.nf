@@ -174,11 +174,11 @@ if (!params.bowtie2 && params.fasta) {
 Channel
     .fromPath( params.samples )
     .splitCsv(sep: '\t', header: true)
-    .into { samplesChannel ; insertSizeChannel ; insertSizeChannel1 }
+    .into { samplesChannel ; optionalDiscoveryChannel }
 
-insertSizeChannel1
-    .map { row -> def flag = false ; if (row.insertSizeMin == null || row.insertSizeMax){ flag = true}; [row,flag] }
-    .subscribe { println $it }
+optionalDiscoveryChannel
+    .map { row -> def flag = true ; if (row.insertSizeMin == null || row.insertSizeMax == null){ flag = false}; [row,flag] }
+    .set { insertSizeChannel }
 
 process trim {
 
@@ -272,7 +272,7 @@ process insertSize {
                 pattern: "*insertSize_histogram.txt"
 
     input:
-    val(parameters) from insertSizeChannel
+    set val(parameters), val(insertSize) from insertSizeChannel
     set val(name), file(sam) from resultsHicupForInsertSize
     file digest from hicdigestIndexForInsertSize.collect()
 
@@ -281,11 +281,18 @@ process insertSize {
     set env(MIN), env(MAX) into resultsInsertSize
 
     shell:
-    '''
-    getInsertSizeInterval.py -i !{sam} -d !{digest} -o !{name}_insertSize_histogram.txt
-    MIN=$(grep "#minInsertSize" !{name}_insertSize_histogram.txt | sed -e "s/.*\\s//g")
-    MAX=$(grep "#maxInsertSize" !{name}_insertSize_histogram.txt | sed -e "s/.*\\s//g")
-    '''
+    if (!insertSize) {
+      '''
+      getInsertSizeInterval.py -i !{sam} -d !{digest} -o !{name}_insertSize_histogram.txt
+      MIN=$(grep "#minInsertSize" !{name}_insertSize_histogram.txt | sed -e "s/.*\\s//g")
+      MAX=$(grep "#maxInsertSize" !{name}_insertSize_histogram.txt | sed -e "s/.*\\s//g")
+      '''
+    } else {
+      '''
+      MIN=$MIN
+      MAX=$MAX
+      '''
+    }
 }
 
 process bamPreparation {
