@@ -468,7 +468,7 @@ process mcoolBuilder {
   for i in 5 10 25 50 100 500 1000;
   do
     hicMergeMatrixBins -m !{matrix} -o !{name}_${i}kb.h5 -nb ${i}
-    hicCorrectMatrix correct -m !{name}_${i}kb.h5 --correctionMethod KR --chromosomes chr1 chr2 chr3 chr4 chr5 chr6 chr7 chr8 chr9 chr10 chr11 chr12 chr13 chr14 chr15 chr16 chr17 chr18 chr19 chrX chrY -o !{name}_${i}kb_KR.h5
+    hicCorrectMatrix correct -m !{name}_${i}kb.h5 --correctionMethod KR -o !{name}_${i}kb_KR.h5
   done
 
   h5toCool.py -m *KR.h5 -o !{name}.mcool --merge
