@@ -174,7 +174,11 @@ if (!params.bowtie2 && params.fasta) {
 Channel
     .fromPath( params.samples )
     .splitCsv(sep: '\t', header: true)
-    .into { samplesChannel ; insertSizeChannel }
+    .into { samplesChannel ; insertSizeChannel ; insertSizeChannel1 }
+
+insertSizeChannel1
+    .map { row -> def flag = false ; if (row.insertSizeMin == null || row.insertSizeMax){ flag = true}; [row,flag] }
+    .subscribe { println $it }
 
 process trim {
 
