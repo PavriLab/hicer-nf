@@ -18,7 +18,6 @@ import os
 os.environ['NUMEXPR_MAX_THREADS'] = '64'
 
 import argparse as ap
-import importlib
 import pandas as pd
 import sys
 import logging
@@ -107,7 +106,7 @@ class MatrixFileHandler():
                  pApplyCorrectionCoolerLoad=None, pBedFileHicPro=None, pCorrectionFactorTable=None,
                  pCorrectionOperator=None, pEnforceInteger=None, pAppend=None, pFileWasH5=None, pHiCInfo=None, pHic2CoolVersion=None):
 
-        self.class_ = getattr(importlib.import_module('.' + pFileType.lower(), package='hicmatrix.lib'), pFileType.title())
+        self.class_ = H5 if pFileType == 'h5' else Cool
 
         if pFileType == 'hicpro':
             self.matrixFile = self.class_(pMatrixFile=pMatrixFile, pBedFile=pBedFileHicPro)
@@ -1768,6 +1767,6 @@ for i, matrix in enumerate(args.matrices):
                                                      correction_factors,
                                                      distance_counts)
 
-        matrixFileHandlerOutput.save(args.outputFile,
+        matrixFileHandlerOutput.save(args.outputFiles[i],
                                      pSymmetric=True,
                                      pApplyCorrection=False)
