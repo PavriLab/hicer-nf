@@ -264,6 +264,7 @@ optionalDiscoveryChannel
 
 resultsHicupForInsertSize1
     .join { insertSizeChannel1 }
+    .set{testchannel}
     .subscribe{println it}
 
 process insertSize {
@@ -276,7 +277,7 @@ process insertSize {
                 pattern: "*insertSize_histogram.txt"
 
     input:
-    set val(parameters), val(insertSize) from insertSizeChannel
+    set val(parameters), val(insertSize) from testchannel
     set val(name), file(sam) from resultsHicupForInsertSize
     file digest from hicdigestIndexForInsertSize.collect()
 
