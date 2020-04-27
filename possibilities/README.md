@@ -111,6 +111,12 @@ The generated file `*_interKR.npz` is similar to the clustering matrices where r
 * [matplotlib](https://matplotlib.org/)
   > John D. Hunter. Matplotlib: A 2D Graphics Environment, Computing in Science & Engineering, 9, 90-95 (2007). doi: 10.1109/MCSE.2007.55
   
+* [pysam](https://pysam.readthedocs.io/en/latest/index.html)
+  > Li H, Handsaker B, Wysoker A, Fennell T, Ruan J, Homer N, Marth G, Abecasis G, Durbin R; 1000 Genome Project Data Processing Subgroup. The Sequence Alignment/Map format and SAMtools. Bioinformatics. 2009 Aug 15;25(16):2078-9. doi: 10.1093/bioinformatics/btp352. Epub 2009 Jun 8. PubMed PMID: 19505943; PubMed Central PMCID: PMC2723002.
+
+* [pandas](https://pandas.pydata.org/docs/index.html)
+  > Wes McKinney. Data Structures for Statistical Computing in Python, Proceedings of the 9th Python in Science Conference, 51-56 (2010)
+  
 * [pytables](https://www.pytables.org/)
 
 * [hmmlearn](https://github.com/hmmlearn/hmmlearn)
