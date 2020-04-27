@@ -1,3 +1,40 @@
+# Converting results to Juicer
+The one or the other user might feels more comfortable using [Juicebox](https://github.com/aidenlab/Juicebox) to visualize their experimental results. Unfortunately a direct conversion between the HDF5-based formats used our pipeline and the native `hic` format Juicebox uses is not as straightforward as one might wish. However, the SAMfile produced by HICUP and its split BAM versions can be readily reformated to be compatible with the [`juicer_tools`](https://github.com/aidenlab/juicer) `pre` command, facilitating an easy and straightforward way to get your data displayed in Juicebox. Here we provide a utility script as well as the basic outline of the process.
+
+1. Converting HICUP output to a `pre` compatible file
+The `hicup2pre.py` script parses the HICUP output (either SAM or BAM and either complete or split into first and second read) and converts each read pair as described in [Rao et al. 2014](https://www.cell.com/cell/fulltext/S0092-8674(14)01497-4). In order to also facilitate the processing of very large datasets, the script writes the parsing results in chunks to disc (the size of these temporary files can be tuned with the `--bufferSize` parameter). A typical command for the split BAMfiles the pipeline provides would be
+
+```
+hicup2pre.py -i CH12_HiC.hicup.first.bam CH12_HiC.hicup.second.bam --bufferSize 10000000 --tmpDir tmp -o CH12_HiC.pre.txt
+```
+
+In case you are using HICUP directly without using our pipeline a typical conversion command would be
+
+```
+hicup2pre.py -i CH12_HiC_1_2.hicup.sam --bufferSize 10000000 --tmpDir tmp -o CH12_HiC.pre.txt
+```
+
+The resulting files, written to the folder specified by `--tmpDir` are named by appending 00i to the outputfile prefix passed by `-o`, where i is a continuous integer running from 0, 1, 2, ... and indicates the number of the written file. The chunk files represent the last stage of a merge sort which is finalized with unix `sort` to obtain the final input file for the `pre` command. This is done with
+
+```
+sort -S 8G -m -k2,2d -k6,6d -k4,4n -k8,8n -k1,1n -k5,5n -k3,3n tmp/CH12_HiC* > CH12_HiC.pre.txt
+```
+
+2. Using `pre` to generate `hic` files
+After the final sorting step we can now use the generated `CH12_HiC.pre.txt` file to generate and normalize our contact matrices with the `pre` command of [`juicer_tools`](https://github.com/aidenlab/juicer). Borrowing from the mcool generation of our pipeline we do this as follows
+
+```
+java -jar /users/daniel.malzl/juicer_tools/juicer_tools.jar pre \
+    -r 1000,5000,10000,25000,50000,100000,500000,1000000 \
+    -k GW_KR \
+    CH12_HiC.pre.txt \
+    CH12_HiC.hic \
+    mm9
+```
+
+`CH12_HiC.hic` then contains contact matrices for 1kb, 5kb, 10kb, 25kb, 50kb, 100kb, 500kb, 1Mb resolutions including their genome-wide KR normalization and is ready for visualization in [Juicebox](https://github.com/aidenlab/Juicebox).
+
+
 # Possibilities for downstream analysis
 The jupyter notebook in this section shows a possible downstream analysis of high sequencing depth data in which we infer subcompartments from Hi-C data only as described in [Rao et al. 2014](https://www.cell.com/cell/fulltext/S0092-8674(14)01497-4).
 
