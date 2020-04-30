@@ -12,34 +12,39 @@ def isBam(filename):
 
 
 def makeRecord(read1, read2):
-        chr1 = read1.reference_name
+    chr1 = read1.reference_name
+    pos1 = read1.reference_start if not read1.is_reverse else read1.reference_start + read1.query_length
+    str1 = int(read1.is_reverse)
+    chr2 = read2.reference_name
+    pos2 = read2.reference_start if not read2.is_reverse else read2.reference_start + read2.query_length
+    str2 = int(read2.is_reverse)
+
+    if any([chr1[3:].isalpha(), chr2[3:].isalpha()]):
+        chr1id = chr1[3:]
+        chr2id = chr2[3:]
+
+    else:
         chr1id = int(chr1[3:])
-        pos1 = read1.reference_start if not read1.is_reverse else read1.reference_start + read1.query_length
-        str1 = int(read1.is_reverse)
-        chr2 = read2.reference_name
         chr2id = int(chr2[3:])
-        pos2 = read2.reference_start if not read2.is_reverse else read2.reference_start + read2.query_length
-        str2 = int(read2.is_reverse)
 
+    if chr1id < chr2id:
+        return '{0} {1} {2} 0 {3} {4} {5} 1\n'.format(str1, chr1, pos1, str2, chr2, pos2)
 
-        if chr1id < chr2id:
+    elif chr1id > chr2id:
+        return '{3} {4} {5} 0 {0} {1} {2} 1\n'.format(str1, chr1, pos1, str2, chr2, pos2)
+
+    elif chr1id == chr2id:
+        if pos1 < pos2:
             return '{0} {1} {2} 0 {3} {4} {5} 1\n'.format(str1, chr1, pos1, str2, chr2, pos2)
 
-        elif chr1id > chr2id:
+        elif pos1 > pos2:
             return '{3} {4} {5} 0 {0} {1} {2} 1\n'.format(str1, chr1, pos1, str2, chr2, pos2)
 
-        elif chr1id == chr2id:
-            if pos1 < pos2:
-                return '{0} {1} {2} 0 {3} {4} {5} 1\n'.format(str1, chr1, pos1, str2, chr2, pos2)
-
-            elif pos1 > pos2:
-                return '{3} {4} {5} 0 {0} {1} {2} 1\n'.format(str1, chr1, pos1, str2, chr2, pos2)
-
-            elif pos1 == pos2:
-                return '{0} {1} {2} 0 {3} {4} {5} 1\n' \
-                        .format(str1, chr1, pos1, str2, chr2, pos2) if str1 < str2 else \
-                       '{3} {4} {5} 0 {0} {1} {2} 1\n' \
-                       .format(str1, chr1, pos1, str2, chr2, pos2)
+        elif pos1 == pos2:
+            return '{0} {1} {2} 0 {3} {4} {5} 1\n' \
+                    .format(str1, chr1, pos1, str2, chr2, pos2) if str1 < str2 else \
+                    '{3} {4} {5} 0 {0} {1} {2} 1\n' \
+                    .format(str1, chr1, pos1, str2, chr2, pos2)
 
 
 def writeChunk(buffer, filename, chunkNum):
