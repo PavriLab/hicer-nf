@@ -211,7 +211,7 @@ def correlateEigenvectorWithGeneTrack(eigenvector, genetrack):
 def openEigBigWigs(prefix, header, n_eigs):
     d = {}
     for i in range(1, n_eigs + 1):
-        eigbw = bw.open(prefix, '.E{}.bw'.format(i), 'w')
+        eigbw = bw.open(prefix + '.E{}.bw'.format(i), 'w')
         eigbw.addHeader(header, maxZooms = 10)
         d[i] = eigbw
 
