@@ -297,4 +297,4 @@ for i, chr in enumerate(chrlist):
         ends.pop(0)
         ends.append(chrlendict[chr])
 
-        bigwigs[i].addEntries([chr] * len(eigv), starts, ends = ends, values = eigv)
+        bigWigs[i].addEntries([chr] * len(eigv), starts, ends = ends, values = eigv)
