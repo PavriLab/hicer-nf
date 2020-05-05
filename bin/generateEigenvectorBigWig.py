@@ -290,7 +290,7 @@ for i, chr in enumerate(chrlist):
             # include the last bin boundary as well
             starts = list(range(0, args.resolution * len(eigv) + 1, args.resolution))
 
-        if len(starts) > len(eigv1):
+        if len(starts) > len(eigv):
             starts.pop(-1)
 
         ends = starts.copy()
