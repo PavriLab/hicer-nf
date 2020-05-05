@@ -283,7 +283,7 @@ for i, chr in enumerate(chrlist):
     for i in range(1, args.numberOfEigenvectors + 1):
         eigv = correlateEigenvectorWithGeneTrack(eigvs[:, -i], gtrack)
 
-        if args.resolution * len(eigv1) > chrlendict[chr]:
+        if args.resolution * len(eigv) > chrlendict[chr]:
             starts = list(range(0, args.resolution * len(eigv), args.resolution))
 
         else:
