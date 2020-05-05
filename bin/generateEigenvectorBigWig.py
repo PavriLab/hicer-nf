@@ -208,6 +208,15 @@ def correlateEigenvectorWithGeneTrack(eigenvector, genetrack):
 
     return eigenvector if correlation >= 0 else np.negative(eigenvector)
 
+def openEigBigWigs(prefix, header, n_eigs):
+    d = {}
+    for i in range(1, n_eigs + 1):
+        eigbw = bw.open(prefix, '.E{}.bw', 'w')
+        eigbw.addHeader(header, maxZooms = 10)
+        d[i] = eigbw
+
+    return d
+
 logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO)
 parser = ap.ArgumentParser()
 parser.add_argument('-m', '--matrix', required = True,
@@ -218,8 +227,10 @@ parser.add_argument('--chromLengths', required = True,
                     help = 'tab-separated file of chromosomes and their lengths')
 parser.add_argument('-r', '--resolution', required = True, type = int,
                     help = 'resolution of the given HIC matrix')
-parser.add_argument('-o', '--outputFile', required = True,
-                    help = 'file to which to write the resulting bigwig track to')
+parser.add_argument('-n', '--numberOfEigenvectors', default = 2, type = int,
+                    help = 'number of eigenvectors to write to file. Generates a bigWig for the first n eigenvectors each')
+parser.add_argument('-o', '--outputPrefix', required = True,
+                    help = 'prefix for file(s) to which to write the resulting bigwig tracks to')
 args = parser.parse_args()
 
 logging.info('reading E/O matrix')
@@ -233,51 +244,51 @@ with open(args.chromLengths, 'r') as file:
         chrlens.append((chr, int(l)))
         chrlendict[chr] = int(l)
 
-logging.info('generating bigwig')
-with bw.open(args.outputFile, 'w') as bigwig:
-    bigwig.addHeader(chrlens, maxZooms = 10)
+logging.info('generating bigwig(s)')
+bigWigs = openEigBigWigs(args.outputPrefix, chrlens, args.numberOfEigenvectors)
 
-    for i, chr in enumerate(chrlist):
-        logging.info('processing %s' % chr)
-        ind1 = indarr[i]
-        ind2 = indarr[i + 1] if i + 1 != len(indarr) else mat.shape[0]
+for i, chr in enumerate(chrlist):
+    logging.info('processing %s' % chr)
+    ind1 = indarr[i]
+    ind2 = indarr[i + 1] if i + 1 != len(indarr) else mat.shape[0]
 
-        eomat = mat[ind1: ind2, ind1: ind2].toarray()
-        xi, yi = np.triu_indices(eomat.shape[0], k=1)
-        eomat[yi, xi] = eomat[xi, yi]
+    eomat = mat[ind1: ind2, ind1: ind2].toarray()
+    xi, yi = np.triu_indices(eomat.shape[0], k=1)
+    eomat[yi, xi] = eomat[xi, yi]
 
-        gtrack = readGeneTrack(args.genes, chr, eomat.shape[0], args.resolution)
+    gtrack = readGeneTrack(args.genes, chr, eomat.shape[0], args.resolution)
 
-        # computing pearson correlation matrix
-        # ignoring divide by 0 warning
-        with warnings.catch_warnings():
-            warnings.simplefilter('ignore')
-            pcorrmat = np.corrcoef(eomat)
+    # computing pearson correlation matrix
+    # ignoring divide by 0 warning
+    with warnings.catch_warnings():
+        warnings.simplefilter('ignore')
+        pcorrmat = np.corrcoef(eomat)
 
-        # making sure all values are well defined
-        pcorrmat[np.isnan(pcorrmat)] = 0.
-        pcorrmat[np.isinf(pcorrmat)] = 0.
+    # making sure all values are well defined
+    pcorrmat[np.isnan(pcorrmat)] = 0.
+    pcorrmat[np.isinf(pcorrmat)] = 0.
 
-        # computing covariance matrix
-        covmat = np.cov(pcorrmat)
+    # computing covariance matrix
+    covmat = np.cov(pcorrmat)
 
-        # making sure all values are well defined
-        covmat[np.isnan(covmat)] = 0.
-        covmat[np.isinf(covmat)] = 0.
+    # making sure all values are well defined
+    covmat[np.isnan(covmat)] = 0.
+    covmat[np.isinf(covmat)] = 0.
 
-        # computing eigenvalues and eigenvectors
-        lambdas, eigvs = scilin.eigh(covmat)
+    # computing eigenvalues and eigenvectors
+    lambdas, eigvs = scilin.eigh(covmat)
 
-        # correlating first eigenvector with genetrack
-        # to flip signs if correlation is negative
-        eigv1 = correlateEigenvectorWithGeneTrack(eigvs[:, -1], gtrack)
+    # correlating first eigenvector with genetrack
+    # to flip signs if correlation is negative
+    for i in range(1, args.numberOfEigenvectors + 1):
+        eigv = correlateEigenvectorWithGeneTrack(eigvs[:, -i], gtrack)
 
         if args.resolution * len(eigv1) > chrlendict[chr]:
-            starts = list(range(0, args.resolution * len(eigv1), args.resolution))
+            starts = list(range(0, args.resolution * len(eigv), args.resolution))
 
         else:
             # include the last bin boundary as well
-            starts = list(range(0, args.resolution * len(eigv1) + 1, args.resolution))
+            starts = list(range(0, args.resolution * len(eigv) + 1, args.resolution))
 
         if len(starts) > len(eigv1):
             starts.pop(-1)
@@ -286,4 +297,4 @@ with bw.open(args.outputFile, 'w') as bigwig:
         ends.pop(0)
         ends.append(chrlendict[chr])
 
-        bigwig.addEntries([chr] * len(eigv1), starts, ends = ends, values = eigv1)
+        bigwigs[i].addEntries([chr] * len(eigv), starts, ends = ends, values = eigv)
