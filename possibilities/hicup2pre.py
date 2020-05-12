@@ -19,7 +19,7 @@ def makeRecord(read1, read2):
     pos2 = read2.reference_start if not read2.is_reverse else read2.reference_start + read2.query_length
     str2 = int(read2.is_reverse)
 
-    if not any([chr1[3:].isnumeric(), chr2[3:].isnumeric()]):
+    if all([chr1[3:].isnumeric(), chr2[3:].isnumeric()]):
         chr1id = int(chr1[3:])
         chr2id = int(chr2[3:])
 
