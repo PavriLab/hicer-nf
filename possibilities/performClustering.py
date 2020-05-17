@@ -529,6 +529,7 @@ logging.info('performing clustering for clusters k between %i and %i' % (args.mi
 ICdict = {key: np.zeros(shape = args.maxk) for key in ['evenAIC', 'oddAIC', 'evenBIC', 'oddBIC']}
 cfig, caxs = plt.subplots(1, 2)
 clusterassignments = {}
+models = {}
 basename = ntpath.basename(args.matrix).split('.')[0]
 cmap = plt.get_cmap('jet')
 for clustering in ['even', 'odd']:
