@@ -571,5 +571,5 @@ np.savez(os.path.join(args.outdir, args.prefix + '.npz'),
                       **remrows)
 
 for key, model in models.items():
-    with open(os.path.join(args.outdir, args.prefix + 'hmm' + key + '.pkl', 'wb')) as file:
+    with open(os.path.join(args.outdir, args.prefix + 'hmm' + key + '.pkl'), 'wb') as file:
         pickle.dump(model, file)
