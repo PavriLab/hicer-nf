@@ -7,6 +7,7 @@ import matplotlib.colors as clr
 from hmmlearn.hmm import GaussianHMM
 import scipy.stats as scistats
 import logging
+import pickle
 import os, ntpath
 import tables
 from scipy.sparse import csr_matrix, triu, lil_matrix
@@ -453,7 +454,7 @@ parser.add_argument('--maxk', default = 20, type = int,
 parser.add_argument('-r', '--removelim', default = 0.3, type = float,
                     help = '''determines the fraction of entries in a row/col of the clustering matrix allowed to be 0
                               if the fraction of entries is larger the row/col is removed before clustering''')
-parser.add_argument('-o', '--out', required = True,
+parser.add_argument('-p', '--prefix', required = True,
                     help = '''name of the output npz file holding cluster assignments for each value of k
                               between --mink and --maxk and the correspondingly calculated BIC and AIC''')
 parser.add_argument('-X', '--withX', default = False, action = 'store_true',
@@ -468,9 +469,16 @@ parser.add_argument('--imputerows', default = None,
 parser.add_argument('--imputecols', default = None,
                     help = '''ranges of cols that should be imputed at --imputerows positions
                               has to be passed as integers delimited by a colon e.g. i1:i2''')
-parser.add_argument('-pd', '--plotdir', default = '.',
+parser.add_argument('-pd', '--plotdir', default = None,
                     help = 'directory to which to write the plots to')
+parser.add_argument('-o', '--outdir', default = '.',
+                    help = 'directory to write outputfiles to')
 args = parser.parse_args()
+
+if args.plotdir == None:
+    plotdir = args.outdir
+else:
+    plotdir = args.plotdir
 
 imputerows, imputecols = [], []
 if args.imputerows and args.imputecols:
@@ -500,9 +508,14 @@ remcols = {'oddremcols': None, 'evenremcols': None}
 remrows = {'oddremrows': None, 'evenremrows': None}
 for key, even in zip(['even', 'odd'], [True, False]):
     clustmats[key], remrows[key + 'remrows'], remcols[key + 'remcols'] = \
-        constructClusterContactMatrix(gwmat, chrlist, indarr, even = even,
-                                      withX = args.withX, excluderows = excluderows.copy(),
-                                      imputerows = imputerows.copy(), imputecols = imputecols.copy(),
+        constructClusterContactMatrix(gwmat,
+                                      chrlist,
+                                      indarr,
+                                      even = even,
+                                      withX = args.withX,
+                                      excluderows = excluderows.copy(),
+                                      imputerows = imputerows.copy(),
+                                      imputecols = imputecols.copy(),
                                       removelim = args.removelim)
 
     nr, nc = clustmats[key].shape
@@ -525,6 +538,7 @@ for clustering in ['even', 'odd']:
             computeInformationCriteria(model, clustmats[clustering], k)
 
         clusterassignments[clustering + 'k' + str(k)] = clusters
+        models[clustering + 'k' + str(k)] = model
 
         colorlist = cmap(np.arange(k)/k)
         fig, ax = plt.subplots()
@@ -532,11 +546,16 @@ for clustering in ['even', 'odd']:
         fig.set_figwidth(20)
         fig.set_figheight(20)
         fig.tight_layout()
-        fig.savefig(os.path.join(args.plotdir, '_'.join([basename, clustering, 'k' + str(k)]) + '.pdf'))
+        fig.savefig(os.path.join(plotdir, '_'.join([basename, clustering, 'k' + str(k)]) + '.pdf'))
         plt.close(fig)
 
     for criterion, cax in zip(['AIC', 'BIC'], caxs):
-        plotInformationCriterion(ICdict[clustering + criterion], clustering, args.mink, args.maxk, criterion, cax)
+        plotInformationCriterion(ICdict[clustering + criterion],
+                                 clustering,
+                                 args.mink,
+                                 args.maxk,
+                                 criterion,
+                                 cax)
 
 cfig.set_figwidth(8)
 cfig.set_figheight(4)
@@ -544,4 +563,12 @@ cfig.tight_layout()
 cfig.savefig(os.path.join(args.plotdir, '_'.join([basename, 'informationcriterion.pdf'])))
 
 logging.info('saving arrays')
-np.savez(args.out, **clusterassignments, **ICdict, **remcols, **remrows)
+np.savez(os.path.join(args.outdir, args.prefix + '.npz'),
+                      **clusterassignments,
+                      **ICdict,
+                      **remcols,
+                      **remrows)
+
+for key, model in models.items():
+    with open(os.path.join(args.outdir, args.prefix + 'hmm' + key + '.pkl', 'wb') as file:
+        pickle.dump(model, file)
