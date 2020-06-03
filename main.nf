@@ -164,7 +164,6 @@ if (params.chromSizes) {
   exit 1, "--chromSizes not specified!"
 }
 
-chromSizesFile = params.chromSizes ? params.chromSizes ?:
 if (chromSizesFile.endsWith('xml')) {
   xml2tsvChannel = Channel
                       .fromPath(chromSizesFile, checkIfExists: true)
