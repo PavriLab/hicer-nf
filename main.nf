@@ -74,9 +74,9 @@ def helpMessage() {
 }
 
 params.help = false
-igenome_bowtie2 = params.genomes[ params.genome ].bowtie2 ?: false
-igenome_fasta = params.genomes[ params.genome ].fasta ?: false
-igenome_chromSizes = params.genomes[ params.genome ].chromSizes ?: false
+igenomes_bowtie2 = params.genomes[ params.genome ].bowtie2 ?: false
+igenomes_fasta = params.genomes[ params.genome ].fasta ?: false
+igenomes_chromSizes = params.genomes[ params.genome ].chromSizes ?: false
 
 if (params.help) {
     helpMessage()
