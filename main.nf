@@ -199,8 +199,9 @@ Channel
     .splitCsv(sep: '\t', header: true)
     .into { samplesChannel ; optionalDiscoveryChannel }
 
-if (convertChromSizes) {
+if (convertChromSizes) {}
   process xml2tsv {
+
     tag "xml2tsv"
 
     input:
@@ -220,6 +221,7 @@ if (convertChromSizes) {
 
 if (digestFasta) {
   process makeHicupDigest {
+
     tag "${fasta}"
 
     input:
@@ -237,6 +239,7 @@ if (digestFasta) {
 
 if (makeBowtie2Index) {
   process buildBowtie2Index {
+
     tag "${bwt2_base}"
 
     input:
@@ -307,7 +310,7 @@ process hicup {
     set val(name), file(fastq1), file(fastq2) from resultsTrimming
 
     output:
-    set val(name), file("${name}/*sam") into resultsHicup, resultsHicupForCompartmentalization
+    set val(name), file("${name}/*sam") into resultsHicup
     file("${name}/*html") into htmlHicup
     file("${name}/HiCUP_summary_report*") into multiqcHicup
 
@@ -404,6 +407,7 @@ process hicFileGenerator {
 }
 
 process matrixBuilder {
+
     tag { name }
 
     input:
@@ -425,6 +429,7 @@ process matrixBuilder {
 }
 
 process zoomifyMatrix {
+
     tag { name }
 
     input:
