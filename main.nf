@@ -235,7 +235,7 @@ if (digestFasta) {
   }
 }
 
-if (makeBowtie2Index)
+if (makeBowtie2Index) {
   process buildBowtie2Index {
     tag "${bwt2_base}"
 
