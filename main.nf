@@ -80,19 +80,26 @@ if (params.help) {
     exit 0
 }
 
-defaultResolutions = "5000,10000,25000,50000,100000,250000,500000,1000000"
-
 if (params.resolutions) {
-    resolutions = defaultResolutions + "," + params.resolutions
+    resolutions = params.defaultResolutions + "," + params.resolutions
 } else {
     resolutions = params.resolutions
 }
 
-if (!params.fasta) {
+if (!params.bowtie2 || !params.hicupDigest) {
   params.fasta = params.genomes[ params.genome ].fasta ?: false
+  if (!params.fasta) {
+    exit 1, "Fasta needed for either Bowtie2Index of HICUP Digest not specified!"
+  } else {
+    Channel
+        .fromPath(params.fasta, checkIfExists: true)
+        .ifEmpty { exit 1, "Fasta needed for either Bowtie2Index of HICUP Digest not found at ${params.fasta}"}
+
+    log.info "No Fasta specified but needed for Bowtie2Index or HICUP Digest. Using igenomes ${params.fasta}"
+  }
 }
 
-if (params.genome && !params.bowtie2) {
+if (!params.bowtie2) {
   params.bowtie2 = params.genomes[ params.genome ].bowtie2 ?: false
 
   if (params.bowtie2) {
