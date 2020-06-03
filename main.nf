@@ -199,7 +199,7 @@ Channel
     .splitCsv(sep: '\t', header: true)
     .into { samplesChannel ; optionalDiscoveryChannel }
 
-if (convertChromSizes) {}
+if (convertChromSizes) {
   process xml2tsv {
 
     tag "xml2tsv"
