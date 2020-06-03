@@ -158,7 +158,7 @@ if (params.chromSizes) {
   chromSizesFile = params.chromSizes
 
 } else if (igenomes_chromSizes) {
-  chromSizesFile = igenomes_chromSizes{
+  chromSizesFile = igenomes_chromSizes
 
 } else {
   exit 1, "--chromSizes not specified!"
