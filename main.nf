@@ -415,7 +415,7 @@ process matrixBuilder {
     set file(chromSizeFile) from chromSizeChannel
 
     output:
-    set val(name), file("${name}/${name}_1kb.cool") in resultsMatrixBuilder
+    set val(name), file("${name}/${name}_1kb.cool") into resultsMatrixBuilder
 
     shell:
     '''
