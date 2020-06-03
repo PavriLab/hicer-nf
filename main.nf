@@ -305,9 +305,9 @@ process pairixMaker {
 
     tag { name }
 
-    publishDir  path: "${params.outputDir}/${name}/pairs/"
-                mode: 'copy'
-                overwrite: 'true'
+    publishDir  path: "${params.outputDir}/${name}/pairs/",
+                mode: 'copy',
+                overwrite: 'true',
                 pattern: "*/*pairs.gz*"
 
     input:
@@ -344,9 +344,9 @@ process hicFileGenerator {
 
   tag { name }
 
-  publishDir  path: "${params.outputDir}/${name}/matrices/"
-              mode: 'copy'
-              overwrite: 'true'
+  publishDir  path: "${params.outputDir}/${name}/matrices/",
+              mode: 'copy',
+              overwrite: 'true',
               patter: "*.hic"
 
   input:
