@@ -88,24 +88,12 @@ if (params.resolutions) {
     resolutions = params.resolutions
 }
 
-log.info ""
-log.info " parameters "
-log.info " ======================"
-log.info " Samples List             : ${params.samples}"
-log.info " Resolutions              : ${resolutions}"
-log.info " re1                      : ${params.re1}"
-log.info " re2                      : ${params.re2}"
-log.info " Genome                   : ${params.genome}"
-log.info " Fasta                    : ${params.fasta}"
-log.info " ChromSizes               : ${params.chromSizes}"
-log.info " Bowtie2 Index            : ${params.bowtie2}"
-log.info " HICUP Digest             : ${params.hicupDigest}"
-log.info " Output Directory         : ${params.outputDir}"
-log.info " ======================"
-log.info ""
+if (!params.fasta) {
+  params.fasta = params.genomes[ params.genome ].fasta ?: false
+}
 
 if (params.genome && !params.bowtie2) {
-  params.bowtie2 = params.igenomes[ params.genome ].bowtie2 ?: false
+  params.bowtie2 = params.genomes[ params.genome ].bowtie2 ?: false
 
   if (params.bowtie2) {
     lastPath = params.bowtie2.lastIndexOf(File.separator)
@@ -180,7 +168,7 @@ if (!params.bowtie2 && params.fasta) {
 }
 
 if (params.genome && !params.chromSizes) {
-  params.chromSizes = params.bowtie2 = params.igenomes[ params.genome ].chromSizes ?: false
+  params.chromSizes = params.genomes[ params.genome ].chromSizes ?: false
 
   if (params.chromSizes) {
     if (params.chromSizes.endsWith('xml')) {
@@ -213,6 +201,22 @@ if (params.genome && !params.chromSizes) {
     exit 1, "--chromSizes not found or set!!"
   }
 }
+
+log.info ""
+log.info " parameters "
+log.info " ======================"
+log.info " Samples List             : ${params.samples}"
+log.info " Resolutions              : ${resolutions}"
+log.info " re1                      : ${params.re1}"
+log.info " re2                      : ${params.re2}"
+log.info " Genome                   : ${params.genome}"
+log.info " Fasta                    : ${params.fasta}"
+log.info " ChromSizes               : ${params.chromSizes}"
+log.info " Bowtie2 Index            : ${params.bowtie2}"
+log.info " HICUP Digest             : ${params.hicupDigest}"
+log.info " Output Directory         : ${params.outputDir}"
+log.info " ======================"
+log.info ""
 
 Channel
     .fromPath( params.samples )
