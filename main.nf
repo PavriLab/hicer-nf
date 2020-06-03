@@ -126,7 +126,7 @@ if (!params.bowtie2) {
 
     fastaForBowtie2 = Channel
                           .fromPath(fastaFile)
-    bowtie2IndexFile = 'computed'
+    bowtie2IndexFile = 'computed from fasta'
     makeBowtie2Index = true
   }
 } else {
@@ -146,7 +146,7 @@ if (params.hicupDigest) {
 } else if (params.re1) {
   fastaForHicupDigest = Channel
                             .fromPath(fastaFile)
-  hicupDigestFile = 'computed'
+  hicupDigestFile = 'computed from fasta'
   digestFasta = true
 
 } else {
