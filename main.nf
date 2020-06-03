@@ -74,6 +74,9 @@ def helpMessage() {
 }
 
 params.help = false
+igenome_bowtie2 = params.genomes[ params.genome ].bowtie2 ?: false
+igenome_fasta = params.genomes[ params.genome ].fasta ?: false
+igenome_chromSizes = params.genomes[ params.genome ].chromSizes ?: false
 
 if (params.help) {
     helpMessage()
@@ -87,40 +90,49 @@ if (params.resolutions) {
 }
 
 if (!params.bowtie2 || !params.hicupDigest) {
-  params.fasta = params.genomes[ params.genome ].fasta ?: false
-  if (!params.fasta) {
-    exit 1, "Fasta needed for either Bowtie2Index of HICUP Digest not specified!"
-  } else {
+  if (!params.fasta && !igenomes_fasta) {
+    exit 1, "Fasta needed for Bowtie2Index or HICUP Digest not specified!"
+
+  } else if (params.fasta) {
     Channel
         .fromPath(params.fasta, checkIfExists: true)
-        .ifEmpty { exit 1, "Fasta needed for either Bowtie2Index of HICUP Digest not found at ${params.fasta}"}
+        .ifEmpty { exit 1, "Fasta needed for Bowtie2Index or HICUP Digest but not found at ${params.fasta}"}
+    fastaFile = params.fasta
 
-    log.info "No Fasta specified but needed for Bowtie2Index or HICUP Digest. Using igenomes ${params.fasta}"
+  } else {
+    Channel
+        .fromPath(igenomes_fasta, checkIfExists: true)
+        .ifEmpty { exit 1, "Fasta needed for Bowtie2Index or HICUP Digest but not given and not found at ${params.fasta}"}
+    fastaFile = igenomes_fasta
+
   }
 }
 
 if (!params.bowtie2) {
-  params.bowtie2 = params.genomes[ params.genome ].bowtie2 ?: false
-
-  if (params.bowtie2) {
-    lastPath = params.bowtie2.lastIndexOf(File.separator)
-    bwt2_dir = params.bowtie2.substring(0,lastPath+1)
-    bwt2_base = params.bowtie2.substring(lastPath+1)
+  if (igenomes_bowtie2) {
+    lastPath = igenomes_bowtie2.lastIndexOf(File.separator)
+    bwt2_dir = igenomes_bowtie2.substring(0,lastPath+1)
+    bwt2_base = igenomes_bowtie2.substring(lastPath+1)
 
     bowtie2Index = Channel
                       .fromPath(bwt2_dir , checkIfExists: true)
-                      .ifEmpty { exit 1, "Genome index: Provided index not found: ${params.bowtie2}" }
+                      .ifEmpty { exit 1, "Genome index: Provided index not found: ${igenomes_bowtie2}" }
+    bowtie2IndexFile = igenomes_bowtie2
+    makeBowtie2Index = false
 
-  } else if (params.fasta) {
-    lastPath = params.fasta.lastIndexOf(File.separator)
-    bwt2_base = params.fasta.substring(lastPath+1)
+  }  else {
+    lastPath = fastaFile.lastIndexOf(File.separator)
+    bwt2_base = fastaFile.substring(lastPath+1)
 
     fastaForBowtie2 = Channel
-                          .fromPath(params.fasta, checkIfExists: true)
-                          .ifEmpty { exit 1, "Genome fasta file not found: ${params.fasta}" }
-  } else {
-    exit 1, "No reference genome files specified!"
+                          .fromPath(fastaFile)
+    bowtie2IndexFile = 'computed'
+    makeBowtie2Index = true
   }
+} else {
+  bowtie2IndexFile = igenomes_bowtie2
+  makeBowtie2Index = false
+
 }
 
 if (params.hicupDigest) {
@@ -128,85 +140,43 @@ if (params.hicupDigest) {
       .fromPath(params.hicupDigest, checkIfExists: true)
       .ifEmpty { exit 1, "HICUP Digest not found: ${params.hicupDigest}" }
       .into{hicupDigestIndex}
+  hicupDigestFile = params.hicupDigest
+  digestFasts = false
 
-} else if (params.fasta && params.re1) {
+} else if (params.re1) {
   fastaForHicupDigest = Channel
-                            .fromPath(params.fasta, checkIfExists: true)
-                            .ifEmpty { exit 1, "Genome fasta file not found at ${params.fasta}" }
+                            .fromPath(fastaFile)
+  hicupDigestFile = 'computed'
+  digestFasta = true
+
 } else {
-    exit 1, "HICUP digest file does not exist and no reference genome files specified or --re1 not set!"
+    exit 1, "HICUP digest file does not exist and --re1 is not set!"
+
 }
 
-if (!params.hicupDigest && params.fasta) {
-      process makeHicupDigest {
-          tag "${fasta}"
+if (params.chromSizes) {
+  chromSizesFile = params.chromSizes
 
-          input:
-          file(fasta) from fastaForHicupDigest
+} else if (igenomes_chromSizes) {
+  chromSizesFile = igenomes_chromSizes{
 
-          output:
-          file("Digest*.txt") into hicupDigestIndex
-
-          shell:
-          """
-          hicup_digester --genome !{params.genome} --re1 !{params.re1} --re2 !{params.re2} !{fasta}
-          """
-      }
+} else {
+  exit 1, "--chromSizes not specified!"
 }
 
-if (!params.bowtie2 && params.fasta) {
-      process buildBowtie2Index {
-          tag "${bwt2_base}"
+chromSizesFile = params.chromSizes ? params.chromSizes ?:
+if (chromSizesFile.endsWith('xml')) {
+  xml2tsvChannel = Channel
+                      .fromPath(chromSizesFile, checkIfExists: true)
+                      .ifEmpty { exit 1, "chromSize file not found at ${chromSizesFile}" }
+  convertChromSizes = true
 
-          input:
-          file(fasta) from fastaForBowtie2
+} else {
+  chromSizeChannel = Channel
+                        .fromPath(chromSizesFile, checkIfExists: true)
+                        .ifEmpty { exit 1, "chromSize file not found at ${chromSizesFile}"}
+  convertChromSizes = false
 
-          output:
-          file("bowtie2Index") into bowtie2Index
-
-          shell:
-          bwt2_base = fasta.toString() - ~/(\.fa)?(\.fasta)?(\.fas)?$/
-          """
-          mkdir bowtie2Index
-
-	        bowtie2-build ${fasta} bowtie2Index/${bwt2_base} --threads !{task.cpus}
-	        """
-      }
-}
-
-if (params.genome && !params.chromSizes) {
-  params.chromSizes = params.genomes[ params.genome ].chromSizes ?: false
-
-  if (params.chromSizes) {
-    if (params.chromSizes.endsWith('xml')) {
-      Channel
-          .fromPath(params.chromSizes, checkIfExists: true)
-          .ifEmpty { exit 1, "chromSize file not found at ${params.chromSizes}" }
-          .into { xml2tsvChannel }
-
-      process xml2tsv {
-        tag "xml2tsv"
-
-        input:
-        file(chromSizeXML) from xml2tsvChannel
-
-        output:
-        file("chromSizes.tsv") into chromSizeChannel
-
-        shell:
-        '''
-        xml2tsv.py !{chromSizeXML} chromSizes.tsv
-        '''
-      }
-    } else {
-        Channel
-            .fromPath(params.chromSizes, checkIfExists: true)
-            .ifEmpty { exit 1, "chromSize file not found at ${params.chromSizes}"}
-            .into { chromSizeChannel }
-    }
-  } else {
-    exit 1, "--chromSizes not found or set!!"
-  }
 }
 
 log.info ""
@@ -217,10 +187,10 @@ log.info " Resolutions              : ${resolutions}"
 log.info " re1                      : ${params.re1}"
 log.info " re2                      : ${params.re2}"
 log.info " Genome                   : ${params.genome}"
-log.info " Fasta                    : ${params.fasta}"
-log.info " ChromSizes               : ${params.chromSizes}"
-log.info " Bowtie2 Index            : ${params.bowtie2}"
-log.info " HICUP Digest             : ${params.hicupDigest}"
+log.info " Fasta                    : ${fastaFile}"
+log.info " ChromSizes               : ${chromSizesFile}"
+log.info " Bowtie2 Index            : ${bowtie2IndexFile}"
+log.info " HICUP Digest             : ${hicupDigestFile}"
 log.info " Output Directory         : ${params.outputDir}"
 log.info " ======================"
 log.info ""
@@ -229,6 +199,63 @@ Channel
     .fromPath( params.samples )
     .splitCsv(sep: '\t', header: true)
     .into { samplesChannel ; optionalDiscoveryChannel }
+
+if (convertChromSizes) {
+  process xml2tsv {
+    tag "xml2tsv"
+
+    input:
+    file(chromSizeXML) from xml2tsvChannel
+
+    output:
+    file("chromSizes.tsv") into chromSizeChannel
+
+    shell:
+    '''
+    xml2tsv.py !{chromSizeXML} chromSizes.tsv
+    '''
+
+  }
+}
+
+
+if (digestFasta) {
+  process makeHicupDigest {
+    tag "${fasta}"
+
+    input:
+    file(fasta) from fastaForHicupDigest
+
+    output:
+    file("Digest*.txt") into hicupDigestIndex
+
+    shell:
+    """
+    hicup_digester --genome !{params.genome} --re1 !{params.re1} --re2 !{params.re2} !{fasta}
+    """
+  }
+}
+
+if (makeBowtie2Index)
+  process buildBowtie2Index {
+    tag "${bwt2_base}"
+
+    input:
+    file(fasta) from fastaForBowtie2
+
+    output:
+    file("bowtie2Index") into bowtie2Index
+
+    shell:
+    bwt2_base = fasta.toString() - ~/(\.fa)?(\.fasta)?(\.fas)?$/
+    """
+    mkdir bowtie2Index
+
+    bowtie2-build ${fasta} bowtie2Index/${bwt2_base} --threads !{task.cpus}
+    """
+
+  }
+}
 
 process trim {
 
