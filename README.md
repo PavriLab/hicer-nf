@@ -107,8 +107,9 @@ The syntax for this reference configuration is as follows:
 params {
   genomes {
     'GRCh37' {
-      fasta   = '<path to the genome fasta file>' // Used if no bwa index given
-      bwa     = '<path to the bwa index file>'
+      fasta      = "/path/to/genome/fasta/file" // Used if no bowtie2 index or hicupDigest given
+      bowtie2    = "/path/to/bowtie2/index/basename
+      chromSizes = "/path/to/chrom/sizes/file
     }
     // Any number of additional genomes, key is used with --genome
   }
