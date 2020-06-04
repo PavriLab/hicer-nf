@@ -412,7 +412,7 @@ process matrixBuilder {
 
     input:
     set val(name), file(pairs) from resultsPairix
-    set file(chromSizeFile) from chromSizeChannel
+    file(chromSizeFile) from chromSizeChannel
 
     output:
     set val(name), file("${name}/${name}_1kb.cool") into resultsMatrixBuilder
