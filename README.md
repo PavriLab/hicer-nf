@@ -76,7 +76,7 @@ KD KD_1.fastq.gz KD_2.fastq.gz
 | `read1`   | Full path to FastQ file for read 1. File has to be zipped and have the extension ".fastq.gz" or ".fq.gz".   |
 | `read2`   | Full path to FastQ file for read 2. File has to be zipped and have the extension ".fastq.gz" or ".fq.gz".   |
 
-### `--genome`
+#### `--genome`
 
 The genome argument has two properties. Firstly, it is used to document the name of the reference genome of the organism the Hi-C data originates from and secondly it can be used to retrieve prespecified reference data from a local igenomes database, where the pipeline automatically takes the files it requires for processing the Hi-C data (i.e. a bowtie2 index, a genome fasta and a chromSizes file).
 
@@ -109,15 +109,15 @@ params {
 }
 ```
 
-### `--re1`
+#### `--re1`
 
 Hi-C experiments typically involve digestion of the with restriction enzymes after cross-linking. To be able to computationally identify artifacts in the sequence data arising from this process the HICUP pipeline requires the sequence motif the used enzyme cuts including its name. This information is given via the `--re1` parameter in the form specified by [HICUP](https://www.bioinformatics.babraham.ac.uk/projects/hicup/read_the_docs/html/index.html) which is ^GATC,MboI, where ^ indicates the cutsite, GATC is the sequence motif the enzyme recognizes and MboI is the name of the enzyme. In cases where a double digest protocol was used one can also specify `--re2` for the second restriction enzyme used (see below).
 
-### `--fasta`
+#### `--fasta`
 
 This parameter is used to specify the genome fasta file and is only required if no igenomes database is available or hicup digestion file or bowtie2 index is not available locally. The file is used for in-silico restriction digestion for HICUP (if the file is not specified manually with `--hicupDigest`, see below) and bowtie2 index computation (if not specified manually)
 
-### `--chromSizes`
+#### `--chromSizes`
 
 This parameter is used to specify file containing the chromosome names and their size. This information is used by cooler for binning the genome. The file can either be a tab-separated file with two columns (preferred format)
 
@@ -143,7 +143,7 @@ The XML will be converted to TSV in-situ where the pipeline uses the `contigName
 
 ## Generic arguments
 
-### `--bowtie2`
+#### `--bowtie2`
 
 Full path to an existing bowtie2 index for your reference genome including the base name for the index. This is only necessary if you don't have an igenomes database and have a precomputed index for your fasta file that you want to use. Otherwise, the index will be computed from the fasta file specified with `--fasta`
 
@@ -151,7 +151,7 @@ Full path to an existing bowtie2 index for your reference genome including the b
 --bowtie2 '[directory containing bowtie2 index]/genome'
 ```
 
-### `--hicupDigest`
+#### `--hicupDigest`
 
 File with digested genome of a given restriction enzyme as produced with `hicup_digester`. This can be used to override in-situ digestion of the fasta and use your own digestion file.
 
@@ -159,7 +159,7 @@ File with digested genome of a given restriction enzyme as produced with `hicup_
 --hicdigest '[file with digested genome]'
 ```
 
-### `--resolutions`
+#### `--resolutions`
 
 Resolution of the matrix for KR-normalization, expected/observed calculation and A/B compartment track calculation.
 
@@ -167,7 +167,7 @@ Resolution of the matrix for KR-normalization, expected/observed calculation and
 --resolution '[resolution in kb]'
 ```
 
-### `--outputDir`
+#### `--outputDir`
 
 Name of the folder to which the output will be saved (default: results)
 
