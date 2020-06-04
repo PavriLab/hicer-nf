@@ -15,14 +15,13 @@ We loosely follow the steps proposed by [Rao et al, Cell 2014](https://www.ncbi.
 1. Raw read QC ([`FastQC`](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/))
 2. Adapter trimming ([`Trim Galore!`](https://www.bioinformatics.babraham.ac.uk/projects/trim_galore/))
 3. Alignment ([`HiCUP`](https://www.bioinformatics.babraham.ac.uk/projects/hicup/))
-4. Insert size calculation
-5. Build 1kb resolution contact matrix ([`HiCExplorer`](https://hicexplorer.readthedocs.io/en/latest/))
-6. Merge bins to desired resolution and remove non-canonical chromosomes ([`HiCExplorer`](https://hicexplorer.readthedocs.io/en/latest/))
-7. [KR normalize](https://doi.org/10.1093/imanum/drs019) contact matrix ([`HiCExplorer`](https://hicexplorer.readthedocs.io/en/latest/))
-8. Calculate observed / expected matrix ([`HiCExplorer`](https://hicexplorer.readthedocs.io/en/latest/))
-9. Create Eigenvector bigwig tracks for A/B compartmentalization ([`pyBigWig`](https://github.com/deeptools/pyBigWig))
-10. Create `mcooler` files for use in [HiGlass](http://higlass.io/) ([`cooler`](https://mirnylab.github.io/cooler/))
-11. Present QC for raw reads, alignment and filtering [`MultiQC`](http://multiqc.info/)
+4. Generating an indexed pairs file from the alignments ([`pairix`](https://github.com/4dn-dcic/pairix))
+5. Build 1kb resolution contact matrix ([`cooler`](https://cooler.readthedocs.io/en/latest/))
+6. Aggregate bins to a range of default resolutions including optional custom resolutions ([`cooler`](https://cooler.readthedocs.io/en/latest/))
+7. Compute matrix normalization vectors for all aggregated resolutions with the [KR](https://doi.org/10.1093/imanum/drs019) and the [IC](https://www.nature.com/articles/nmeth.2148) algorithm ([`HiCExplorer`](https://hicexplorer.readthedocs.io/en/latest/)[`cooler`](https://cooler.readthedocs.io/en/latest/))
+8. Present QC for raw reads, alignment and filtering [`MultiQC`](http://multiqc.info/)
+
+The generated mcool files are compatible with [cooltools](https://cooltools.readthedocs.io/en/latest/index.html) for downstream analysis and [Higlass](https://github.com/higlass/higlass) for visualization. A range of possible downstream analyses can be found in the possibilities directory of this repo. In addition the pipeline also generates [hic] files with [juicer](https://github.com/aidenlab/juicer) for visualization in [juicebox](https://github.com/aidenlab/Juicebox) and/or loop calling with juicer's HICCUPS algorithm. 
 
 ## Quick Start
 
@@ -33,14 +32,19 @@ ii. Install one of [`docker`](https://docs.docker.com/engine/installation/), [`s
 iii. Start running your own analysis!
 
 ```bash
-nextflow run t-neumann/hicer-nf --design design.txt --genome mm9 --singleEnd
+# if you have specified an igenomes directory from or run a profile from any of the institutions 
+# listed here https://raw.githubusercontent.com/nf-core/configs/master/nfcore_custom.config
+nextflow run t-neumann/hicer-nf --samples samples.txt --genome mm9 --re1 ^GATC,MboI
+
+# else you can specify the most essential things manually
+nextflow run t-neumann/hicer-nf --samples samples.txt --genome mm9 --re1 ^GATC,MboI --fasta genome.fa --chromSizes chrom.sizes
 ```
 
 ## Main arguments
 
-### `-profile`
+#### `-profile`
 
-Use this parameter to choose a configuration profile. Profiles can give configuration presets for different compute environments. Note that multiple profiles can be loaded, for example: `-profile docker` - the order of arguments is important!
+Use this parameter to choose a configuration profile. Profiles can give configuration presets for different compute environments. The pipeline uses the [nf-core custom_configs repo](https://raw.githubusercontent.com/nf-core/configs/master/nfcore_custom.config) to load config files for compute clusters of different institutions. So please check with this or make your own config file if you want to use the igenomes reference database. Note that multiple profiles can be loaded, for example: `-profile docker cbe` - the order of arguments is important!
 
 If `-profile` is not specified at all the pipeline will be run locally and expects all software to be installed and available on the `PATH`.
 
@@ -49,9 +53,9 @@ If `-profile` is not specified at all the pipeline will be run locally and expec
   * Pulls software from dockerhub: [`zuberlab/hicer-nf`](http://hub.docker.com/r/zuberlab/hicer-nf/)
 * `singularity`
   * A generic configuration profile to be used with [Singularity](http://singularity.lbl.gov/)
-  * Pulls software from DockerHub: [`zuberlab/repliseq-nf`](http://hub.docker.com/r/zuberlab/hicer-nf/)
+  * Pulls software from DockerHub: [`zuberlab/hicer-nf`](http://hub.docker.com/r/zuberlab/hicer-nf/)
 
-### `--samples`
+#### `--samples`
 
 You will need to create a design file with information about the samples in your experiment before running the pipeline. Use this parameter to specify its location. It has to be a tab-separated file with 3 columns, and a header row as shown in the examples below.
 
@@ -72,17 +76,13 @@ KD KD_1.fastq.gz KD_2.fastq.gz
 | `read1`   | Full path to FastQ file for read 1. File has to be zipped and have the extension ".fastq.gz" or ".fq.gz".   |
 | `read2`   | Full path to FastQ file for read 2. File has to be zipped and have the extension ".fastq.gz" or ".fq.gz".   |
 
-## Generic arguments
+### `--genome`
 
-## Reference genomes
-
-The pipeline config files come bundled with paths to the illumina iGenomes reference index files. If running with docker or AWS, the configuration is set up to use the [AWS-iGenomes](https://ewels.github.io/AWS-iGenomes/) resource.
-
-### `--genome` (using iGenomes)
+The genome argument has two properties. Firstly, it is used to document the name of the reference genome of the organism the Hi-C data originates from and secondly it can be used to retrieve prespecified reference data from a local igenomes database, where the pipeline automatically takes the files it requires for processing the Hi-C data (i.e. a bowtie2 index, a genome fasta and a chromSizes file).
 
 There are 31 different species supported in the iGenomes references. To run the pipeline, you must specify which to use with the `--genome` flag.
 
-You can find the keys to specify the genomes in the [iGenomes config file](../conf/genomes.config). Common genomes that are supported are:
+You can find the keys to specify the genomes in the [iGenomes config file](../conf/igenomes.config). Common genomes that are supported are:
 
 * Human
   * `--genome GRCh37`
@@ -92,8 +92,6 @@ You can find the keys to specify the genomes in the [iGenomes config file](../co
   * `--genome BDGP6`
 * _S. cerevisiae_
   * `--genome 'R64-1-1'`
-
-> There are numerous others - check the config file for more.
 
 Note that you can use the same configuration setup to save sets of reference files for your own use, even if they are not part of the iGenomes resource. See the [Nextflow documentation](https://www.nextflow.io/docs/latest/config.html) for instructions on where to save such a file.
 
@@ -111,39 +109,57 @@ params {
 }
 ```
 
+### `--re1`
+
+Hi-C experiments typically involve digestion of the with restriction enzymes after cross-linking. To be able to computationally identify artifacts in the sequence data arising from this process the HICUP pipeline requires the sequence motif the used enzyme cuts including its name. This information is given via the `--re1` parameter in the form specified by [HICUP](https://www.bioinformatics.babraham.ac.uk/projects/hicup/read_the_docs/html/index.html) which is ^GATC,MboI, where ^ indicates the cutsite, GATC is the sequence motif the enzyme recognizes and MboI is the name of the enzyme. In cases where a double digest protocol was used one can also specify `--re2` for the second restriction enzyme used (see below).
+
 ### `--fasta`
 
-Full path to fasta file containing reference genome (*mandatory* if `--genome` is not specified). If you don't have a BWA index available this will be generated for you automatically. Combine with `--save_reference` to save BWA index for future runs.
+This parameter is used to specify the genome fasta file and is only required if no igenomes database is available or hicup digestion file or bowtie2 index is not available locally. The file is used for in-silico restriction digestion for HICUP (if the file is not specified manually with `--hicupDigest`, see below) and bowtie2 index computation (if not specified manually)
+
+### `--chromSizes`
+
+This parameter is used to specify file containing the chromosome names and their size. This information is used by cooler for binning the genome. The file can either be a tab-separated file with two columns (preferred format)
 
 ```bash
---fasta '[path to FASTA reference]'
+cat chrom.sizes.tsv
+
+chr1 10000
+chr2 30499
 ```
+
+or an XML file as given by the igenomes database
+
+```bash
+cat chrom.sizes.xml
+
+<sequenceSizes genomeName="genome">
+        <chromosome fileName="genome.fa" contigName="chr1" totalBases="10000" isCircular="false" md5="be7e6a13cc6b9da7c1da7b7fc32c5506" ploidy="2" knownBases="126847849" />
+        <chromosome fileName="genome.fa" contigName="chr2" totalBases="30499" isCircular="false" 
+</sequenceSizes>
+```
+
+The XML will be converted to TSV in-situ where the pipeline uses the `contigName` and `totalBases` keys for generating the TSV file. Thus at least these fields have to be present in the XML. This option is for compatibility with older igenomes databases.
+
+## Generic arguments
 
 ### `--bowtie2`
 
-Full path to an existing Bowtie index for your reference genome including the base name for the index.
+Full path to an existing bowtie2 index for your reference genome including the base name for the index. This is only necessary if you don't have an igenomes database and have a precomputed index for your fasta file that you want to use. Otherwise, the index will be computed from the fasta file specified with `--fasta`
 
 ```bash
---bowtie2 '[directory containing bowtie2 index]/genome.fa'
+--bowtie2 '[directory containing bowtie2 index]/genome'
 ```
 
-### `--bed12`
+### `--hicupDigest`
 
-Full path to an existing gene bed file for A/B compartmentalization.
-
-```bash
---bed12 '[bed file with gene coordinates]'
-```
-
-### `--hicdigest`
-
-File with digested genome of a given restriction enzyme as produced with `hicup_digester`.
+File with digested genome of a given restriction enzyme as produced with `hicup_digester`. This can be used to override in-situ digestion of the fasta and use your own digestion file.
 
 ```bash
 --hicdigest '[file with digested genome]'
 ```
 
-### `--resolution`
+### `--resolutions`
 
 Resolution of the matrix for KR-normalization, expected/observed calculation and A/B compartment track calculation.
 
@@ -176,6 +192,9 @@ Many thanks to others who have helped out along the way too, including (but not 
 
 * [Bowtie 2](https://www.ncbi.nlm.nih.gov/pubmed/22388286/)
   > Langmead B, Salzberg SL. Fast gapped-read alignment with Bowtie 2. Nat Methods. 2012 Mar 4;9(4):357-9. doi: 10.1038/nmeth.1923. PubMed PMID: 22388286; PubMed Central PMCID: PMC3322381.
+  
+* [Juicer](https://www.cell.com/cell-systems/fulltext/S2405-4712%2816%2930219-8)
+  > Neva C. Durand, Muhammad S. Shamim, Ido Machol, Suhas S. P. Rao, Miriam H. Huntley, Eric S. Lander, and Erez Lieberman Aiden. "Juicer provides a one-click system for analyzing loop-resolution Hi-C experiments." Cell Systems 3(1), 2016. doi: 10.1016/j.cels.2016.07.002
 
 * [HiCUP](https://www.ncbi.nlm.nih.gov/pubmed/26835000)
   > Wingett SW, Ewels P, Furlan-Magaril M, Nagano T, Schoenfelder S, Fraser P, Simon Andrews S. HiCUP: pipeline for mapping and processing Hi-C data. F1000Research. 2015 4:1310. doi: 10.12688/f1000research.7334.1
@@ -193,21 +212,23 @@ Many thanks to others who have helped out along the way too, including (but not 
 
 * [Trim Galore!](https://www.bioinformatics.babraham.ac.uk/projects/trim_galore/)
 
+* [pairix](https://github.com/4dn-dcic/pairix)
+
 ### Python packages
-
-* [pysam](https://pysam.readthedocs.io/en/latest/index.html)
-  > Li H, Handsaker B, Wysoker A, Fennell T, Ruan J, Homer N, Marth G, Abecasis G, Durbin R; 1000 Genome Project Data Processing Subgroup. The Sequence Alignment/Map format and SAMtools. Bioinformatics. 2009 Aug 15;25(16):2078-9. doi: 10.1093/bioinformatics/btp352. Epub 2009 Jun 8. PubMed PMID: 19505943; PubMed Central PMCID: PMC2723002.
-
-* [pyranges](https://github.com/biocore-ntnu/pyranges)
-  > Stovner EB, Sætrom P; PyRanges: efficient comparison of genomic intervals in Python. Bioinformatics. 2020 Feb 1;36(3):918-919. doi: 10.1093/bioinformatics/btz615. PMID: 31373614
 
 * [pandas](https://pandas.pydata.org/docs/index.html)
   > Wes McKinney. Data Structures for Statistical Computing in Python, Proceedings of the 9th Python in Science Conference, 51-56 (2010)
   
+* [cooler](https://cooler.readthedocs.io/en/latest/)
+  > Nezar Abdennur, Leonid A Mirny, Cooler: scalable storage for Hi-C data and other genomically labeled arrays, Bioinformatics, Volume 36, Issue 1, 1 January 2020, Pages 311–316. doi: 10.1093/bioinformatics/btz540
+  
 * [numpy](https://numpy.org/)
   > Stéfan van der Walt, S. Chris Colbert and Gaël Varoquaux. The NumPy Array: A Structure for Efficient Numerical Computation, Computing in Science & Engineering, 13, 22-30 (2011). doi: 10.1109/MCSE.2011.37
   
-* [HiCMatrix](https://github.com/deeptools/HiCMatrix)
+* [scipy](https://www.scipy.org/)
+  > Virtanen, P., Gommers, R., Oliphant, T.E. et al. SciPy 1.0: fundamental algorithms for scientific computing in Python. Nat Methods 17, 261–272 (2020). doi: 10.1038/s41592-019-0686-2
+  
+* [h5py](https://github.com/h5py/h5py)
 
 ### Software packaging/containerisation tools
 
