@@ -18,7 +18,7 @@ We loosely follow the steps proposed by [Rao et al, Cell 2014](https://www.ncbi.
 4. Generating an indexed pairs file from the alignments ([`pairix`](https://github.com/4dn-dcic/pairix))
 5. Build 1kb resolution contact matrix ([`cooler`](https://cooler.readthedocs.io/en/latest/))
 6. Aggregate bins to a range of default resolutions including optional custom resolutions ([`cooler`](https://cooler.readthedocs.io/en/latest/))
-7. Compute matrix normalization vectors for all aggregated resolutions with the [KR](https://doi.org/10.1093/imanum/drs019) and the [IC](https://www.nature.com/articles/nmeth.2148) algorithm ([`HiCExplorer`](https://hicexplorer.readthedocs.io/en/latest/) and [`cooler`](https://cooler.readthedocs.io/en/latest/))
+7. Compute matrix normalization vectors for all aggregated resolutions with the [KR](https://doi.org/10.1093/imanum/drs019) and the [IC](https://www.nature.com/articles/nmeth.2148) algorithm (HiCExplorers [C++ implementation of the KR algorithm](https://github.com/deeptools/Knight-Ruiz-Matrix-balancing-algorithm) and [`cooler`](https://cooler.readthedocs.io/en/latest/) Out-Of-Core balancing)
 8. Present QC for raw reads, alignment and filtering [`MultiQC`](http://multiqc.info/)
 
 The generated mcool files are compatible with [cooltools](https://cooltools.readthedocs.io/en/latest/index.html) for downstream analysis and [Higlass](https://github.com/higlass/higlass) for visualization. A range of possible downstream analyses can be found in the possibilities directory of this repo. In addition the pipeline also generates [hic] files with [juicer](https://github.com/aidenlab/juicer) for visualization in [juicebox](https://github.com/aidenlab/Juicebox) and/or loop calling with juicer's HICCUPS algorithm. 
