@@ -53,7 +53,7 @@ def helpMessage() {
                          'results')
 
      References:
-        --genome         Name of reference (hg38, mm10)
+        --genome         Name of reference (hg38, mm10, ...)
         --fasta          Alternatively, path to genome fasta file which will be digested
         --chromSizes     tab-separated file containing chromosome names and their sizes
         --bowtie2        Optional: Path to bowtie2 index
