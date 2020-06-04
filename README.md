@@ -37,8 +37,14 @@ iii. Start running your own analysis!
 nextflow run t-neumann/hicer-nf --samples samples.txt --genome mm9 --re1 ^GATC,MboI
 
 # else you can specify the most essential things manually
+# if HICUP digest and bowtie2 index are not available
 nextflow run t-neumann/hicer-nf --samples samples.txt --genome mm9 --re1 ^GATC,MboI --fasta genome.fa --chromSizes chrom.sizes
+
+# if HICUP digest and bowtie2 index are available
+nextflow run t-neumann/hicer-nf --samples samples.txt --genome mm9 --re1 ^GATC,MboI --bowtie2 /path/to/bowtie2Index/genome_base_name --hicupDigest /path/to/hicup/digest/file --chromSizes chrom.sizes
 ```
+
+These invocations compute cooler and hic files for a default resolution list of 5kb, 10kb, 25kb, 50kb, 100kb, 250kb, 500kb and 1Mb. If you want resolutions that are not listed here you could use the `--resolutions` parameter (see below).
 
 ## Main arguments
 
@@ -161,10 +167,10 @@ File with digested genome of a given restriction enzyme as produced with `hicup_
 
 #### `--resolutions`
 
-Resolution of the matrix for KR-normalization, expected/observed calculation and A/B compartment track calculation.
+By default, the pipeline computes matrices and normalizations thereof for resolutions 5kb, 10kb, 25kb, 50kb, 100kb, 250kb, 500kb and 1Mb for both cooler and hic files. However, if you want to add additional resolutions which are not present in this list you can use the `--resolutions` parameter by passing either a single value or multiple ones separated by commas in Bp. The specified resolutions will then be added. However, be aware that the the specified resolutions have to be an integer multiple of the base resolution, which is 1kb.
 
 ```bash
---resolution '[resolution in kb]'
+--resolution 20000 / --resolution 20000,75000,200000
 ```
 
 #### `--outputDir`
