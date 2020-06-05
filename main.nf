@@ -209,7 +209,7 @@ if (convertChromSizes) {
     file(chromSizeXML) from xml2tsvChannel
 
     output:
-    file("chromSizes.tsv") into chromSizeChannelPairix, chromSizeChannelMatrix
+    file("chromSizes.tsv") into (chromSizeChannelPairix, chromSizeChannelMatrix)
 
     shell:
     '''
