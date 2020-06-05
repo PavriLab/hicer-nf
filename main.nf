@@ -356,7 +356,7 @@ process pairixMaker {
     file(chromSizeFile) from chromSizeChannelPairix
 
     output:
-    tuple val(name), file("${name}/${name}.pairs.gz") into resultsPairixCooler, resultsPairixJuicer
+    tuple val(name), file("${name}/${name}.pairs.gz"), file("${name}/${name}.pairs.gz.px2") into resultsPairixCooler, resultsPairixJuicer
 
 
     shell:
@@ -389,13 +389,15 @@ process hicFileGenerator {
 
   tag { name }
 
+  container "aidenlab/juicer:latest"
+
   publishDir  path: "${params.outputDir}/${name}/matrices/",
               mode: 'copy',
               overwrite: 'true',
               patter: "*.hic"
 
   input:
-  tuple val(name), file(pairs) from resultsPairixJuicer
+  tuple val(name), file(pairs), file(pairsIndex) from resultsPairixJuicer
   file(chromSizeFile) from chromSizeChannelJuicer
 
   output:
@@ -424,7 +426,7 @@ process matrixBuilder {
     tag { name }
 
     input:
-    tuple val(name), file(pairs) from resultsPairixCooler
+    tuple val(name), file(pairs), file(pairsIndex) from resultsPairixCooler
     file(chromSizeFile) from chromSizeChannelCooler
 
     output:
