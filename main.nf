@@ -209,7 +209,7 @@ if (convertChromSizes) {
     file(chromSizeXML) from xml2tsvChannel
 
     output:
-    file("chromSizes.tsv") into (chromSizeChannelPairix, chromSizeChannelMatrix, chromSizeChannelJuicer)
+    file("chromSizes.tsv") into (chromSizeChannelPairix, chromSizeChannelCooler, chromSizeChannelJuicer)
 
     shell:
     '''
@@ -356,7 +356,7 @@ process pairixMaker {
     file(chromSizeFile) from chromSizeChannelPairix
 
     output:
-    tuple val(name), file("${name}/${name}.pairs.gz") into resultsPairix, resultsPairixForJuicer
+    tuple val(name), file("${name}/${name}.pairs.gz") into resultsPairixCooler, resultsPairixJuicer
 
 
     shell:
@@ -395,7 +395,7 @@ process hicFileGenerator {
               patter: "*.hic"
 
   input:
-  tuple val(name), file(pairs) from resultsPairixForJuicer
+  tuple val(name), file(pairs) from resultsPairixJuicer
   file(chromSizeFile) from chromSizeChannelJuicer
 
   output:
@@ -424,7 +424,7 @@ process matrixBuilder {
     tag { name }
 
     input:
-    tuple val(name), file(pairs) from resultsPairix
+    tuple val(name), file(pairs) from resultsPairixCooler
     file(chromSizeFile) from chromSizeChannelCooler
 
     output:
