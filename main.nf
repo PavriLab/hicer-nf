@@ -213,6 +213,8 @@ if (convertChromSizes) {
 
     shell:
     '''
+    echo !{task.memory}
+    echo !{task.cpus}
     xml2tsv.py !{chromSizeXML} chromSizes.tsv
     '''
 
@@ -234,6 +236,8 @@ if (digestFasta) {
     shell:
     re2 = params.re2 ? "--re2 ${params.re2}": ''
     """
+    echo !{task.memory}
+    echo !{task.cpus}
     hicup_digester --genome !{params.genome} --re1 !{params.re1} !{re2} !{fasta}
     """
   }
@@ -269,31 +273,36 @@ process trim {
     val(parameters) from samplesChannel
 
     output:
-    file "*_fastqc.{zip,html}" into fastqcResults
-    file "*trimming_report.txt" into trimgaloreResults
-    tuple val("${parameters.name}"), file('*_trimmed_val_1.fq.gz'), file('*_trimmed_val_2.fq.gz') into resultsTrimming
+    file "${parameters.name}/*_fastqc.{zip,html}" into fastqcResults
+    file "${parameters.name}/*trimming_report.txt" into trimgaloreResults
+    tuple val("${parameters.name}"), file("${parameters.name}/*_trimmed_val_1.fq.gz"), file("${parameters.name}/*_trimmed_val_2.fq.gz") into resultsTrimming
 
     shell:
     lastPath = parameters.read1.lastIndexOf(File.separator)
     read1Base = parameters.read1.substring(lastPath+1)
     lastPath = parameters.read2.lastIndexOf(File.separator)
     read2Base = parameters.read2.substring(lastPath+1)
+    trimDir = parameters.name
 
     """
+    mkdir -p !{parameters.name}
+    echo !{task.memory}
+    echo !{task.cpus}
     trim_galore --paired \
                 --quality 20 \
                 --fastqc \
                 --illumina \
                 --gzip \
+                --output_dir !{parameters.name} \
                 --basename !{parameters.name}_trimmed \
                 --cores !{task.cpus} \
                 !{parameters.read1} \
                 !{parameters.read2}
 
-    mv !{read1Base}_trimming_report.txt !{parameters.name}_trimmed_val_1.fq.gz_trimming_report.txt
-    sed -i 's/Command line parameters:.*\$/Command line parameters: !{parameters.name}_trimmed_val_1/g' !{parameters.name}_trimmed_val_1.fq.gz_trimming_report.txt
+    mv !{trimDir}/!{read1Base}_trimming_report.txt !{trimDir}/!{parameters.name}_trimmed_val_1.fq.gz_trimming_report.txt
+    sed -i 's/Command line parameters:.*\$/Command line parameters: !{parameters.name}_trimmed_val_1/g' !{trimDir}/!{parameters.name}_trimmed_val_1.fq.gz_trimming_report.txt
     mv !{read2Base}_trimming_report.txt !{parameters.name}_trimmed_val_2.fq.gz_trimming_report.txt
-    sed -i 's/Command line parameters:.*\$/Command line parameters: !{parameters.name}_trimmed_val_2/g' !{parameters.name}_trimmed_val_2.fq.gz_trimming_report.txt
+    sed -i 's/Command line parameters:.*\$/Command line parameters: !{parameters.name}_trimmed_val_2/g' !{trimDir}/!{parameters.name}_trimmed_val_2.fq.gz_trimming_report.txt
     """
 }
 
@@ -320,7 +329,8 @@ process hicup {
 
     '''
     mkdir -p !{name}
-
+    echo !{task.memory}
+    echo !{task.cpus}
     hicup --bowtie2 $(which bowtie2) \
           --index !{index}/!{bwt2_base} \
           --digest !{digest} \
@@ -411,7 +421,8 @@ process juicerHic {
   juicerPath = "${NXF_HOME}/assets/t-neumann/hicer-nf/bin"
   '''
   mkdir -p !{name}
-
+  echo !{task.memory}
+  echo !{task.cpus}
   java -Xmx!{task.memory.toGiga()}G -jar !{juicerPath}/juicer_tools_1.22.01.jar pre \
        -r !{resolutions} \
        -k KR,GW_KR \
