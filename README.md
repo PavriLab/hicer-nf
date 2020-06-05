@@ -50,7 +50,7 @@ These invocations compute cooler and hic files for a default resolution list of 
 
 #### `-profile`
 
-Use this parameter to choose a configuration profile. Profiles can give configuration presets for different compute environments. The pipeline uses the [nf-core custom_configs repo](https://raw.githubusercontent.com/nf-core/configs/master/nfcore_custom.config) to load config files for compute clusters of different institutions. So please check with this or make your own config file if you want to use the igenomes reference database. Note that multiple profiles can be loaded, for example: `-profile docker cbe` - the order of arguments is important!
+Use this parameter to choose a configuration profile. Profiles can give configuration presets for different compute environments. The pipeline uses the [nf-core custom_configs repo](https://github.com/nf-core/configs) to load config files for compute clusters of different institutions. So please check with this or make your own config file if you want to use the igenomes reference database. Note that multiple profiles can be loaded, for example: `-profile docker cbe` - the order of arguments is important!
 
 If `-profile` is not specified at all the pipeline will be run locally and expects all software to be installed and available on the `PATH`.
 
