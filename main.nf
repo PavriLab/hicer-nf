@@ -407,11 +407,11 @@ process juicerHic {
                    'canFam3', 'equCab2', 'galGal4', 'Pf3D7',
                    'sacCer3', 'sCerS288c', 'susScr3', 'TAIR10']
   genome = juicerGenomes.contains(params.genome) ? params.genome : chromSizeFile
+  juicerPath = "${NXF_ASSETS}/t-neumann/hicer-nf/bin
   '''
   mkdir -p !{name}
 
-  JUICERPATH=$NXF_ASSETS/t-neumann/hicer-nf/bin/
-  java -Xmx!{task.memory} -jar $JUICERPATH/juicer_tools_1.22.01.jar pre \
+  java -Xmx!{task.memory} -jar !{juicerPath}/juicer_tools_1.22.01.jar pre \
        -r !{resolutions} \
        -k KR,GW_KR \
        !{pairs} \
