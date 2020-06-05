@@ -270,7 +270,7 @@ process trim {
     output:
     file "*_fastqc.{zip,html}" into fastqcResults
     file "*trimming_report.txt" into trimgaloreResults
-    set val("${parameters.name}"), file('*_trimmed_val_1.fq.gz'), file('*_trimmed_val_2.fq.gz') into resultsTrimming
+    set val("${parameters.name}"), file('*_trimmed_R1_val_1.fq.gz'), file('*_trimmed_R2_val_2.fq.gz') into resultsTrimming
 
     shell:
     lastPath = parameters.read1.lastIndexOf(File.separator)
@@ -280,14 +280,14 @@ process trim {
 
     """
     trim_galore --paired \
-    --quality 20 \
-    --fastqc \
-    --illumina \
-    --gzip \
-    --basename !{parameters.name}_trimmed \
-    --cores !{task.cpus} \
-    !{parameters.read1} \
-    !{parameters.read2}
+                --quality 20 \
+                --fastqc \
+                --illumina \
+                --gzip \
+                --basename !{parameters.name}_trimmed \
+                --cores !{task.cpus} \
+                !{parameters.read1} \
+                !{parameters.read2}
 
     mv !{read1Base}_trimming_report.txt !{parameters.name}_trimmed_val_1.fq.gz_trimming_report.txt
     sed -i 's/Command line parameters:.*\$/Command line parameters: !{parameters.name}_trimmed_val_1/g' !{parameters.name}_trimmed_val_1.fq.gz_trimming_report.txt
@@ -320,15 +320,14 @@ process hicup {
     '''
     mkdir -p !{name}
 
-    hicup \
-    --bowtie2 $(which bowtie2) \
-    --index !{index}/!{bwt2_base} \
-    --digest !{digest} \
-    --format Sanger \
-    --outdir !{name} \
-    --threads !{task.cpus} \
-    !{fastq1} \
-    !{fastq2}
+    hicup --bowtie2 $(which bowtie2) \
+          --index !{index}/!{bwt2_base} \
+          --digest !{digest} \
+          --format Sanger \
+          --outdir !{name} \
+          --threads !{task.cpus} \
+          !{fastq1} \
+          !{fastq2}
 
     mv !{name}/*sam !{name}/!{name}.hicup.sam
 
