@@ -410,7 +410,7 @@ process juicerHic {
   '''
   mkdir -p !{name}
 
-  java -Xmx!{task.memory} -jar juicer_tools_1.22.01.jar pre \
+  java -Xmx!{task.memory} -jar bin/juicer_tools_1.22.01.jar pre \
        -r !{resolutions} \
        -k KR,GW_KR \
        !{pairs} \
