@@ -321,12 +321,11 @@ process hicup {
     tuple val(name), file(fastq1), file(fastq2) from resultsTrimming
 
     output:
-    tuple val(name), file("${name}/*sam") into resultsHicup
+    tuple val(name), file("${name}/*sam") into resultsHicup, sam2bamChannel
     file("${name}/*html") into htmlHicup
     file("${name}/HiCUP_summary_report*") into multiqcHicup
 
     shell:
-
     '''
     mkdir -p !{name}
     echo !{task.memory}
@@ -352,6 +351,30 @@ process hicup {
     '''
 }
 
+process sam2bamConverter {
+
+    tag { name }
+
+    publishDir  path: "${params.outputDir}/${name}/bams/",
+                mode: 'copy',
+                overwrite: 'true',
+                pattern '*/*.bam'
+
+    input:
+    tuple val(name), file(sam) from sam2bamChannel
+
+    output:
+    file("${name}/${name}.hicup.bam") into sam2bamResults
+
+    shell:
+    '''
+    mkdir -p !{name}
+    echo !{task.memory}
+    echo !{task.cpus}
+    samtools view -bh -@ !{task.cpus} !{sam} > !{name}/!{name}.hicup.bam
+    '''
+}
+
 process pairixMaker {
 
     tag { name }
@@ -367,7 +390,6 @@ process pairixMaker {
 
     output:
     tuple val(name), file("${name}/${name}.pairs.gz"), file("${name}/${name}.pairs.gz.px2") into resultsPairixCooler, resultsPairixJuicer
-
 
     shell:
     '''
