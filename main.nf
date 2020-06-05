@@ -231,8 +231,9 @@ if (digestFasta) {
     file("Digest*.txt") into hicupDigestIndex
 
     shell:
+    re2 = params.re2 ? "--re2 ${params.re2}": ''
     """
-    hicup_digester --genome !{params.genome} --re1 !{params.re1} --re2 !{params.re2} !{fasta}
+    hicup_digester --genome !{params.genome} --re1 !{params.re1} !{re2} !{fasta}
     """
   }
 }
