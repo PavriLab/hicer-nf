@@ -384,7 +384,7 @@ process pairixMaker {
     file(chromSizeFile) from chromSizeChannelPairix
 
     output:
-    tuple val(name), file("${name}/${name}.pairs.gz"), file("${name}/${name}.pairs.gz.px2") into resultsPairixCooler, resultsPairixJuicer
+    tuple val(name), file("${name}/${name}.pairs.gz"), file("${name}/${name}.pairs.gz.px2") into resultsPairixBaseBuilder, resultsPairixJuicer
 
     shell:
     '''
@@ -447,16 +447,16 @@ process juicerHic {
   '''
 }
 
-process matrixBuilder {
+process baseBuilder {
 
     tag { name }
 
     input:
-    tuple val(name), file(pairs), file(pairsIndex) from resultsPairixCooler
+    tuple val(name), file(pairs), file(pairsIndex) from resultsPairixBaseBuilder
     file(chromSizeFile) from chromSizeChannelCooler
 
     output:
-    tuple val(name), file("${name}/${name}_1kb.cool") into resultsMatrixBuilder
+    tuple val(name), file("${name}/${name}_1kb.cool") into resultsBaseBuilder
 
     shell:
     '''
@@ -471,15 +471,15 @@ process matrixBuilder {
 
 }
 
-process zoomifyMatrix {
+process zoomifyBase {
 
     tag { name }
 
     input:
-    tuple val(name), file(basematrix) from resultsMatrixBuilder
+    tuple val(name), file(basematrix) from resultsBaseBuilder
 
     output:
-    tuple val(name), file("${name}/${name}.mcool") into resultsZoomifyMatrix
+    tuple val(name), file("${name}/${name}.mcool") into resultsZoomifyBase
 
     shell:
     '''
@@ -492,7 +492,7 @@ process zoomifyMatrix {
     '''
 }
 
-process matrixNormalizer {
+process mcoolNormalizer {
 
     publishDir  path: "${params.outputDir}/${name}/matrices/",
                 mode: 'copy',
@@ -502,10 +502,10 @@ process matrixNormalizer {
     tag { name }
 
     input:
-    tuple val(name), file(mcool) from resultsZoomifyMatrix
+    tuple val(name), file(mcool) from resultsZoomifyBase
 
     output:
-    tuple val(name), file("${mcool}") into resultsMatrixNormalizer
+    tuple val(name), file("${mcool}") into resultsMcoolNormalizer
 
     shell:
 
