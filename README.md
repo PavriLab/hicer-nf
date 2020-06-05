@@ -16,7 +16,7 @@ We loosely follow the steps proposed by [Rao et al, Cell 2014](https://www.ncbi.
 2. Adapter trimming ([`Trim Galore!`](https://www.bioinformatics.babraham.ac.uk/projects/trim_galore/))
 3. Alignment ([`HiCUP`](https://www.bioinformatics.babraham.ac.uk/projects/hicup/))
 4. Generating an indexed pairs file from the alignments ([`pairix`](https://github.com/4dn-dcic/pairix))
-5. Build 1kb resolution contact matrix ([`cooler`](https://cooler.readthedocs.io/en/latest/))
+5. Build base resolution contact matrix (i.e. the smallest resolution given; default 5kb) ([`cooler`](https://cooler.readthedocs.io/en/latest/))
 6. Aggregate bins to a range of default resolutions including optional custom resolutions ([`cooler`](https://cooler.readthedocs.io/en/latest/))
 7. Compute matrix normalization vectors for all aggregated resolutions with the [KR](https://doi.org/10.1093/imanum/drs019) and the [IC](https://www.nature.com/articles/nmeth.2148) algorithm (HiCExplorers [C++ implementation of the KR algorithm](https://github.com/deeptools/Knight-Ruiz-Matrix-balancing-algorithm) and [`cooler`](https://cooler.readthedocs.io/en/latest/) Out-Of-Core balancing)
 8. Present QC for raw reads, alignment and filtering [`MultiQC`](http://multiqc.info/)
@@ -168,7 +168,7 @@ File with digested genome of a given restriction enzyme as produced with `hicup_
 
 #### `--resolutions`
 
-By default, the pipeline computes matrices and normalizations thereof for resolutions 5kb, 10kb, 25kb, 50kb, 100kb, 250kb, 500kb and 1Mb for both cooler and hic files. However, if you want to add additional resolutions which are not present in this list you can use the `--resolutions` parameter by passing either a single value or multiple ones separated by commas in Bp. The specified resolutions will then be added. However, be aware that the the specified resolutions have to be an integer multiple of the base resolution, which is 1kb.
+By default, the pipeline computes matrices and normalizations thereof for resolutions 5kb, 10kb, 25kb, 50kb, 100kb, 250kb, 500kb and 1Mb for both cooler and hic files. However, if you want to add additional resolutions which are not present in this list you can use the `--resolutions` parameter by passing either a single value or multiple ones separated by commas in Bp. The specified resolutions will then be added. However, be aware that the the specified resolutions have to be an integer multiple of the smallest resolution in the list i.e. a multiple of 5kb when using the default resolutions or a multiple of any resolution specified that is smaller than 5kb. In this sense any smaller resolution should also be a divisor of all default resolutions (e.g. 500bp, 1kb would all be fine however 1.5kb will not work because 5kb is not an integer multiple of 1.5kb)
 
 ```bash
 --resolution 20000 / --resolution 20000,75000,200000
