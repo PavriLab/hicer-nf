@@ -171,9 +171,10 @@ if (chromSizesFile.endsWith('xml')) {
   convertChromSizes = true
 
 } else {
-  chromSizeChannel = Channel
-                        .fromPath(chromSizesFile, checkIfExists: true)
-                        .ifEmpty { exit 1, "chromSize file not found at ${chromSizesFile}"}
+  Channel
+      .fromPath(chromSizesFile, checkIfExists: true)
+      .ifEmpty { exit 1, "chromSize file not found at ${chromSizesFile}" }
+      .into { chromSizeChannelPairix, chromSizeChannelMatrix }
   convertChromSizes = false
 
 }
@@ -208,7 +209,7 @@ if (convertChromSizes) {
     file(chromSizeXML) from xml2tsvChannel
 
     output:
-    file("chromSizes.tsv") into chromSizeChannel
+    file("chromSizes.tsv") into chromSizeChannelPairix, chromSizeChannelMatrix
 
     shell:
     '''
@@ -270,7 +271,7 @@ process trim {
     output:
     file "*_fastqc.{zip,html}" into fastqcResults
     file "*trimming_report.txt" into trimgaloreResults
-    set val("${parameters.name}"), file('*_trimmed_R1_val_1.fq.gz'), file('*_trimmed_R2_val_2.fq.gz') into resultsTrimming
+    tuple val("${parameters.name}"), file('*_trimmed_R1_val_1.fq.gz'), file('*_trimmed_R2_val_2.fq.gz') into resultsTrimming
 
     shell:
     lastPath = parameters.read1.lastIndexOf(File.separator)
@@ -308,10 +309,10 @@ process hicup {
     input:
     file index from bowtie2Index.collect()
     file digest from hicupDigestIndex.collect()
-    set val(name), file(fastq1), file(fastq2) from resultsTrimming
+    tuple val(name), file(fastq1), file(fastq2) from resultsTrimming
 
     output:
-    set val(name), file("${name}/*sam") into resultsHicup
+    tuple val(name), file("${name}/*sam") into resultsHicup
     file("${name}/*html") into htmlHicup
     file("${name}/HiCUP_summary_report*") into multiqcHicup
 
@@ -351,24 +352,28 @@ process pairixMaker {
                 pattern: "*/*pairs.gz*"
 
     input:
-    set val(name), file(sam) from resultsHicup
+    tuple val(name), file(sam) from resultsHicup
+    file(chromSizeFile) from chromSizeChannelPairix
 
     output:
-    set val(name), file("${name}/${name}.pairs.gz") into resultsPairix, resultsPairixForJuicer
+    tuple val(name), file("${name}/${name}.pairs.gz") into resultsPairix, resultsPairixForJuicer
 
 
     shell:
     '''
+    mkdir -p !{name}
+
     samtools view !{sam} | \
         awk 'BEGIN{ FS = "\t"; OFS = "\t" }{ print $1,$3,$4,and($2, 16)?"-":"+"; }' | \
         paste - - | \
         awk 'BEGIN{ FS = "\t"; OFS = "\t" }{ print $1,$2,$3,$6,$7,$4,$8 }' > \
-        !{name}/${name}.pairs.tmp
+        !{name}/!{name}.pairs.tmp
 
     cooler csort -c1 2 -c2 4 \
                  -p1 3 -p2 5 \
                  -p !{task.cpus} \
-                 !{name}/!{name}.pairs.tmp !{chromSizeFile}
+                 !{name}/!{name}.pairs.tmp \
+                 !{chromSizeFile}
 
     # add generic header to make pairix compatible with juicer prefix
     echo "## pairs format v1.0" > !{name}/!{name}.pairs
@@ -390,13 +395,15 @@ process hicFileGenerator {
               patter: "*.hic"
 
   input:
-  set val(name), file(pairs) from resultsPairixForJuicer
+  tuple val(name), file(pairs) from resultsPairixForJuicer
 
   output:
   file("${name}/${name}.hic") into resultsHicFileGenerator
 
   shell:
   '''
+  mkdir -p !{name}
+
   java -Xmx!{task.memory} -jar juicer_tools.jar pre \
        -r !{resolutions} \
        -k KR,GW_KR \
@@ -411,14 +418,16 @@ process matrixBuilder {
     tag { name }
 
     input:
-    set val(name), file(pairs) from resultsPairix
-    file(chromSizeFile) from chromSizeChannel
+    tuple val(name), file(pairs) from resultsPairix
+    file(chromSizeFile) from chromSizeChannelMatrix
 
     output:
-    set val(name), file("${name}/${name}_1kb.cool") into resultsMatrixBuilder
+    tuple val(name), file("${name}/${name}_1kb.cool") into resultsMatrixBuilder
 
     shell:
     '''
+    mkdir -p !{name}
+
     cooler cload pairix --assembly !{params.reference} \
                         -p !{task.cpus} \
                         !{chromSizeFile}:1000 \
@@ -433,13 +442,15 @@ process zoomifyMatrix {
     tag { name }
 
     input:
-    set val(name), file(basematrix) from resultsMatrixBuilder
+    tuple val(name), file(basematrix) from resultsMatrixBuilder
 
     output:
-    set val(name), file("${name}/${name}.mcool") into resultsZoomifyMatrix
+    tuple val(name), file("${name}/${name}.mcool") into resultsZoomifyMatrix
 
     shell:
     '''
+    mkdir -p !{name}
+
     cooler zoomify -p !{task.cpus} \
                    -r !{resolutions} \
                    -o !{name}/!{name}.mcool \
@@ -457,10 +468,10 @@ process matrixNormalizer {
     tag { name }
 
     input:
-    set val(name), file(mcool) from resultsZoomifyMatrix
+    tuple val(name), file(mcool) from resultsZoomifyMatrix
 
     output:
-    set val(name), file("${mcool}") into resultsMatrixNormalizer
+    tuple val(name), file("${mcool}") into resultsMatrixNormalizer
 
     shell:
 
