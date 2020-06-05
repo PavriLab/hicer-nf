@@ -84,9 +84,37 @@ if (params.help) {
 }
 
 if (params.resolutions) {
-    resolutions = params.defaultResolutions + "," + params.resolutions
+  Channel
+      .from(params.defaultResolutions + "," + params.resolutions)
+      .splitCsv()
+      .flatten()
+      .map { it.toInteger() }
+      .toSortedList()
+      .set { resolutionsList }
+
+  baseResolution = resolutionsList.value[0]
+
+  Channel
+      .fromList(resolutionsList.value)
+      .map { it.toString() }
+      .reduce { a, b -> return a + ',' + b }
+      .set { resolutionsString }
+
+  resolutions = resolutionsString.value
+
 } else {
-    resolutions = params.resolutions
+  resolutions = params.defaultResolutions
+
+  Channel
+      .from(params.defaultResolutions)
+      .splitCsv()
+      .flatten()
+      .map { it.toInteger() }
+      .toSortedList()
+      .set { resolutionsList }
+
+  baseResolution = resolutionsList.value[0]
+
 }
 
 if (!params.bowtie2 || !params.hicupDigest) {
@@ -459,14 +487,15 @@ process baseBuilder {
     tuple val(name), file("${name}/${name}_1kb.cool") into resultsBaseBuilder
 
     shell:
+
     '''
     mkdir -p !{name}
 
     cooler cload pairix --assembly !{params.genome} \
                         -p !{task.cpus} \
-                        !{chromSizeFile}:1000 \
+                        !{chromSizeFile}:!{baseResolution} \
                         !{pairs} \
-                        !{name}/!{name}_1kb.cool
+                        !{name}/!{name}_!{baseResolution // 1000}kb.cool
     '''
 
 }
