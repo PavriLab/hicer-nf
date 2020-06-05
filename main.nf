@@ -487,7 +487,6 @@ process baseBuilder {
     tuple val(name), file("${name}/${name}_1kb.cool") into resultsBaseBuilder
 
     shell:
-
     '''
     mkdir -p !{name}
 
@@ -495,7 +494,7 @@ process baseBuilder {
                         -p !{task.cpus} \
                         !{chromSizeFile}:!{baseResolution} \
                         !{pairs} \
-                        !{name}/!{name}_!{baseResolution // 1000}kb.cool
+                        !{name}/!{name}_!{baseResolution / 1000}kb.cool
     '''
 
 }
