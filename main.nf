@@ -409,7 +409,7 @@ process hicFileGenerator {
        -k KR,GW_KR \
        !{pairs} \
        !{name}/!{name}.hic \
-       !{genome}
+       !{params.genome}
   '''
 }
 
