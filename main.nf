@@ -213,8 +213,6 @@ if (convertChromSizes) {
 
     shell:
     '''
-    echo !{task.memory}
-    echo !{task.cpus}
     xml2tsv.py !{chromSizeXML} chromSizes.tsv
     '''
 
@@ -286,8 +284,7 @@ process trim {
 
     """
     mkdir -p !{parameters.name}
-    echo !{task.memory}
-    echo !{task.cpus}
+
     trim_galore --paired \
                 --quality 20 \
                 --fastqc \
@@ -328,8 +325,7 @@ process hicup {
     shell:
     '''
     mkdir -p !{name}
-    echo !{task.memory}
-    echo !{task.cpus}
+
     hicup --bowtie2 $(which bowtie2) \
           --index !{index}/!{bwt2_base} \
           --digest !{digest} \
@@ -369,8 +365,7 @@ process sam2bamConverter {
     shell:
     '''
     mkdir -p !{name}
-    echo !{task.memory}
-    echo !{task.cpus}
+
     samtools view -bh -@ !{task.cpus} !{sam} > !{name}/!{name}.hicup.bam
     '''
 }
@@ -394,8 +389,7 @@ process pairixMaker {
     shell:
     '''
     mkdir -p !{name}
-    echo !{task.memory}
-    echo !{task.cpus}
+
     samtools view !{sam} | \
         awk 'BEGIN{ FS = "\t"; OFS = "\t" }{ print $1,$3,$4,and($2, 16)?"-":"+"; }' | \
         paste - - | \
@@ -443,8 +437,7 @@ process juicerHic {
   juicerPath = "${NXF_HOME}/assets/t-neumann/hicer-nf/bin"
   '''
   mkdir -p !{name}
-  echo !{task.memory}
-  echo !{task.cpus}
+
   java -Xmx!{task.memory.toGiga()}G -jar !{juicerPath}/juicer_tools_1.22.01.jar pre \
        -r !{resolutions} \
        -k KR,GW_KR \
