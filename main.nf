@@ -385,7 +385,7 @@ process pairixMaker {
     '''
 }
 
-process hicFileGenerator {
+process juicerHic {
 
   tag { name }
 
@@ -401,7 +401,7 @@ process hicFileGenerator {
   file(chromSizeFile) from chromSizeChannelJuicer
 
   output:
-  file("${name}/${name}.hic") into resultsHicFileGenerator
+  file("${name}/${name}.hic") into resultsJuicer
 
   shell:
   juicerGenomes = ['hg18', 'hg19', 'hg38', 'dMel',
@@ -436,7 +436,7 @@ process matrixBuilder {
     '''
     mkdir -p !{name}
 
-    cooler cload pairix --assembly !{params.reference} \
+    cooler cload pairix --assembly !{params.genome} \
                         -p !{task.cpus} \
                         !{chromSizeFile}:1000 \
                         !{pairs} \
