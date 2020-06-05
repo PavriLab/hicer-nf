@@ -355,7 +355,7 @@ process sam2bamConverter {
 
     tag { name }
 
-    publishDir  path: "${params.outputDir}/${name}/bams/",
+    publishDir  path: "${params.outputDir}/bams/",
                 mode: 'copy',
                 overwrite: 'true',
                 pattern '*/*.bam'
