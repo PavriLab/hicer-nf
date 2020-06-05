@@ -407,7 +407,7 @@ process juicerHic {
                    'canFam3', 'equCab2', 'galGal4', 'Pf3D7',
                    'sacCer3', 'sCerS288c', 'susScr3', 'TAIR10']
   genome = juicerGenomes.contains(params.genome) ? params.genome : chromSizeFile
-  juicerPath = "${NXF_ASSETS}/t-neumann/hicer-nf/bin"
+  juicerPath = "${NXF_HOME}/assets/t-neumann/hicer-nf/bin"
   '''
   mkdir -p !{name}
 
