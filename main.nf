@@ -362,7 +362,8 @@ process pairixMaker {
     shell:
     '''
     mkdir -p !{name}
-
+    echo !{task.memory}
+    echo !{task.cpus}
     samtools view !{sam} | \
         awk 'BEGIN{ FS = "\t"; OFS = "\t" }{ print $1,$3,$4,and($2, 16)?"-":"+"; }' | \
         paste - - | \
