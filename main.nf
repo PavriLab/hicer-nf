@@ -358,7 +358,7 @@ process sam2bamConverter {
     publishDir  path: "${params.outputDir}/bams/",
                 mode: 'copy',
                 overwrite: 'true',
-                pattern '*/*.bam'
+                pattern: '*/*.bam'
 
     input:
     tuple val(name), file(sam) from sam2bamChannel
