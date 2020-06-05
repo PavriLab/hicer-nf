@@ -389,8 +389,6 @@ process juicerHic {
 
   tag { name }
 
-  container "aidenlab/juicer:latest"
-
   publishDir  path: "${params.outputDir}/${name}/matrices/",
               mode: 'copy',
               overwrite: 'true',
@@ -412,7 +410,7 @@ process juicerHic {
   '''
   mkdir -p !{name}
 
-  java -Xmx!{task.memory} -jar juicer_tools.jar pre \
+  java -Xmx!{task.memory} -jar juicer_tools_1.22.01.jar pre \
        -r !{resolutions} \
        -k KR,GW_KR \
        !{pairs} \
