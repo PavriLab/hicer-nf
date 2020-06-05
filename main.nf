@@ -174,7 +174,7 @@ if (chromSizesFile.endsWith('xml')) {
   Channel
       .fromPath(chromSizesFile, checkIfExists: true)
       .ifEmpty { exit 1, "chromSize file not found at ${chromSizesFile}" }
-      .into { chromSizeChannelPairix, chromSizeChannelMatrix }
+      .into { chromSizeChannelPairix; chromSizeChannelMatrix }
   convertChromSizes = false
 
 }
