@@ -271,7 +271,7 @@ process trim {
     output:
     file "*_fastqc.{zip,html}" into fastqcResults
     file "*trimming_report.txt" into trimgaloreResults
-    tuple val("${parameters.name}"), file('*_trimmed_R1_val_1.fq.gz'), file('*_trimmed_R2_val_2.fq.gz') into resultsTrimming
+    tuple val("${parameters.name}"), file('*_trimmed_val_1.fq.gz'), file('*_trimmed_val_2.fq.gz') into resultsTrimming
 
     shell:
     lastPath = parameters.read1.lastIndexOf(File.separator)
