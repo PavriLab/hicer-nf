@@ -410,7 +410,8 @@ process juicerHic {
   '''
   mkdir -p !{name}
 
-  java -Xmx!{task.memory} -jar bin/juicer_tools_1.22.01.jar pre \
+  JUICERPATH=$NXF_ASSETS/t-neumann/hicer-nf/bin/
+  java -Xmx!{task.memory} -jar $JUICERPATH/juicer_tools_1.22.01.jar pre \
        -r !{resolutions} \
        -k KR,GW_KR \
        !{pairs} \
