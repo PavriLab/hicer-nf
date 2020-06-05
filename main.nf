@@ -174,7 +174,7 @@ if (chromSizesFile.endsWith('xml')) {
   Channel
       .fromPath(chromSizesFile, checkIfExists: true)
       .ifEmpty { exit 1, "chromSize file not found at ${chromSizesFile}" }
-      .into { chromSizeChannelPairix; chromSizeChannelMatrix }
+      .into { chromSizeChannelPairix; chromSizeChannelCooler; chromSizeChannelJuicer }
   convertChromSizes = false
 
 }
@@ -209,7 +209,7 @@ if (convertChromSizes) {
     file(chromSizeXML) from xml2tsvChannel
 
     output:
-    file("chromSizes.tsv") into (chromSizeChannelPairix, chromSizeChannelMatrix)
+    file("chromSizes.tsv") into (chromSizeChannelPairix, chromSizeChannelMatrix, chromSizeChannelJuicer)
 
     shell:
     '''
@@ -396,11 +396,17 @@ process hicFileGenerator {
 
   input:
   tuple val(name), file(pairs) from resultsPairixForJuicer
+  file(chromSizeFile) from chromSizeChannelJuicer
 
   output:
   file("${name}/${name}.hic") into resultsHicFileGenerator
 
   shell:
+  juicerGenomes = ['hg18', 'hg19', 'hg38', 'dMel',
+                   'mm9', 'mm10', 'anasPlat1', 'bTaurus3',
+                   'canFam3', 'equCab2', 'galGal4', 'Pf3D7',
+                   'sacCer3', 'sCerS288c', 'susScr3', 'TAIR10']
+  genome = juicerGenomes.contains(params.genome) ? params.genome : chromSizeFile
   '''
   mkdir -p !{name}
 
@@ -409,7 +415,7 @@ process hicFileGenerator {
        -k KR,GW_KR \
        !{pairs} \
        !{name}/!{name}.hic \
-       !{params.genome}
+       !{genome}
   '''
 }
 
@@ -419,7 +425,7 @@ process matrixBuilder {
 
     input:
     tuple val(name), file(pairs) from resultsPairix
-    file(chromSizeFile) from chromSizeChannelMatrix
+    file(chromSizeFile) from chromSizeChannelCooler
 
     output:
     tuple val(name), file("${name}/${name}_1kb.cool") into resultsMatrixBuilder
