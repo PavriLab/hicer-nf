@@ -13,6 +13,7 @@ dependencies:
   - numpy=1.18.1=py37h4f9e942_0
   - pairix=0.3.7=py37h84994c4_0
   - pandas=1.0.3=py37h0573a6f_0
+  - pip=20.0.2=py37_3
   - python=3.7.6=h0371630_2
   - r=3.6.0=r36_0
   - samtools=1.9=h10a08f8_12
