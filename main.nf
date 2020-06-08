@@ -347,10 +347,13 @@ process hicup {
 
     tag { name }
 
-    publishDir  path: "${params.outputDir}/QC/",
-                mode: 'copy',
-                overwrite: 'true',
-                pattern: "*/*html"
+    publishDir path: "${params.outputDir}/${name}/QC/",
+               mode: 'copy',
+               overwrite: 'true',
+               pattern: "*/*html",
+               saveAs: { filename ->
+                             if (filename.endsWith(".html")) file(filename).getName()
+                       }
 
     input:
     file index from bowtie2Index.collect()
@@ -391,10 +394,13 @@ process sam2bamConverter {
 
     tag { name }
 
-    publishDir  path: "${params.outputDir}/${name}/bam/",
-                mode: 'copy',
-                overwrite: 'true',
-                pattern: '*/*.bam'
+    publishDir path: "${params.outputDir}/${name}/bam/",
+               mode: 'copy',
+               overwrite: 'true',
+               pattern: "*/*.bam",
+               saveAs: { filename ->
+                             if (filename.endsWith(".bam")) file(filename).getName()
+                       }
 
     input:
     tuple val(name), file(sam) from sam2bamChannel
@@ -414,10 +420,14 @@ process pairixMaker {
 
     tag { name }
 
-    publishDir  path: "${params.outputDir}/${name}/pairs/",
-                mode: 'copy',
-                overwrite: 'true',
-                pattern: "*/*pairs.gz*"
+    publishDir path: "${params.outputDir}/${name}/pairs/",
+               mode: 'copy',
+               overwrite: 'true',
+               pattern: "*/*pairs.gz*",
+               saveAs: { filename ->
+                             if (filename.endsWith(".pairs.gz")) file(filename).getName()
+                             else if (filename.endsWith(".pairs.gz.px2")) file(filename).getName()
+                       }
 
     input:
     tuple val(name), file(sam) from resultsHicup
@@ -456,10 +466,13 @@ process juicerHic {
 
   tag { name }
 
-  publishDir  path: "${params.outputDir}/${name}/matrices/",
-              mode: 'copy',
-              overwrite: 'true',
-              patter: "*.hic"
+  publishDir path: "${params.outputDir}/${name}/matrices/",
+             mode: 'copy',
+             overwrite: 'true',
+             pattern: "*.hic",
+             saveAs: { filename ->
+                           if (filename.endsWith(".hic")) file(filename).getName()
+                     }
 
   input:
   tuple val(name), file(pairs), file(pairsIndex) from resultsPairixJuicer
