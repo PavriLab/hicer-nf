@@ -182,7 +182,7 @@ if (params.hicupDigest) {
       .ifEmpty { exit 1, "HICUP Digest not found: ${params.hicupDigest}" }
       .into{hicupDigestIndex}
   hicupDigestFile = params.hicupDigest
-  digestFasts = false
+  digestFasta = false
 
 } else if (params.re1) {
   fastaForHicupDigest = Channel
