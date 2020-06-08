@@ -21,4 +21,3 @@ dependencies:
   - trim-galore=0.6.5=0
   - pip:
     - multiqc==1.9
-prefix: /users/daniel.malzl/.conda/envs/hicer-nf
