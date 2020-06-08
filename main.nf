@@ -142,7 +142,7 @@ if (!params.bowtie2Index || !params.hicupDigest) {
 if (!params.bowtie2Index) {
   if (params.fasta) {
     lastPath = fastaFile.lastIndexOf(File.separator)
-    bwt2_base = fastaFile.substring(lastPath+1)
+    bwt2_base = fastaFile.substring(lastPath+1) - ~/(\.fa)?(\.fasta)?(\.fas)?$/
 
     fastaForBowtie2 = Channel
                           .fromPath(fastaFile)
@@ -294,7 +294,6 @@ if (makeBowtie2Index) {
     file("bowtie2Index") into bowtie2Index
 
     shell:
-    bwt2_base = fasta.toString() - ~/(\.fa)?(\.fasta)?(\.fas)?$/
     """
     mkdir bowtie2Index
 
