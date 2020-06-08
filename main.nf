@@ -478,11 +478,11 @@ process juicerHic {
   '''
   mkdir -p !{name}
 
-  splitPairs.py -p !{task.cpus} !{pairs}
+  #splitPairs.py -p !{task.cpus} !{pairs}
   java -Xmx!{task.memory.toGiga()}G -jar !{juicerPath}/juicer_tools_1.22.01.jar pre \
        -r !{resolutions} \
        -k KR,GW_KR \
-       --threads !{task.cpus} \
+       #--threads !{task.cpus} \
        !{pairs} \
        !{name}/!{name}.hic \
        !{genome}
