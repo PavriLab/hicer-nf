@@ -180,7 +180,7 @@ if (params.hicupDigest) {
   Channel
       .fromPath(params.hicupDigest, checkIfExists: true)
       .ifEmpty { exit 1, "HICUP Digest not found: ${params.hicupDigest}" }
-      .into{hicupDigestIndex}
+      .set { hicupDigestIndex }
   hicupDigestFile = params.hicupDigest
   digestFasta = false
 
@@ -482,7 +482,7 @@ process juicerHic {
   java -Xmx!{task.memory.toGiga()}G -jar !{juicerPath}/juicer_tools_1.22.01.jar pre \
        -r !{resolutions} \
        -k KR,GW_KR \
-       -j !{task.cpus} \
+       --threads !{task.cpus} \
        !{pairs} \
        !{name}/!{name}.hic \
        !{genome}
