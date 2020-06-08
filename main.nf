@@ -134,6 +134,9 @@ if (!params.bowtie2Index || !params.hicupDigest) {
     fastaFile = igenomes_fasta
 
   }
+} else {
+  log.info "bowtie2Index and hicupDigest are specified explicitly. Fasta file will not be used if given!"
+  fastaFile = "not used due to --hicupDigest and --bowtie2Index set"
 }
 
 if (!params.bowtie2Index) {
