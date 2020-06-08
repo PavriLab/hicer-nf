@@ -130,14 +130,23 @@ if (!params.bowtie2Index || !params.hicupDigest) {
   } else {
     Channel
         .fromPath(igenomes_fasta, checkIfExists: true)
-        .ifEmpty { exit 1, "Fasta needed for Bowtie2Index or HICUP Digest but not given and not found at ${params.fasta}"}
+        .ifEmpty { exit 1, "Fasta needed for Bowtie2Index or HICUP Digest but not given and not found in igenomes or igenomes not present."}
     fastaFile = igenomes_fasta
 
   }
 }
 
 if (!params.bowtie2Index) {
-  if (igenomes_bowtie2) {
+  if (params.fasta) {
+    lastPath = fastaFile.lastIndexOf(File.separator)
+    bwt2_base = fastaFile.substring(lastPath+1)
+
+    fastaForBowtie2 = Channel
+                          .fromPath(fastaFile)
+    bowtie2IndexFile = 'computed from fasta'
+    makeBowtie2Index = true
+
+  }  else if (igenomes_bowtie2) {
     lastPath = igenomes_bowtie2.lastIndexOf(File.separator)
     bwt2_dir = igenomes_bowtie2.substring(0,lastPath+1)
     bwt2_base = igenomes_bowtie2.substring(lastPath+1)
@@ -148,15 +157,10 @@ if (!params.bowtie2Index) {
     bowtie2IndexFile = igenomes_bowtie2
     makeBowtie2Index = false
 
-  }  else {
-    lastPath = fastaFile.lastIndexOf(File.separator)
-    bwt2_base = fastaFile.substring(lastPath+1)
-
-    fastaForBowtie2 = Channel
-                          .fromPath(fastaFile)
-    bowtie2IndexFile = 'computed from fasta'
-    makeBowtie2Index = true
+  } else {
+    exit 1, "Bowtie2Index was not specified! Use either --fasta or make sure an igenomes database is properly configured."
   }
+
 } else {
   bowtie2IndexFile = params.bowtie2Index
   lastPath = params.bowtie2Index.lastIndexOf(File.separator)
