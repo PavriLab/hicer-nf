@@ -56,7 +56,7 @@ def helpMessage() {
         --genome         Name of reference (hg38, mm10, ...)
         --fasta          Alternatively, path to genome fasta file which will be digested
         --chromSizes     tab-separated file containing chromosome names and their sizes
-        --bowtie2        Optional: Path to bowtie2 index
+        --bowtie2Index   Optional: Path to bowtie2 index
         --hicupDigest    Restriction site digest file for HICUP
 
      Profiles:
@@ -117,7 +117,7 @@ if (params.resolutions) {
 
 }
 
-if (!params.bowtie2 || !params.hicupDigest) {
+if (!params.bowtie2Index || !params.hicupDigest) {
   if (!params.fasta && !igenomes_fasta) {
     exit 1, "Fasta needed for Bowtie2Index or HICUP Digest not specified!"
 
@@ -136,7 +136,7 @@ if (!params.bowtie2 || !params.hicupDigest) {
   }
 }
 
-if (!params.bowtie2) {
+if (!params.bowtie2Index) {
   if (igenomes_bowtie2) {
     lastPath = igenomes_bowtie2.lastIndexOf(File.separator)
     bwt2_dir = igenomes_bowtie2.substring(0,lastPath+1)
@@ -158,7 +158,13 @@ if (!params.bowtie2) {
     makeBowtie2Index = true
   }
 } else {
-  bowtie2IndexFile = igenomes_bowtie2
+  bowtie2IndexFile = params.bowtie2Index
+  lastPath = params.bowtie2Index.lastIndexOf(File.separator)
+  bwt2_dir = params.bowtie2Index.substring(0,lastPath+1)
+  bwt2_base = params.bowtie2Index.substring(lastPath+1)
+  bowtie2Index = Channel
+                    .fromPath(bwt2_dir , checkIfExists: true)
+                    .ifEmpty { exit 1, "Genome index: Provided index not found: ${params.bowtie2Index}" }
   makeBowtie2Index = false
 
 }
@@ -469,6 +475,7 @@ process juicerHic {
   java -Xmx!{task.memory.toGiga()}G -jar !{juicerPath}/juicer_tools_1.22.01.jar pre \
        -r !{resolutions} \
        -k KR,GW_KR \
+       -j !{task.cpus}
        !{pairs} \
        !{name}/!{name}.hic \
        !{genome}
