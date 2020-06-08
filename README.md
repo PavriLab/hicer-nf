@@ -41,7 +41,7 @@ nextflow run t-neumann/hicer-nf --samples samples.txt --genome mm9 --re1 ^GATC,M
 nextflow run t-neumann/hicer-nf --samples samples.txt --genome mm9 --re1 ^GATC,MboI --fasta genome.fa --chromSizes chrom.sizes
 
 # if HICUP digest and bowtie2 index are available
-nextflow run t-neumann/hicer-nf --samples samples.txt --genome mm9 --re1 ^GATC,MboI --bowtie2 /path/to/bowtie2Index/genome_base_name --hicupDigest /path/to/hicup/digest/file --chromSizes chrom.sizes
+nextflow run t-neumann/hicer-nf --samples samples.txt --genome mm9 --re1 ^GATC,MboI --bowtie2Index /path/to/bowtie2Index/genome_base_name --hicupDigest /path/to/hicup/digest/file --chromSizes chrom.sizes
 ```
 
 These invocations compute cooler and hic files for a default resolution list of 5kb, 10kb, 25kb, 50kb, 100kb, 250kb, 500kb and 1Mb. If you want resolutions that are not listed here you could use the `--resolutions` parameter (see below).
@@ -150,7 +150,7 @@ The XML will be converted to TSV in-situ where the pipeline uses the `contigName
 
 ## Generic arguments
 
-#### `--bowtie2`
+#### `--bowtie2Index`
 
 Full path to an existing bowtie2 index for your reference genome including the base name for the index. This is only necessary if you don't have an igenomes database and have a precomputed index for your fasta file that you want to use. Otherwise, the index will be computed from the fasta file specified with `--fasta`
 
