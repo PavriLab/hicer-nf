@@ -349,7 +349,7 @@ process hicup {
     publishDir path: "${params.outputDir}/${name}/QC/",
                mode: 'copy',
                overwrite: 'true',
-               pattern: "*/*html",
+               pattern: "${name}/*html",
                saveAs: { filename ->
                              if (filename.endsWith(".html")) file(filename).getName()
                        }
@@ -396,7 +396,7 @@ process sam2bamConverter {
     publishDir path: "${params.outputDir}/${name}/bam/",
                mode: 'copy',
                overwrite: 'true',
-               pattern: "*/*.bam",
+               pattern: "${name}/*.bam",
                saveAs: { filename ->
                              if (filename.endsWith(".bam")) file(filename).getName()
                        }
@@ -422,7 +422,7 @@ process pairixMaker {
     publishDir path: "${params.outputDir}/${name}/pairs/",
                mode: 'copy',
                overwrite: 'true',
-               pattern: "*/*pairs.gz*",
+               pattern: "${name}/*pairs.gz*",
                saveAs: { filename ->
                              if (filename.endsWith(".pairs.gz")) file(filename).getName()
                              else if (filename.endsWith(".pairs.gz.px2")) file(filename).getName()
@@ -467,7 +467,7 @@ process juicerHic {
   publishDir path: "${params.outputDir}/${name}/matrices/",
              mode: 'copy',
              overwrite: 'true',
-             pattern: "*.hic",
+             pattern: "${name}/*.hic",
              saveAs: { filename ->
                            if (filename.endsWith(".hic")) file(filename).getName()
                      }
@@ -550,7 +550,7 @@ process mcoolNormalizer {
     publishDir  path: "${params.outputDir}/${name}/matrices/",
                 mode: 'copy',
                 overwrite: 'true',
-                pattern: "*.mcool"
+                pattern: "${name}.mcool"
 
     tag { name }
 
