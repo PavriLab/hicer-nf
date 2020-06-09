@@ -439,8 +439,7 @@ process pairixMaker {
     '''
     mkdir -p !{name}
 
-    samtools view !{sam} | \
-        awk 'BEGIN{ FS = "\t"; OFS = "\t" }{ print $1,$3,$4,and($2, 16)?"-":"+"; }' | \
+    sam2pairs.py !{sam} | \
         paste - - | \
         awk 'BEGIN{ FS = "\t"; OFS = "\t" }{ print $1,$2,$3,$6,$7,$4,$8 }' > \
         !{name}/!{name}.pairs.tmp
