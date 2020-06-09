@@ -84,36 +84,35 @@ if (params.help) {
 }
 
 if (params.resolutions) {
-  Channel
-      .from(params.defaultResolutions + "," + params.resolutions)
-      .splitCsv()
-      .flatten()
-      .map { it.toInteger() }
-      .toSortedList()
-      .set { resolutionsList }
+  tmpResolutionsString = params.defaultResolutions + ',' + params.resolutions
+  resolutionsList = new ArrayList<Integer>()
 
-  baseResolution = resolutionsList.value[0]
+  for (String s: tmpResolutionsString.split(',')) {
+    resolutionsList.add(s.toInteger())
+  }
 
-  Channel
-      .fromList(resolutionsList.value)
-      .map { it.toString() }
-      .reduce { a, b -> return a + ',' + b }
-      .set { resolutionsString }
+  resolutionsList.sort()
+  baseResolution = resolutionsList[0]
 
-  resolutions = resolutionsString.value
+  sb = new StringBuilder()
+  for (Integer i: resolutionsList) {
+    if (sb.length() > 0 ) {
+      sb.append(",");
+    }
+    sb.append(i.toString())
+  }
+
+  resolutions = sb.toString()
 
 } else {
   resolutions = params.defaultResolutions
+  resolutionsList = new ArrayList<Integer>()
 
-  Channel
-      .from(params.defaultResolutions)
-      .splitCsv()
-      .flatten()
-      .map { it.toInteger() }
-      .toSortedList()
-      .set { resolutionsList }
+  for (String s: resolutions.split(',')) {
+    resolutionsList.add(s.toInteger())
+  }
 
-  baseResolution = resolutionsList.value[0]
+  baseResolution = resolutionsList[0]
 
 }
 
