@@ -490,11 +490,10 @@ process juicerHic {
   '''
   mkdir -p !{name}
 
-  #splitPairs.py -p !{task.cpus} !{pairs}
-  # add --threads/-j !{task.cpus} if multithread issue is resolved
   java -Xmx!{task.memory.toGiga()}G -jar !{juicerPath}/juicer_tools_1.22.01.jar pre \
        -r !{resolutions} \
        -k KR,GW_KR \
+       --threads !{task.cpus} \
        !{pairs} \
        !{name}/!{name}.hic \
        !{genome}
