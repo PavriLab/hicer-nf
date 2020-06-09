@@ -70,7 +70,6 @@ You will need to create a design file with information about the samples in your
 ```
 
 ```bash
-
 name read1 read2
 WT WT_1.fastq.gz WT_2.fastq.gz
 KD KD_1.fastq.gz KD_2.fastq.gz
@@ -109,7 +108,7 @@ params {
     'GRCh37' {
       fasta      = "/path/to/genome/fasta/file" // Used if no bowtie2 index or hicupDigest given
       bowtie2    = "/path/to/bowtie2/index/basename
-      chromSizes = "/path/to/chrom/sizes/file
+      chromSizes = "/path/to/chrom/sizes/file"
     }
     // Any number of additional genomes, key is used with --genome
   }
