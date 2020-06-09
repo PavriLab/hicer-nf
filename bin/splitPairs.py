@@ -28,15 +28,16 @@ logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO)
 parser = ap.ArgumentParser()
 parser.add_argument('pairix',
                     help = 'pairix indexed pairs file')
+parser.add_argument('outputPrefix',
+                    help = 'prefix of the split files')
 parser.add_argument('-p', '--nproc', default = 1, type = int,
                     help = 'number of processors to use for splitting')
 args = parser.parse_args()
 
-outputFilePrefix = args.pairix
 blocknames = pp.open(args.pairix).get_blocknames()
 func = partial(extract_pairix_block,
                args.pairix,
-               outputFilePrefix)
+               args.outputPrefix)
 
 if args.nproc > 1:
     p = mp.Pool(args.nproc)
