@@ -181,6 +181,10 @@ Name of the folder to which the output will be saved (default: results)
 --outputDir '[directory name]'
 ```
 
+#### `--re2`
+
+Used to pass a second restriction enzyme motif to HICUP in case a double digest protocol is used
+
 ## Credits
 
 The pipeline was developed by [Tobias Neumann](mailto:tobias.neumann.at@gmail.com) and [Daniel Malzl](mailto:daniel.malzl@gmx.at) for use at the [IMP](https://www.imp.ac.at/), Vienna.
