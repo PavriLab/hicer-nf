@@ -14,7 +14,7 @@ We loosely follow the steps proposed by [Rao et al, Cell 2014](https://www.ncbi.
 
 1. Raw read QC ([`FastQC`](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/))
 2. Adapter trimming ([`Trim Galore!`](https://www.bioinformatics.babraham.ac.uk/projects/trim_galore/))
-3. Alignment ([`HiCUP`](https://www.bioinformatics.babraham.ac.uk/projects/hicup/))
+3. Alignment, Filtering and Deduplication ([`HiCUP`](https://www.bioinformatics.babraham.ac.uk/projects/hicup/))
 4. Generating an indexed pairs file from the alignments ([`pairix`](https://github.com/4dn-dcic/pairix))
 5. Build base resolution contact matrix (i.e. the smallest resolution given; default 5kb) ([`cooler`](https://cooler.readthedocs.io/en/latest/))
 6. Aggregate bins to a range of default resolutions including optional custom resolutions ([`cooler`](https://cooler.readthedocs.io/en/latest/))
@@ -234,6 +234,9 @@ Many thanks to others who have helped out along the way too, including (but not 
   
 * [scipy](https://www.scipy.org/)
   > Virtanen, P., Gommers, R., Oliphant, T.E. et al. SciPy 1.0: fundamental algorithms for scientific computing in Python. Nat Methods 17, 261–272 (2020). doi: 10.1038/s41592-019-0686-2
+  
+* [pysam](https://pysam.readthedocs.io/en/latest/index.html)
+  > Li H, Handsaker B, Wysoker A, Fennell T, Ruan J, Homer N, Marth G, Abecasis G, Durbin R; 1000 Genome Project Data Processing Subgroup. The Sequence Alignment/Map format and SAMtools. Bioinformatics. 2009 Aug 15;25(16):2078-9. doi: 10.1093/bioinformatics/btp352. Epub 2009 Jun 8. PubMed PMID: 19505943; PubMed Central PMCID: PMC2723002.
   
 * [h5py](https://github.com/h5py/h5py)
 
