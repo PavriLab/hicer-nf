@@ -90,7 +90,14 @@ The generated file `*_interKR.npz` is similar to the clustering matrices where r
 The notebook `subcompartment.ipynb` contains further downstream analyses of the obtained clustering to generate a genome-wide annotation of subcompartments.
 
 ## Generic downstream analyses
-The notebook `hicanalysis.ipynb` contains generic downstream analyses schemes using the [cooltools](https://cooltools.readthedocs.io/en/latest/index.html) package. Here you find things like making aggregates of loops and TADs, computing insulation scores and making saddle plots. Eigenvectors can typically be optained with [HOMER](http://homer.ucsd.edu/homer/interactions/)(as in our case) or other packages like [HiCExplorer](https://hicexplorer.readthedocs.io/en/latest/).
+The notebook `hicanalysis.ipynb` contains generic downstream analyses schemes using the [cooltools](https://cooltools.readthedocs.io/en/latest/index.html) package. Here you find things like making aggregates of loops and TADs, computing insulation scores and making saddle plots. Eigenvectors can typically be optained with [HOMER](http://homer.ucsd.edu/homer/interactions/)(as in our case) or other packages like [HiCExplorer](https://hicexplorer.readthedocs.io/en/latest/). However, be aware that cooltools is based on the [cooler](https://cooler.readthedocs.io/en/latest/index.html) and by the time of this writing the [`cooler.matrix`](https://cooler.readthedocs.io/en/latest/api.html#cooler.Cooler.matrix) function assumes that KR balancing weights are divisive as anticipated from the juicer_tools implementation and [`hic2cool`](https://github.com/4dn-dcic/hic2cool) does not change this anymore. In contrast, the HiCExplorer implementation of the KR algorithm yields multiplicative weights thus if you are using the KR with cooltools make sure that `divisive_weights = False` if `balance = True`) like
+
+```python
+clr = cooler.Cooler('sample.mcool::resolutions/100000')
+clr.matrix(balance = True, divisive_weights = False)
+```
+
+otherwise cooler will balance the matrix by applying the KR weights in a divisive manner and the results will be very large and incorrect. Thus, you might have a look at the cooltools code and implement the functions accordingly for the tasks you want to achieve.
 
 ## Python Packages
 * [numpy](https://numpy.org/)
