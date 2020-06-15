@@ -159,7 +159,7 @@ Full path to an existing bowtie2 index for your reference genome including the b
 
 #### `--hicupDigest`
 
-File with digested genome of a given restriction enzyme as produced with `hicup_digester`. This can be used to override in-situ digestion of the fasta and use your own digestion file.
+File with digested genome of a given restriction enzyme as produced with `hicup_digester`. This can be used to override in-situ digestion of the fasta and use your own digestion file. However, the digest file *MUST* be constructed from the same reference genome as the bowtie2Index.
 
 ```bash
 --hicdigest '[file with digested genome]'
