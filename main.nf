@@ -431,7 +431,7 @@ process pairixMaker {
 
     input:
     tuple val(name), file(sam) from resultsHicup
-    file(chromSizeFile) from chromSizeChannelPairix
+    file(chromSizeFile) from chromSizeChannelPairix.collect()
 
     output:
     tuple val(name), file("${name}/${name}.pairs.gz"), file("${name}/${name}.pairs.gz.px2") into resultsPairixBaseBuilder, resultsPairixJuicer
@@ -475,7 +475,7 @@ process juicerHic {
 
   input:
   tuple val(name), file(pairs), file(pairsIndex) from resultsPairixJuicer
-  file(chromSizeFile) from chromSizeChannelJuicer
+  file(chromSizeFile) from chromSizeChannelJuicer.collect()
 
   output:
   file("${name}/${name}.hic") into resultsJuicer
@@ -506,7 +506,7 @@ process baseBuilder {
 
     input:
     tuple val(name), file(pairs), file(pairsIndex) from resultsPairixBaseBuilder
-    file(chromSizeFile) from chromSizeChannelCooler
+    file(chromSizeFile) from chromSizeChannelCooler.collect()
 
     output:
     tuple val(name), file("${name}/${name}_base.cool") into resultsBaseBuilder
