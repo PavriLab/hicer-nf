@@ -115,9 +115,9 @@ params {
 }
 ```
 
-#### `--re1`
+#### `--re`
 
-Hi-C experiments typically involve digestion of the with restriction enzymes after cross-linking. To be able to computationally identify artifacts in the sequence data arising from this process the HICUP pipeline requires the sequence motif the used enzyme cuts including its name. This information is given via the `--re1` parameter in the form specified by [HICUP](https://www.bioinformatics.babraham.ac.uk/projects/hicup/read_the_docs/html/index.html) which is ^GATC,MboI, where ^ indicates the cutsite, GATC is the sequence motif the enzyme recognizes and MboI is the name of the enzyme. In cases where a double digest protocol was used one can also specify `--re2` for the second restriction enzyme used (see below).
+Hi-C experiments typically involve digestion of the with restriction enzymes after cross-linking. To be able to computationally identify artifacts in the sequence data arising from this process the HICUP pipeline requires the sequence motif the used enzyme cuts including its name. This information is given via the `--re` parameter in the form specified by [HICUP](https://www.bioinformatics.babraham.ac.uk/projects/hicup/read_the_docs/html/index.html) which is ^GATC,MboI, where ^ indicates the cutsite, GATC is the sequence motif the enzyme recognizes and MboI is the name of the enzyme. Due to some specificities of HICUP the current version of the pipeline does not support the double digestion protocol.
 
 #### `--fasta`
 
@@ -180,10 +180,6 @@ Name of the folder to which the output will be saved (default: results)
 ```bash
 --outputDir '[directory name]'
 ```
-
-#### `--re2`
-
-Used to pass a second restriction enzyme motif to HICUP in case a double digest protocol is used
 
 ## Credits
 
