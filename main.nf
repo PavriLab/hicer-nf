@@ -515,8 +515,10 @@ hicupTruncaterGroupedChannel
                 .join(hicupMapperGroupedChannel)
                 .join(hicupFilterGroupedChannel)
                 .join(hicupDeduplicatorReportChannel)
-                .map { it -> it.flatten() }
-                .set{} hicupReporterInputChannel }
+                .map { it ->
+                          def flatit = it.flatten()
+                          return tuple(flatit[0], flatit[1..-1])}
+                .set{ hicupReporterInputChannel }
 
 process hicupReporter {
 
