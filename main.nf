@@ -46,8 +46,7 @@ def helpMessage() {
 
         --resolutions    comma-separated list of resolutions in bp to compute in addition to the default resolutions
 
-        --re1            regular expression to use for in-silico digestion by HICUP (e.g. ^GATC,MboI)
-        --re2            second regular expression to use for in-silico digestion in case of double digestion protocol
+        --re             regular expression to use for in-silico digestion by HICUP (e.g. ^GATC,MboI)
 
         --outputDir      Directory name to save results to. (Defaults to
                          'results')
@@ -226,7 +225,6 @@ log.info " Samples List             : ${params.samples}"
 log.info " Resolutions              : ${resolutions}"
 log.info " baseResolution           : ${baseResolution}"
 log.info " re1                      : ${params.re1}"
-log.info " re2                      : ${params.re2}"
 log.info " Genome                   : ${params.genome}"
 log.info " Fasta                    : ${fastaFile}"
 log.info " ChromSizes               : ${chromSizesFile}"
@@ -273,11 +271,10 @@ if (digestFasta) {
     file("Digest*.txt") into hicupDigestIndex
 
     shell:
-    re2 = params.re2 ? "--re2 ${params.re2}": ''
     """
     echo !{task.memory}
     echo !{task.cpus}
-    hicup_digester --genome !{params.genome} --re1 !{params.re1} !{re2} !{fasta}
+    hicup_digester --genome !{params.genome} --re1 !{params.re1} !{fasta}
     """
   }
 }
@@ -343,7 +340,185 @@ process trim {
     """
 }
 
-process hicup {
+process splitFastqs {
+
+    tag { name }
+
+    input:
+    tuple val(name), file(fastq1), file(fastq2) from resultsTrimming
+
+    output:
+    file("${name}/${name}_*") into resultsSplitting
+
+    shell:
+    numberOfLinesPerSplit = params.readsPerSplit.toInteger() * 4
+    '''
+    mkdir !{name}
+
+    # ampersand at the end of the line lets linux execute the commands in parallel
+    zcat !{fastq1} | \
+    split -l !{numberOfLinesPerSplit} -a 4 --additional-suffix _1.fq - !{name}/!{name}_ &
+
+    zcat !{fastq2} | \
+    split -l !{numberOfLinesPerSplit} -a 4 --additional-suffix _2.fq - !{name}/!{name}_
+    '''
+}
+
+resultsSplitting
+            .flatten()
+            .map { file ->
+                      def key = file.name.toString() - ~/(_[12]\.fq)?$/
+                      return tuple(key, file) }
+            .groupTuple()
+            .set { truncaterInputChannel }
+
+process hicupTruncater {
+
+    tag { splitName }
+
+    input:
+    tuple val(splitName), file(fastqSplitPairs) from truncaterInputChannel
+
+    output:
+    tuple val(splitName), file("${splitName}/${splitName}_*.trunc.fastq") into resultsHicupTruncater
+    tuple val(splitName), file("${splitName}/*summary*.txt") into hicupTruncaterReportChannel
+
+    shell:
+    '''
+    mkdir !{splitName}
+    hicup_truncater --outdir !{splitName} \
+                    --threads !{task.cpus} \
+                    --re1 !{params.re1} \
+                    !{fastqSplitPairs[0]} \
+                    !{fastqSplitPairs[1]}
+    '''
+}
+
+process hicupMapper {
+
+    tag { splitName }
+
+    input:
+    tuple val(splitName), file(fastqTruncPairs) from resultsHicupTruncater
+    file(index) from bowtie2Index.collect()
+
+    output:
+    tuple val(splitName), file("${splitName}/${splitName}_1_2.pair.sam") into resultsHicupMapper
+    tuple val(splitName), file("${splitName}/*summary*.txt") into hicupMapperReportChannel
+
+    shell:
+    '''
+    mkdir !{splitName}
+    hicup_mapper --outdir !{splitName} \
+                 --threads !{task.cpus} \
+                 --format Sanger \
+                 --index !{index}/!{bwt2_base} \
+                 --bowtie2 $(which bowtie2) \
+                 !{fastqTruncPairs[0]} \
+                 !{fastqTruncPairs[1]}
+    '''
+}
+
+process hicupFilter {
+
+    tag { splitName }
+
+    input:
+    tuple val(splitName), file(splitSam) from resultsHicupMapper
+    file(digest) from hicupDigestIndex.collect()
+
+    output:
+    file("${splitName}/${splitName}_1_2.filt.sam") into resultsHicupFilter
+    tuple val(splitName), file("${splitName}/*summary*.txt"), file("${splitName}/*.ditag_size_distribution") into hicupFilterReportChannel
+
+    shell:
+    bin = "${NXF_HOME}/assets/t-neumann/hicer-nf/bin"
+    '''
+    mkdir !{splitName}
+
+    # set PERL5LIB to make hicup_module.pm available for modified hicup_filter
+    LINK=$(which hicup)
+    HICUPPATH=$(readlink -f $LINK)
+    export PERL5LIB="$(dirname $HICUPPATH):$PERL5LIB"
+
+    !{bin}/hicup_filter --outdir !{splitName} \
+                        --digest !{digest} \
+                        !{splitSam}
+    '''
+}
+
+resultsHicupFilter
+              .map { file ->
+                        def key = file.name.toString() - ~/(_[a-z]{4}_1_2\.filt\.sam)?$/
+                        return tuple(key, file) }
+              .groupTuple()
+              .set { catSamInputChannel }
+
+process catSam {
+
+    tag { name }
+
+    input:
+    tuple val(name), file(filterSams) from catSamInputChannel
+
+    output:
+    tuple val(name), file("${name}_1_2.filt.sam") into resultsCatSam
+
+    shell:
+    '''
+    samtools view -H !{filterSams[0]} > !{name}_1_2.filt.sam
+    cat !{filterSams} | grep -v '^@' >> !{name}_1_2.filt.sam
+    '''
+}
+
+process hicupDeduplicator {
+
+    tag { name }
+
+    input:
+    tuple val(name), file(sam) from resultsCatSam
+
+    output:
+    tuple val(name), file("${name}/${name}_1_2.dedup.sam") into resultsHicup, sam2bamChannel
+    tuple val(name), file("${name}/*summary*.txt") into hicupDeduplicatorReportChannel
+
+    shell:
+    '''
+    mkdir !{name}
+    hicup_deduplicator --outdir !{name} \
+                       !{sam}
+    '''
+}
+
+hicupTruncaterReportChannel
+                .map{ it ->
+                        def key = it[0] - ~/(_[a-z]{4})$/
+                        return tuple(key, it[1]) }
+                .groupTuple()
+                .set { hicupTruncaterGroupedChannel }
+
+hicupMapperReportChannel
+                .map{ it ->
+                        def key = it[0] - ~/(_[a-z]{4})$/
+                        return tuple(key, it[1]) }
+                .groupTuple()
+                .set { hicupMapperGroupedChannel }
+
+hicupFilterReportChannel
+                .map{ it ->
+                        def key = it[0] - ~/(_[a-z]{4})$/
+                        return tuple(key, it[1], it[2]) }
+                .groupTuple()
+                .set { hicupFilterGroupedChannel }
+
+hicupTruncaterGroupedChannel
+                .join(hicupMapperGroupedChannel)
+                .join(hicupFilterGroupedChannel)
+                .join(hicupDeduplicatorReportChannel)
+                .map { it -> it.flatten() }
+                .set{} hicupReporterInputChannel }
+
+process hicupReporter {
 
     tag { name }
 
@@ -356,37 +531,20 @@ process hicup {
                        }
 
     input:
-    file index from bowtie2Index.collect()
-    file digest from hicupDigestIndex.collect()
-    tuple val(name), file(fastq1), file(fastq2) from resultsTrimming
+    tuple val(name), file(hicupReportFiles) from hicupReporterInputChannel
 
     output:
-    tuple val(name), file("${name}/*sam") into resultsHicup, sam2bamChannel
     file("${name}/*html") into htmlHicup
     file("${name}/HiCUP_summary_report*") into multiqcHicup
 
     shell:
+    resourceDir = "${NXF_HOME}/assets/t-neumann/hicer-nf/bin"
     '''
-    mkdir -p !{name}
-
-    hicup --bowtie2 $(which bowtie2) \
-          --index !{index}/!{bwt2_base} \
-          --digest !{digest} \
-          --format Sanger \
-          --outdir !{name} \
-          --threads !{task.cpus} \
-          !{fastq1} \
-          !{fastq2}
-
-    mv !{name}/*sam !{name}/!{name}.hicup.sam
-
-    sed -i 's/^.*sam\t/!{name}.hicup.sam\t/g' !{name}/HiCUP_summary_report*txt
-
-    mv !{name}/HiCUP_summary_report*txt !{name}/HiCUP_summary_report_!{name}.txt
-
-    sed -i 's/HiCUP Processing Report - [^<]*/HiCUP Processing Report - !{name}/g' !{name}/*.HiCUP_summary_report.html
-    sed -i 's/WRAP CHAR>[^<]*/WRAP CHAR>!{name}/g' !{name}/*.HiCUP_summary_report.html
-
+    mkdir !{name}
+    hicupReportMerger.py -o !{name} \
+                         !{hicupReportFiles} \
+                         !{resourceDir}/hicup_report_template.html \
+                         !{name}
     '''
 }
 
