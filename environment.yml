@@ -4,7 +4,7 @@ channels:
   - conda-forge
   - defaults
 dependencies:
-  - cooler=0.8.6
+  - cooler=0.8.7
   - fastqc=0.11.9
   - hdf5=1.10.4
   - hicup=0.7.3
