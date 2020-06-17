@@ -275,7 +275,7 @@ if (digestFasta) {
     """
     echo !{task.memory}
     echo !{task.cpus}
-    hicup_digester --genome !{params.genome} --re !{params.re} !{fasta}
+    hicup_digester --genome !{params.genome} --re1 !{params.re} !{fasta}
     """
   }
 }
