@@ -4,21 +4,21 @@ channels:
   - conda-forge
   - defaults
 dependencies:
-  - cooler=0.8.6=py_0
-  - fastqc=0.11.9=0
-  - hdf5=1.10.4=hb1b8bf9_0
-  - hicup=0.7.2=0
-  - java-jdk=8.0.92=1
-  - krbalancing=0.0.5=py37h99015e2_1
-  - numpy=1.18.1=py37h4f9e942_0
-  - pairix=0.3.7=py37h84994c4_0
-  - pandas=1.0.3=py37h0573a6f_0
-  - pip=20.0.2=py37_3
-  - python=3.7.6=h0371630_2
-  - r=3.6.0=r36_0
-  - samtools=1.9=h10a08f8_12
-  - scipy=1.4.1=py37h0b6359f_0
-  - tabix=0.2.6=ha92aebf_0
-  - trim-galore=0.6.5=0
+  - cooler=0.8.6
+  - fastqc=0.11.9
+  - hdf5=1.10.4
+  - hicup=0.7.3
+  - java-jdk=8.0.92
+  - krbalancing=0.0.5
+  - numpy=1.18.1
+  - pairix=0.3.7
+  - pandas=1.0.3
+  - pip=20.0.2
+  - python=3.7.6
+  - r=3.6.0
+  - samtools=1.10
+  - scipy=1.4.1
+  - tabix=0.2.6
+  - trim-galore=0.6.5
   - pip:
     - multiqc==1.9
