@@ -541,7 +541,7 @@ process hicupReporter {
     file("${name}/HiCUP_summary_report*") into multiqcHicup
 
     shell:
-    resourceDir = "${NXF_HOME}/assets/t-neumann/hicer-nf/bin"
+    resourceDir = "${NXF_HOME}/assets/t-neumann/hicer-nf/resource"
     '''
     mkdir !{name}
     hicupReportMerger.py -o !{name} \
