@@ -145,6 +145,26 @@ def balance_ic(cooleruri, nproc):
     return bias
 
 
+def check_weight(cooleruri, weight_name):
+    '''
+    checks if weight_name already exist in cooler file
+
+    :param cooleruri:   uri to a given cooleruri
+    :param weight_name: name of the weight to check for
+
+    :return:            True if weight already in cooler else False
+    '''
+
+    cool_path, group_path = parse_cooler_uri(cooleruri)
+    weight_exists = False
+    with h5py.File(cool_path, 'r+') as h5:
+        grp = h5[group_path]
+        if grp['bins'].get(weight_name):
+            weight_exists = True
+
+    return weight_exists
+
+
 def store_weights(cooleruri, bias, weightname):
     '''
     stores an iterable of values as a new weight column in the given cooleruri
@@ -202,14 +222,23 @@ args = parser.parse_args()
 
 for resolution in get_resolutons(args.mcool):
     cooleruri = args.mcool + '::resolutions/' + resolution
-    logging.info('applying KR to {}::resolution/{}'.format(args.mcool, resolution))
-    krweights = balance_kr(cooleruri)
-    store_weights(cooleruri, krweights, 'KR')
-    del krweights
 
-    logging.info('applying IC to {}::resolution/{}'.format(args.mcool, resolution))
-    icweights = balance_ic(cooleruri, args.processors)
-    store_weights(cooleruri, icweights, 'IC')
-    del icweights
+    if not check_weight(cooleruri, 'KR'):
+        logging.info('applying KR to {}::resolution/{}'.format(args.mcool, resolution))
+        krweights = balance_kr(cooleruri)
+        store_weights(cooleruri, krweights, 'KR')
+        del krweights
+
+    else:
+        logging.info('KR weight for {}::resolution/{} already exist. Skipping!'.format(args.mcool, resolution))
+
+    if not check_weight(cooleruri, 'IC'):
+        logging.info('applying IC to {}::resolution/{}'.format(args.mcool, resolution))
+        icweights = balance_ic(cooleruri, args.processors)
+        store_weights(cooleruri, icweights, 'IC')
+        del icweights
+
+    else:
+        logging.info('IC weight for {}::resolution/{} already exist. Skipping!'.format(args.mcool, resolution))
 
     gc.collect()
