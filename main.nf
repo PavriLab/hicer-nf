@@ -48,8 +48,9 @@ def helpMessage() {
 
         --re             regular expression to use for in-silico digestion by HICUP (e.g. ^GATC,MboI)
 
-        --outputDir      Directory name to save results to. (Defaults to
-                         'results')
+        --outputDir      Directory name to save results to. (default: 'results')
+
+        --readsPerSplit  specifies the number of read per fastq split for parallel processing (default: 25.000.000)
 
      References:
         --genome         Name of reference (hg38, mm10, ...)
