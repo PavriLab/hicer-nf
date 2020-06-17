@@ -10,8 +10,6 @@ The pipeline is built using [Nextflow](https://www.nextflow.io), a workflow tool
 
 ## Pipeline summary
 
-We loosely follow the steps proposed by [Rao et al, Cell 2014](https://www.ncbi.nlm.nih.gov/pubmed/25497547) for processing HiC datasets.
-
 1. Raw read QC ([`FastQC`](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/))
 2. Adapter trimming ([`Trim Galore!`](https://www.bioinformatics.babraham.ac.uk/projects/trim_galore/))
 3. Alignment, Filtering and Deduplication ([`HiCUP`](https://www.bioinformatics.babraham.ac.uk/projects/hicup/))
@@ -34,17 +32,17 @@ iii. Start running your own analysis!
 ```bash
 # if you have specified an igenomes directory from or run a profile from any of the institutions 
 # listed here https://raw.githubusercontent.com/nf-core/configs/master/nfcore_custom.config
-nextflow run t-neumann/hicer-nf --samples samples.txt --genome mm9 --re1 ^GATC,MboI
+nextflow run t-neumann/hicer-nf --samples samples.txt --genome mm9 --re ^GATC,MboI
 
 # else you can specify the most essential things manually
 # if HICUP digest and bowtie2 index are not available
-nextflow run t-neumann/hicer-nf --samples samples.txt --genome mm9 --re1 ^GATC,MboI --fasta genome.fa --chromSizes chrom.sizes
+nextflow run t-neumann/hicer-nf --samples samples.txt --genome mm9 --re ^GATC,MboI --fasta genome.fa --chromSizes chrom.sizes
 
 # if HICUP digest and bowtie2 index are available
-nextflow run t-neumann/hicer-nf --samples samples.txt --genome mm9 --re1 ^GATC,MboI --bowtie2Index /path/to/bowtie2Index/genome_base_name --hicupDigest /path/to/hicup/digest/file --chromSizes chrom.sizes
+nextflow run t-neumann/hicer-nf --samples samples.txt --genome mm9 --re ^GATC,MboI --bowtie2Index /path/to/bowtie2Index/genome_base_name --hicupDigest /path/to/hicup/digest/file --chromSizes chrom.sizes
 ```
 
-These invocations compute cooler and hic files for a default resolution list of 5kb, 10kb, 25kb, 50kb, 100kb, 250kb, 500kb and 1Mb. If you want resolutions that are not listed here you could use the `--resolutions` parameter (see below).
+These invocations compute cooler and hic files for a default resolution list of 5kb, 10kb, 25kb, 50kb, 100kb, 250kb, 500kb and 1Mb. If you want resolutions that are not listed here you could use the `--resolutions` parameter (see below). In addition to this, the pipeline parallelizes the hicup workflow in a more flexible way than the hicup control script by splitting the sample reads into chunks of specific length and threads these through the hicup scripts. Per default, the fastq chunks have a size of 25M reads, but this can be changed using the `--readsPerSplit` parameter to suit you sample size.
 
 ## Main arguments
 
@@ -148,6 +146,10 @@ cat chrom.sizes.xml
 The XML will be converted to TSV in-situ where the pipeline uses the `contigName` and `totalBases` keys for generating the TSV file. Thus at least these fields have to be present in the XML. This option is for compatibility with older igenomes databases.
 
 ## Generic arguments
+
+#### `--readsPerSplit`
+
+This parameter specifies the number of reads each split fastq file should contain for parallel processing. The default is 25M reads per split file.
 
 #### `--bowtie2Index`
 
