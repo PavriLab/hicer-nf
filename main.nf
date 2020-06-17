@@ -183,14 +183,14 @@ if (params.hicupDigest) {
   hicupDigestFile = params.hicupDigest
   digestFasta = false
 
-} else if (params.re1) {
+} else if (params.re) {
   fastaForHicupDigest = Channel
                             .fromPath(fastaFile)
   hicupDigestFile = 'computed from fasta'
   digestFasta = true
 
 } else {
-    exit 1, "HICUP digest file does not exist and --re1 is not set!"
+    exit 1, "HICUP digest file does not exist and --re is not set!"
 
 }
 
@@ -225,7 +225,7 @@ log.info " ======================"
 log.info " Samples List             : ${params.samples}"
 log.info " Resolutions              : ${resolutions}"
 log.info " baseResolution           : ${baseResolution}"
-log.info " re1                      : ${params.re1}"
+log.info " re                      : ${params.re}"
 log.info " Genome                   : ${params.genome}"
 log.info " Fasta                    : ${fastaFile}"
 log.info " ChromSizes               : ${chromSizesFile}"
@@ -275,7 +275,7 @@ if (digestFasta) {
     """
     echo !{task.memory}
     echo !{task.cpus}
-    hicup_digester --genome !{params.genome} --re1 !{params.re1} !{fasta}
+    hicup_digester --genome !{params.genome} --re !{params.re} !{fasta}
     """
   }
 }
@@ -389,7 +389,7 @@ process hicupTruncater {
     mkdir !{splitName}
     hicup_truncater --outdir !{splitName} \
                     --threads !{task.cpus} \
-                    --re1 !{params.re1} \
+                    --re1 !{params.re} \
                     !{fastqSplitPairs[0]} \
                     !{fastqSplitPairs[1]}
     '''
