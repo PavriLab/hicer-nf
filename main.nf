@@ -606,11 +606,14 @@ process pairixMaker {
         awk 'BEGIN{ FS = "\t"; OFS = "\t" }{ print $1,$2,$3,$6,$7,$4,$8 }' > \
         !{name}/!{name}.pairs.tmp
 
+    # making sure chromosomes are sorted semantically to comply with higlass
+    sort -k1,1 -V !{chromSizesFile} > chromSizes.sort.tsv
+
     cooler csort -c1 2 -c2 4 \
                  -p1 3 -p2 5 \
                  -p !{task.cpus} \
                  !{name}/!{name}.pairs.tmp \
-                 !{chromSizeFile}
+                 chromSizes.sort.tsv
 
     # add generic header to make pairix compatible with juicer prefix
     echo "## pairs format v1.0" > !{name}/!{name}.pairs
@@ -676,6 +679,9 @@ process baseBuilder {
     '''
     mkdir -p !{name}
 
+    # making sure chromosomes are sorted semantically to comply with higlass
+    sort -k1,1 -V !{chromSizesFile} > chromSizes.sort.tsv
+    
     cooler cload pairix --assembly !{params.genome} \
                         -p !{task.cpus} \
                         !{chromSizeFile}:!{baseResolution} \
