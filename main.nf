@@ -684,7 +684,7 @@ process baseBuilder {
 
     cooler cload pairix --assembly !{params.genome} \
                         -p !{task.cpus} \
-                        !{chromSizeFile}:!{baseResolution} \
+                        chromSizes.sort.tsv:!{baseResolution} \
                         !{pairs} \
                         !{name}/!{name}_base.cool
     '''
