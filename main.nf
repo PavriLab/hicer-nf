@@ -607,7 +607,7 @@ process pairixMaker {
         !{name}/!{name}.pairs.tmp
 
     # making sure chromosomes are sorted semantically to comply with higlass
-    sort -k1,1 -V !{chromSizesFile} > chromSizes.sort.tsv
+    sort -k1,1 -V !{chromSizeFile} > chromSizes.sort.tsv
 
     cooler csort -c1 2 -c2 4 \
                  -p1 3 -p2 5 \
@@ -680,8 +680,8 @@ process baseBuilder {
     mkdir -p !{name}
 
     # making sure chromosomes are sorted semantically to comply with higlass
-    sort -k1,1 -V !{chromSizesFile} > chromSizes.sort.tsv
-    
+    sort -k1,1 -V !{chromSizeFile} > chromSizes.sort.tsv
+
     cooler cload pairix --assembly !{params.genome} \
                         -p !{task.cpus} \
                         !{chromSizeFile}:!{baseResolution} \
