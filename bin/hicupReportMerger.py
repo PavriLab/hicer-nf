@@ -342,6 +342,7 @@ d = dict(INPUT_FILENAME = args.prefix,
          INPUT_AVERAGE_LENGTH_TRUNCATED_READ2 = statFrames['truncater'].loc[args.prefix + '_trimmed_val_2.fq.gz', 'Average_length_truncated_sequence'],
          DATESTAMP = str(datetime.datetime.now()))
 
+d['INPUT_DEDUPLICATION_PERCENTAGE_UNIQUES'] = round(d['INPUT_DEDUPLICATION_READ_PAIRS_UNIQUES']/d['INPUT_DEDUPLICATION_READ_PAIRS_ALL'] * 100, 2)
 
 generate_html_report(d,
                      get_html_template(args.template),
