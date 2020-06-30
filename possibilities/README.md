@@ -97,7 +97,7 @@ clr = cooler.Cooler('sample.mcool::resolutions/100000')
 clr.matrix(balance = True, divisive_weights = False)
 ```
 
-otherwise cooler will balance the matrix by applying the KR weights in a divisive manner and the results will be very large and incorrect. Thus, you might have a look at the cooltools code and implement the functions accordingly for the tasks you want to achieve.
+otherwise cooler will balance the matrix by applying the KR weights in a divisive manner and the results will be very large and incorrect. Thus, you might have a look at the cooltools code and implement the functions accordingly for the tasks you want to achieve. The `hicanalysis.ipynb` jupyter notebook contains a guide in code (and a bit of comments) to get a typical downstream analysis started with the results of the pipeline.
 
 ## Python Packages
 * [numpy](https://numpy.org/)
