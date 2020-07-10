@@ -235,19 +235,19 @@ args = parser.parse_args()
 for resolution in get_resolutons(args.mcool):
     cooleruri = args.mcool + '::resolutions/' + resolution
 
-    if not check_weight(cooleruri, 'KR_weights'):
+    if not check_weight(cooleruri, 'weights'):
         logging.info('applying KR to {}::resolution/{}'.format(args.mcool, resolution))
         krweights = balance_kr(cooleruri)
-        store_weights(cooleruri, krweights, 'KR_weights')
+        store_weights(cooleruri, krweights, 'weights')
         del krweights
 
     else:
         logging.info('KR weights for {}::resolution/{} already exist. Skipping!'.format(args.mcool, resolution))
 
-    if not check_weight(cooleruri, 'IC_weights'):
+    if not check_weight(cooleruri, 'ICE'):
         logging.info('applying IC to {}::resolution/{}'.format(args.mcool, resolution))
         icweights = balance_ic(cooleruri, args.processors)
-        store_weights(cooleruri, icweights, 'IC_weights')
+        store_weights(cooleruri, icweights, 'ICE')
         del icweights
 
     else:
