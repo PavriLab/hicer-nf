@@ -235,10 +235,10 @@ args = parser.parse_args()
 for resolution in get_resolutons(args.mcool):
     cooleruri = args.mcool + '::resolutions/' + resolution
 
-    if not check_weight(cooleruri, 'weights'):
+    if not check_weight(cooleruri, 'weight'):
         logging.info('applying KR to {}::resolution/{}'.format(args.mcool, resolution))
         krweights = balance_kr(cooleruri)
-        store_weights(cooleruri, krweights, 'weights')
+        store_weights(cooleruri, krweights, 'weight')
         del krweights
 
     else:
