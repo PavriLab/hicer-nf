@@ -212,6 +212,18 @@ def get_resolutons(coolerpath):
         return list(h5['resolutions'].keys())
 
 
+def rename_weights(cooleruri, name_map):
+    cool_path, group_path = parse_cooler_uri(cooleruri)
+    with h5py.File(cool_path, 'r+') as h5:
+        grp = h5[group_path]
+        h5opts = dict(compression='gzip', compression_opts=6)
+        for old_name, new_name in name_map.items():
+            # add the bias column to the file
+            weights = grp['bins'][old_name][()].copy()
+            grp['bins'].create_dataset(new_name, data=weights, **h5opts)
+            del grp['bins'][old_name]
+
+
 logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO)
 parser = ap.ArgumentParser()
 parser.add_argument('-m', '--mcool', required = True,
