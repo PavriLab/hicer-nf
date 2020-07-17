@@ -330,7 +330,7 @@ process trim {
                 --gzip \
                 --output_dir !{parameters.name} \
                 --basename !{parameters.name}_trimmed \
-                --cores !{task.cpu} \
+                --cores !{task.cpus} \
                 !{parameters.read1} \
                 !{parameters.read2}
 
