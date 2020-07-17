@@ -19,7 +19,7 @@ The pipeline is built using [Nextflow](https://www.nextflow.io), a workflow tool
 7. Compute matrix normalization vectors for all aggregated resolutions with the [KR](https://doi.org/10.1093/imanum/drs019) and the [IC](https://www.nature.com/articles/nmeth.2148) algorithm (HiCExplorers [C++ implementation of the KR algorithm](https://github.com/deeptools/Knight-Ruiz-Matrix-balancing-algorithm) and [`cooler`](https://cooler.readthedocs.io/en/latest/) Out-Of-Core balancing)
 8. Present QC for raw reads, alignment and filtering [`MultiQC`](http://multiqc.info/)
 
-The generated mcool files are compatible with [cooltools](https://cooltools.readthedocs.io/en/latest/index.html) for downstream analysis and [Higlass](https://github.com/higlass/higlass) for visualization. KR balancing weights are stored in the `'weight'`, IC balancing weights are stored in the `'ICE'` column of the bins table of each cooler. A range of possible downstream analyses can be found in the possibilities directory of this repo. In addition the pipeline also generates [hic](http://www.cell.com/cms/attachment/2065039642/2066196726/mmc1.pdf) files with [juicer_tools](https://github.com/aidenlab/juicer/wiki/Download) pre for visualization in [juicebox](https://github.com/aidenlab/Juicebox) and/or loop calling with juicer's [HICCUPS](https://github.com/aidenlab/juicer/wiki/HiCCUPS) algorithm. 
+The generated mcool files are compatible with [cooltools](https://cooltools.readthedocs.io/en/latest/index.html) for downstream analysis and [Higlass](https://github.com/higlass/higlass) for visualization. KR balancing weights are stored in the `'weight'`, IC balancing weights are stored in the `'ICE'` column of the bins table of each cooler. A range of possible downstream analyses can be found in the possibilities directory of this repo. In addition the pipeline also generates [hic](http://www.cell.com/cms/attachment/2065039642/2066196726/mmc1.pdf) files with [juicer_tools](https://github.com/aidenlab/juicer/wiki/Download) pre for visualization in [juicebox](https://github.com/aidenlab/Juicebox) and/or loop calling with juicer's [HICCUPS](https://github.com/aidenlab/juicer/wiki/HiCCUPS) algorithm.
 
 ## Quick Start
 
@@ -43,6 +43,8 @@ nextflow run t-neumann/hicer-nf --samples samples.txt --genome mm9 --re ^GATC,Mb
 ```
 
 These invocations compute cooler and hic files for a default resolution list of 5kb, 10kb, 25kb, 50kb, 100kb, 250kb, 500kb and 1Mb. If you want resolutions that are not listed here you could use the `--resolutions` parameter (see below). In addition to this, the pipeline parallelizes the hicup workflow in a more flexible way than the hicup control script by splitting the sample reads into chunks of specific length and threads these through the hicup scripts. Per default, the fastq chunks have a size of 25M reads, but this can be changed using the `--readsPerSplit` parameter to suit you sample size.
+
+The current resource configuration was tested for a 2.6B read Hi-C data set and ran in approximately 1.5 days. However, if you are using bigger samples you might have to change the settings in terms of job duration.
 
 ## Main arguments
 
