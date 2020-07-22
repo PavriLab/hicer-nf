@@ -3,16 +3,15 @@ The jupyter notebooks in this section show some possible downstream analysis. Sp
 
 ## Plotting contact matrices
 The `plotHiCmat.py` script is a lightweight utility to visualize your generated contact matrices. An example command would be:
-```
+
+```bash
 plotHiCmat.py -m CH12_HiC_200kb_KR.h5 --vMax 50 -o CH12_HiC_200kb_plot.jpg
 ```
 
 The `--vMax` specifies the maximum value for the colormap used to plot the matrix (`--vMin` can be used to set the minimum value). In addition to this one can also specify the chromosomes that should be included in the plot with the `--chromosomes` argument, which takes a space-separated list of chromosomes. The used colormap can be changed with the `--colorMap` argument (this has to be either `redmap` (default) or one of the named colormaps offered by `matplotlib`). 
+This script only takes `h5` formatted data (i.e. `HiCExplorer` format). Thus, to use it you need to convert one of the coolers contained in the `mcool` file to `h5` using [HiCExplorer](https://hicexplorer.readthedocs.io/en/latest/) `hicConvertFormat`:
 
-## Performing clustering of bins using a Gaussian HMM
-In order to perform subcompartment inference we first have to convert the a resolution of the mcooler file to h5 format using [HiCExplorer](https://hicexplorer.readthedocs.io/en/latest/)(note that 200kb is not part of the default resolutions but you can always compute it post-pipeline using `cooler coarsen`)
-
-```
+```bash
 hicConvertFormat -m mcoolfile.mcool::resolutions/200000 \
                  --inputFormat cool \
                  --outputFormat h5 \
@@ -20,9 +19,13 @@ hicConvertFormat -m mcoolfile.mcool::resolutions/200000 \
                  -o 200kb.h5
 ```
 
-We can then perform clustering as described using a Gaussian HMM. This can be done with the `performClustering.py` utility which takes a KR-normalized genome-wide matrix, transforms it into a clustering matrix as described and trains a Gaussian HMM to infer a segmentation of the genome for different numbers of clusters. A usual command to invoke the clustering would be as follows:
+In addition to this, the `chromplotter.ipynb` contains a view utility function (including examples to plot chromosomes directly from `mcool` files.
+
+## Performing clustering of bins using a Gaussian HMM
+We can perform clustering as described using a Gaussian HMM. This can be done with the `performClustering.py` utility which takes a genome-wide KR-normalized matrix, transforms it into a clustering matrix as described and trains a Gaussian HMM to infer a segmentation of the genome for different numbers of clusters. A usual command to invoke the clustering would be as follows:
+
 ```bash
-performClustering.py -m CH12_HiC_200kb_KR.h5 \
+performClustering.py -m CH12_HiC_SRA.mcool::resolutions/200000 \
                      --mink 1 \
                      --maxk 15 \
                      -r 0.3 \
