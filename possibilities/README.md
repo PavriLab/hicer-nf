@@ -22,7 +22,7 @@ hicConvertFormat -m mcoolfile.mcool::resolutions/200000 \
 In addition to this, the `chromplotter.ipynb` contains a view utility function (including examples to plot chromosomes directly from `mcool` files.
 
 ## Performing clustering of bins using a Gaussian HMM
-We can perform clustering as described using a Gaussian HMM. This can be done with the `performClustering.py` utility which takes a genome-wide KR-normalized matrix, transforms it into a clustering matrix as described and trains a Gaussian HMM to infer a segmentation of the genome for different numbers of clusters. A usual command to invoke the clustering would be as follows:
+We perform clustering of Hi-C interchromosomal Hi-C contacts as described by [Rao et al. 2014](https://www.cell.com/cell/fulltext/S0092-8674(14)01497-4) using a Gaussian HMM. This can be done with the `performClustering.py` utility which takes a genome-wide KR-normalized matrix, transforms it into a clustering matrix as described and trains a Gaussian HMM to infer a segmentation of the genome for different numbers of clusters. A usual command to invoke the clustering would be as follows:
 
 ```bash
 performClustering.py -m CH12_HiC_SRA.mcool::resolutions/200000 \
@@ -30,8 +30,9 @@ performClustering.py -m CH12_HiC_SRA.mcool::resolutions/200000 \
                      --maxk 15 \
                      -r 0.3 \
                      -p CH12_HiC_200kb_KR_cluster \
-                     --imputerows 7689:7905 \
-                     --imputecols 9592:10116 \
+                     --includeChromosome chr1 chr2 chr3 chr4 chr5 chr6 chr7 chr8 chr9 chr10 chr11 chr12 chr13 chr14 chr15 chr16 chr17 chr18 chr19 \
+                     --imputerows 7691:7906 \
+                     --imputecols 9600:10121 \
                      -pd plots
 ```
 
@@ -107,6 +108,9 @@ otherwise cooler will balance the matrix by applying the KR weights in a divisiv
 
 
 ## Python Packages
+* [cooler](https://cooler.readthedocs.io/en/latest/)
+  > Nezar Abdennur, Leonid A Mirny, Cooler: scalable storage for Hi-C data and other genomically labeled arrays, Bioinformatics, Volume 36, Issue 1, 1 January 2020, Pages 311–316. doi: 10.1093/bioinformatics/btz540
+  
 * [numpy](https://numpy.org/)
   > Stéfan van der Walt, S. Chris Colbert and Gaël Varoquaux. The NumPy Array: A Structure for Efficient Numerical Computation, Computing in Science & Engineering, 13, 22-30 (2011). doi: 10.1109/MCSE.2011.37
 
