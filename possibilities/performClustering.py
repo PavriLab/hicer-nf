@@ -10,6 +10,7 @@ import logging
 import pickle
 import os, ntpath
 import tables
+import cooler
 from scipy.sparse import csr_matrix, triu, lil_matrix
 
 def toString(s):
@@ -123,6 +124,63 @@ def loadH5(filename, includechroms=None, csr=True, returnintervals = False, dtyp
 
     else:
         return matrix, np.array(inds), np.array(chr_list)
+
+
+def loadCooler(cooleruri, applyNorm = False, norm = 'weight', includeChroms = None, nans_to_zero = False):
+    '''
+    loads a cooler into a csr matrix
+    taken from HiCMatrix cool.py see also
+    https://github.com/deeptools/HiCMatrix/blob/master/hicmatrix/lib/cool.py
+
+    :param cooleruri:       uri to a given cooler
+    :param applyNorm:       if True then the 'norm' is applied to the datapoints in the matrix
+    :param norm:            normalization weights to apply if applyNorm is set True
+    :param includeChroms:   list of chromosomes to load, if given only the specified chromosomes will be loaded from the cooler
+
+    :return:            data in cooler as scipy.sparse.csr_matrix
+    '''
+    cooler_file = cooler.Cooler(cooleruri)
+    matrix = cooler_file.matrix(balance = norm if applyNorm else False)[:]
+
+    chroms = cooler_file.chromnames
+    inds = set()
+    for chrom in chroms:
+        for binidx in cooler_file.extent(chrom):
+            inds.add(binidx)
+
+    inds = sorted(list(inds))
+
+    if includeChroms:
+        includechroms = set(includeChroms)
+        filterinds, filterchroms = [], []
+        for i, chr in zip(range(len(inds)), chroms):
+            if chr in includechroms:
+                filterinds.append([inds[i], inds[i + 1] if i + 1 != len(inds) else matrix.shape[0]])
+                filterchroms.append(chr)
+
+        matrixinds = np.zeros(shape=matrix.shape[0], dtype=bool)
+        ncuts, tmpe = [], 0
+        for s, e in filterinds:
+            matrixinds[s: e] = True
+
+            if s == tmpe:
+                ncuts.append(s)
+                tmpe = e
+
+            else:
+                ncuts.append(tmpe)
+                tmpe = e - s + tmpe
+
+        matrix = matrix[matrixinds, :][:, matrixinds]
+
+        inds = ncuts
+
+        chroms = filterchroms
+
+        if nans_to_zero:
+            matrix[np.isnan(matrix)] = 0
+
+    return matrix, inds, chroms
 
 
 def constructClusterContactMatrix(gwmat, chrlist, indarr, excluderows = None, excludecols = None,
@@ -444,9 +502,13 @@ def plotInformationCriterion(values, label, mink, maxk, title, ax):
 logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO)
 parser = ap.ArgumentParser()
 parser.add_argument('-m', '--matrix', required = True,
-                    help = '''npz or h5 file holding the genomewide KR normalized contact matrix.
+                    help = '''cool, h5 or npz file holding the genomewide KR normalized contact matrix.
                               Also has to contain the indexarray and chromosome list as returned by
                               constructGenomeWideContactMatrix''')
+parser.add_argument('--inputFormat', default = 'cool', choices = ['cool', 'h5', 'npz'],
+                    help = 'specifies the format of the input file')
+parser.add_argument('--weightName', default = 'weight',
+                    help = 'name of the correction weights to apply to matrix if --inputFormat == cool')
 parser.add_argument('--mink', default = 1, type = int,
                     help = 'minimum number of clusters k')
 parser.add_argument('--maxk', default = 20, type = int,
@@ -457,17 +519,17 @@ parser.add_argument('-r', '--removelim', default = 0.3, type = float,
 parser.add_argument('-p', '--prefix', required = True,
                     help = '''name of the output npz file holding cluster assignments for each value of k
                               between --mink and --maxk and the correspondingly calculated BIC and AIC''')
-parser.add_argument('-X', '--withX', default = False, action = 'store_true',
-                    help = 'if set, the X chromosome is included in the clustering')
+parser.add_argument('--includeChromosome', nargs = '*', default = None,
+                    help = 'chromosomes to include in the normalization as space separated list (i.e. chr1 chr2 ...)')
 parser.add_argument('-e', '--exclude', default = None,
                     help = '''ranges of rows with respect to the genome wide matrix to exclude from the analysis
                               has to be passed as comma-separated list of integers delimited by a colon
                               e.g. i1:i2,i3:i4,...''')
 parser.add_argument('--imputerows', default = None,
-                    help = '''ranges of rows that should be imputed at --imputecols positions by row
+                    help = '''ranges of rows with respect to the genome wide matrix that should be imputed at --imputecols positions by row
                               normal distributed values has to be passed as integers delimited by a colon e.g. i1:i2''')
 parser.add_argument('--imputecols', default = None,
-                    help = '''ranges of cols that should be imputed at --imputerows positions
+                    help = '''ranges of cols with respect to the genome wide matrix that should be imputed at --imputerows positions
                               has to be passed as integers delimited by a colon e.g. i1:i2''')
 parser.add_argument('-pd', '--plotdir', default = None,
                     help = 'directory to which to write the plots to')
@@ -489,12 +551,22 @@ elif (args.imputecols and not args.imputerows) or (args.imputerows and not args.
     raise RuntimeError('Both, --imputerows and --imputecols are required for imputation of values')
 
 logging.info('reading in normalized contact matrix')
-if args.matrix.endswith('npz'):
+if args.inputFormat == 'npz':
     npz = np.load(args.matrix)
     gwmat, indarr, chrlist = [npz[key] for key in ['cm', 'inds', 'chrlist']]
 
+elif args.inputFormat == 'h5':
+    gwmat, indarr, chrlist = loadH5(args.matrix,
+                                    csr = False,
+                                    includechroms = args.includeChromosome,
+                                    dtype = float)
+
 else:
-    gwmat, indarr, chrlist = loadH5(args.matrix, csr = False, dtype = float)
+    gwmat, indarr, chrlist = loadCooler(args.matrix,
+                                        applyNorm = True,
+                                        norm = args.weightName,
+                                        includeChroms = args.includeChromosome,
+                                        nans_to_zero = True)
 
 logging.info('constructing clustering matrices')
 excluderows = []
