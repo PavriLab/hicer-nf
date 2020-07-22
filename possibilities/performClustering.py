@@ -614,7 +614,7 @@ for clustering in ['even', 'odd']:
 
         colorlist = cmap(np.arange(k)/k)
         fig, ax = plt.subplots()
-        ax, meshes = plotClustering(clustmats[clustering], clusters, ax, colorlist, vmax = 2)
+        ax, meshes = plotClustering(clustmats[clustering], clusters, ax, colorlist, vmax = 1)
         fig.set_figwidth(20)
         fig.set_figheight(20)
         fig.tight_layout()
