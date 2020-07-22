@@ -584,14 +584,14 @@ def loadCooler(cooleruri, applyNorm = False, norm = 'weight', includeChroms = No
 
         chroms = filterchroms
 
-    return matrix, inds, chroms
+    return matrix, np.array(inds), np.array(chroms)
 
 
 logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO)
 parser = ap.ArgumentParser()
 
 subparser = parser.add_subparsers(title = 'modes',
-                                  description = '''choose between reading matrix from separate 
+                                  description = '''choose between reading matrix from separate
                                                    text files (sparse) or *.h5 file (h5)''',
                                   dest = 'mode')
 
@@ -612,8 +612,8 @@ sparseparser.add_argument('-m', '--matrixdir', required=True,
                                   observed contact counts for each chromosome/chromosome-pair'''
                           )
 sparseparser.add_argument('-c', '--chromsizes', required=True,
-                          help='''tab-separated file of the format: 
-                                  chrname    chrsize 
+                          help='''tab-separated file of the format:
+                                  chrname    chrsize
                                   containing the sizes of each contained chromosome'''
                           )
 sparseparser.add_argument('-r', '--resolution', required=True, type=int,
