@@ -180,7 +180,7 @@ def loadCooler(cooleruri, applyNorm = False, norm = 'weight', includeChroms = No
         if nans_to_zero:
             matrix[np.isnan(matrix)] = 0
 
-    return matrix, inds, chroms
+    return matrix, np.array(inds), np.array(chroms)
 
 
 def constructClusterContactMatrix(gwmat, chrlist, indarr, excluderows = None, excludecols = None,
