@@ -645,7 +645,7 @@ else:
         gwmat, indarr, chrlist = loadH5(args.matrix, includechroms = args.includeChromosome, csr = False)
 
     else:
-        gwmat, indarr, chrlist = loadCooler(args.matrix, includeChroms = args.includeChroms)
+        gwmat, indarr, chrlist = loadCooler(args.matrix, includeChroms = args.includeChromosome)
 
 logging.info('generating interchromosomal KR-normed contact matrix')
 cij = getInterchromosomeContactMatrix(gwmat, indarr, chrlist)
