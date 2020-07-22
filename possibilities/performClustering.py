@@ -584,7 +584,6 @@ for key, even in zip(['even', 'odd'], [True, False]):
                                       chrlist,
                                       indarr,
                                       even = even,
-                                      withX = args.withX,
                                       excluderows = excluderows.copy(),
                                       imputerows = imputerows.copy(),
                                       imputecols = imputecols.copy(),
