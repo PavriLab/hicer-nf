@@ -44,7 +44,7 @@ nextflow run t-neumann/hicer-nf --samples samples.txt --genome mm9 --re ^GATC,Mb
 
 These invocations compute cooler and hic files for a default resolution list of 5kb, 10kb, 25kb, 50kb, 100kb, 250kb, 500kb and 1Mb. If you want resolutions that are not listed here you could use the `--resolutions` parameter (see below). In addition to this, the pipeline parallelizes the hicup workflow in a more flexible way than the hicup control script by splitting the sample reads into chunks of specific length and threads these through the hicup scripts. Per default, the fastq chunks have a size of 25M reads, but this can be changed using the `--readsPerSplit` parameter to suit you sample size.
 
-The current resource configuration was tested for a 2.6B read Hi-C data set and ran in approximately 1.5 days. However, if you are using bigger samples you might have to change the settings in terms of job duration.
+The current resource configuration was tested for a 2.6B read Hi-C data set and ran in approximately 2 days. However, if you are using bigger samples you might have to change the settings in terms of job duration.
 
 ## Main arguments
 
