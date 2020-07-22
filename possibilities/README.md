@@ -77,15 +77,16 @@ Visualization of the different clustering results for the clustering matrices wh
 
 4. `*.hmm*.pkl`
 These files contain the trained model for each number of states chosen, dumped with `pickle` and can be loaded with
-```
+```python
 import pickle
 model = pickle.load('*.hmm*.pkl')
 ```
 
 ## Genome-wide interchromosomal contact normalization
 One of the downstream analysis steps of the subcompartment inference is the computation of correspondence between clusters on the even chromsosomes and clusters on the odd chromosomes. This is done by computing the enrichment of contacts between bins of a cluster on the even chromosomes and a cluster on the odd chromosomes. In order to remove biases introduced by intrachromosomal contacts (which are naturally more frequent than interchromosomal contacts) we construct a special KR-normalized matrix in which we remove intrachromosomal contacts by setting them to 0 before KR-normalization. To do so we can use the `interchromosomalKRnorm.py` script which is invoked as follows:
-```
-interchromosomalKRnorm.py -m CH12_HiC_200kb_raw.h5 -o correctedHiC/CH12_HiC_200kb_interKR.npz
+
+```bash
+interchromosomalKRnorm.py -m CH12_HiC_SRA.mcool::resolutions/200000 -o CH12_HiC_200kb_interKR.npz
 ```
 
 The generated file `*_interKR.npz` is similar to the clustering matrices where rows are bins on odd chromosomes and columns are bins on even chromosomes.
