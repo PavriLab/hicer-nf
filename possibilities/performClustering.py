@@ -535,7 +535,7 @@ parser.add_argument('-pd', '--plotdir', default = None,
                     help = 'directory to which to write the plots to')
 parser.add_argument('-o', '--outdir', default = '.',
                     help = 'directory to write outputfiles to')
-parser.add_argument('--noScale' default = False, action = 'set_true',
+parser.add_argument('--noScale', default = False, action = 'set_true',
                     help = 'if set bypasses scaling of normalized matrix')
 parser.add_argument('--scaleFactor', default = 100000, type = float,
                     help = 'factor used to scale the matrix')
@@ -574,7 +574,7 @@ else:
 
 if not args.noScale:
     gwmat *= args.scaleFactor
-    
+
 logging.info('constructing clustering matrices')
 excluderows = []
 if args.exclude:
