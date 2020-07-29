@@ -34,7 +34,7 @@ def helpMessage() {
      Basic processing of HiC data.
 
      Usage:
-     nextflow run t-neumann/hicer-nf
+     nextflow run pavrilab/hicer-nf
 
      Options:
         --samples        Tab-delimited text file specifying the samples
@@ -433,7 +433,7 @@ process hicupFilter {
     tuple val(splitName), file("${splitName}/*summary*.txt"), file("${splitName}/*.ditag_size_distribution") into hicupFilterReportChannel
 
     shell:
-    bin = "${NXF_HOME}/assets/t-neumann/hicer-nf/bin"
+    bin = "${NXF_HOME}/assets/pavrilab/hicer-nf/bin"
     '''
     mkdir !{splitName}
 
@@ -541,7 +541,7 @@ process hicupReporter {
     file("${name}/HiCUP_summary_report*") into multiqcHicup
 
     shell:
-    resourceDir = "${NXF_HOME}/assets/t-neumann/hicer-nf/resource"
+    resourceDir = "${NXF_HOME}/assets/pavrilab/hicer-nf/resource"
     '''
     mkdir !{name}
     hicupReportMerger.py -o !{name} \
@@ -650,7 +650,7 @@ process juicerHic {
                    'canFam3', 'equCab2', 'galGal4', 'Pf3D7',
                    'sacCer3', 'sCerS288c', 'susScr3', 'TAIR10']
   genome = juicerGenomes.contains(params.genome) ? params.genome : chromSizeFile
-  juicerPath = "${NXF_HOME}/assets/t-neumann/hicer-nf/bin"
+  juicerPath = "${NXF_HOME}/assets/pavrilab/hicer-nf/bin"
   '''
   mkdir -p !{name}
 
