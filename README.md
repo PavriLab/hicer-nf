@@ -27,19 +27,24 @@ i. Install [`nextflow`](https://nf-co.re/usage/installation)
 
 ii. Install one of [`docker`](https://docs.docker.com/engine/installation/), [`singularity`](https://www.sylabs.io/guides/3.0/user-guide/) or [`conda`](https://conda.io/miniconda.html)
 
-iii. Start running your own analysis!
+iii. Clone repository
+```bash
+nextflow pull pavrilab/hicer-nf
+```
+
+iv. Start running your own analysis!
 
 ```bash
 # if you have specified an igenomes directory from or run a profile from any of the institutions 
 # listed here https://raw.githubusercontent.com/nf-core/configs/master/nfcore_custom.config
-nextflow run t-neumann/hicer-nf --samples samples.txt --genome mm9 --re ^GATC,MboI
+nextflow run pavrilab/hicer-nf --samples samples.txt --genome mm9 --re ^GATC,MboI
 
 # else you can specify the most essential things manually
 # if HICUP digest and bowtie2 index are not available
-nextflow run t-neumann/hicer-nf --samples samples.txt --genome mm9 --re ^GATC,MboI --fasta genome.fa --chromSizes chrom.sizes
+nextflow run pavrilab/hicer-nf --samples samples.txt --genome mm9 --re ^GATC,MboI --fasta genome.fa --chromSizes chrom.sizes
 
 # if HICUP digest and bowtie2 index are available
-nextflow run t-neumann/hicer-nf --samples samples.txt --genome mm9 --re ^GATC,MboI --bowtie2Index /path/to/bowtie2Index/genome_base_name --hicupDigest /path/to/hicup/digest/file --chromSizes chrom.sizes
+nextflow run pavrilab/hicer-nf --samples samples.txt --genome mm9 --re ^GATC,MboI --bowtie2Index /path/to/bowtie2Index/genome_base_name --hicupDigest /path/to/hicup/digest/file --chromSizes chrom.sizes
 ```
 
 These invocations compute cooler and hic files for a default resolution list of 5kb, 10kb, 25kb, 50kb, 100kb, 250kb, 500kb and 1Mb. If you want resolutions that are not listed here you could use the `--resolutions` parameter (see below). In addition to this, the pipeline parallelizes the hicup workflow in a more flexible way than the hicup control script by splitting the sample reads into chunks of specific length and threads these through the hicup scripts. Per default, the fastq chunks have a size of 25M reads, but this can be changed using the `--readsPerSplit` parameter to suit you sample size.
