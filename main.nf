@@ -471,8 +471,8 @@ if (params.re) {
                               -2 !{fastqSplitPairs[1]} \
                               -o !{splitName}/!{splitName}.dummy_truncater_summary.txt
 
-      cp !{fastqSplitPairs[0]} !{splitName}/!{splitName}_1.trunc.fq
-      cp !{fastqSplitPairs[1]} !{splitName}/!{splitName}_2.trunc.fq
+      cp !{fastqSplitPairs[0]} !{splitName}/!{splitName}_1.trunc.fastq
+      cp !{fastqSplitPairs[1]} !{splitName}/!{splitName}_2.trunc.fastq
       '''
   }
 
