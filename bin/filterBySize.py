@@ -29,7 +29,7 @@ invalid = 0
 sameInternal = 0
 
 invalidre = re.compile('^.+\t\d+\t\S+\t\d+\t\d+\t\S+\t.+\t\d+\t\d+\t[ATCGN]+\t.+$')
-with ps.AlignmentFile(args.outputFile, 'w', header = header) as outputSam:
+with ps.AlignmentFile(args.outputFile, 'w', header = samheader) as outputSam:
     while True:
         try:
             read1 = inputSam.__next__()
