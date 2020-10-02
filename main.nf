@@ -229,7 +229,7 @@ if (params.hicupDigest) {
 
 } else {
     log.info "HICUP digest and re motif not given. Results in assumption of micro-C protocol and skipping of truncation and alteration of filtering"
-
+    digestFasta = false
 }
 
 if (params.chromSizes) {
@@ -312,7 +312,6 @@ if (convertChromSizes) {
     '''
     xml2tsv.py !{chromSizeXML} chromSizes.tsv
     '''
-
   }
 }
 
