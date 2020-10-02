@@ -38,7 +38,7 @@ with ps.AlignmentFile(args.outputFile, 'w', header = samheader) as outputSam:
             break
 
         total += 1
-        if not (invalidre.fullmatch(read1) and invalidre.fullmatch(read2)):
+        if not (invalidre.fullmatch(read1.to_string()) and invalidre.fullmatch(read2.to_string())):
             invalid += 1
             continue
 
