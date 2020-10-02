@@ -77,6 +77,6 @@ with open(prefix + '.size_filter_summary.txt', 'w') as summaryfile:
     for count in [total, valid, cis_l_10, cis_g_10, trans, invalid, 0, 0, sameInternal, 0, 0]:
         summaryfile.write('\t' + str(count))
 
-with open(prefix + '.ditag_size_distribution', 'r') as sizedistributionfile:
+with open(prefix + '.ditag_size_distribution', 'w') as sizedistributionfile:
     for k, v in sizeDistribution.items():
         sizedistributionfile.write('\t'.join([str(k), str(v)]) + '\n')
