@@ -39,8 +39,8 @@ with open(args.fastq2, 'r') as fq2:
         readlength2 += rl
 
 
-readcount1 = readcount1
-readcount2 = readcount2
+readcount1 = readcount1 - 1
+readcount2 = readcount2 - 1
 header = '\t'.join(['File', 'Total_Reads_Processed', 'Truncated',
                     '%Truncated', 'Not_truncated', '%Not_truncated',
                     'Average_length_truncated_sequence'])
