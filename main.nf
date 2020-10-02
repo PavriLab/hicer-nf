@@ -286,7 +286,6 @@ if (params.re) {
   log.info " Fasta                    : ${fastaFile}"
   log.info " ChromSizes               : ${chromSizesFile}"
   log.info " Bowtie2 Index            : ${bowtie2IndexFile}"
-  log.info " HICUP Digest             : ${hicupDigestFile}"
   log.info " Output Directory         : ${params.outputDir}"
   log.info " ======================"
   log.info ""
