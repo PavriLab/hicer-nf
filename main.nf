@@ -469,7 +469,7 @@ if (params.re) {
       mkdir !{splitName}
       dummyReportGenerator.py -1 !{fastqSplitPairs[0]} \
                               -2 !{fastqSplitPairs[1]} \
-                              -o !{splitName}.dummy_truncater_summary.txt
+                              -o !{splitName}/!{splitName}.dummy_truncater_summary.txt
       '''
   }
 
@@ -545,7 +545,7 @@ if (params.re) {
       '''
       mkdir !{splitName}
       filterBySize.py -i !{splitSam} \
-                      --minDistance !{params.minMapDistance}
+                      --minDistance !{params.minMapDistance} \
                       -o !{splitName}/!{splitName}_1_2.filt.sam
       '''
   }

@@ -4,10 +4,10 @@ import argparse as ap
 import logging
 
 def get_read_length(fq_handle):
-    name = fq1.readline()
-    seq = fq1.readline()
+    name = fq_handle.readline()
+    seq = fq_handle.readline()
     fq1.readline()
-    qual = fq1.readline()
+    qual = fq_handle.readline()
     return len(seq.rstrip())
 
 logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO)

@@ -3,6 +3,7 @@
 import argparse as ap
 import pysam as ps
 import logging
+import os
 import re
 
 logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO)
@@ -63,7 +64,8 @@ with ps.AlignmentFile(args.outputFile, 'w', header = header) as outputSam:
 
 inputSam.close()
 
-prefix = args.inputFile.split('.')[0]
+outdir = os.path.dirname(args.outputFile)
+prefix = os.path.join(outdir, args.inputFile.split('.')[0])
 header = '\t'.join(['File', 'Total_pairs', 'Valid_pairs', 'Cis_<10kbp',
                     'Cis_>10kbp', 'Trans', 'Invalid_pairs', 'Same_circularised',
                     'Same_dangling_ends', 'Same_internal', 'Re-ligation',
