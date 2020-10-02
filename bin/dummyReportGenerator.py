@@ -6,7 +6,7 @@ import logging
 def get_read_length(fq_handle):
     name = fq_handle.readline()
     seq = fq_handle.readline()
-    fq1.readline()
+    fq_handle.readline()
     qual = fq_handle.readline()
     return len(seq.rstrip())
 
