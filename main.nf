@@ -47,10 +47,15 @@ def helpMessage() {
         --resolutions    comma-separated list of resolutions in bp to compute in addition to the default resolutions
 
         --re             regular expression to use for in-silico digestion by HICUP (e.g. ^GATC,MboI)
+                         if not given the pipeline assumes the micro-C protocol was used and skips the truncation step
+                         and filters the reads only by their minimum mapping distance
 
         --outputDir      Directory name to save results to. (default: 'results')
 
         --readsPerSplit  specifies the number of read per fastq split for parallel processing (default: 25.000.000)
+
+        --minMapDistance minimum mapping distance between to reads of a pair (default: 500)
+                         is only used in case of micro-C (i.e. --re is not given)
 
      References:
         --genome         Name of reference (hg38, mm10, ...)
@@ -118,24 +123,57 @@ if (params.resolutions) {
 
 if (!params.bowtie2Index || !params.hicupDigest) {
   if (!params.fasta && !igenomes_fasta) {
-    exit 1, "Fasta needed for Bowtie2Index or HICUP Digest not specified!"
+    if (params.re) {
+      exit 1, "Fasta needed for Bowtie2Index or HICUP Digest not specified!"
+
+    } else {
+      exit 1, "Fasta needed for Bowtie2Index not specified"
+
+    }
 
   } else if (params.fasta) {
-    Channel
-        .fromPath(params.fasta, checkIfExists: true)
-        .ifEmpty { exit 1, "Fasta needed for Bowtie2Index or HICUP Digest but not found at ${params.fasta}"}
-    fastaFile = params.fasta
+    if (params.re) {
+      Channel
+          .fromPath(params.fasta, checkIfExists: true)
+          .ifEmpty { exit 1, "Fasta needed for Bowtie2Index or HICUP Digest given but not found at ${params.fasta}"}
+      fastaFile = params.fasta
+
+    } else {
+      Channel
+          .fromPath(params.fasta, checkIfExists: true)
+          .ifEmpty { exit 1, "Fasta needed for Bowtie2Index given but not found at ${params.fasta}"}
+      fastaFile = params.fasta
+
+    }
 
   } else {
-    Channel
-        .fromPath(igenomes_fasta, checkIfExists: true)
-        .ifEmpty { exit 1, "Fasta needed for Bowtie2Index or HICUP Digest but not given and not found in igenomes or igenomes not present."}
-    fastaFile = igenomes_fasta
+    if (params.re) {
+      Channel
+          .fromPath(igenomes_fasta, checkIfExists: true)
+          .ifEmpty { exit 1, "Fasta needed for Bowtie2Index or HICUP Digest but not given and not found in igenomes or igenomes not present."}
+      fastaFile = igenomes_fasta
+
+    } else {
+      Channel
+          .fromPath(igenomes_fasta, checkIfExists: true)
+          .ifEmpty { exit 1, "Fasta needed for Bowtie2Index but not given and not found in igenomes or igenomes not present."}
+      fastaFile = igenomes_fasta
+
+    }
 
   }
+
 } else {
-  log.info "bowtie2Index and hicupDigest are specified explicitly. Fasta file will not be used if given!"
-  fastaFile = "not used due to --hicupDigest and --bowtie2Index set"
+  if (params.re) {
+    log.info "bowtie2Index and hicupDigest are specified explicitly. Fasta file will not be used if given!"
+    fastaFile = "not used due to --hicupDigest and --bowtie2Index set"
+
+  } else {
+    log.info "bowtie2Index is specified explicitly. Fasta file will not be used if given!"
+    fastaFile = "not used due to --bowtie2Index set"
+
+  }
+
 }
 
 if (!params.bowtie2Index) {
@@ -190,7 +228,7 @@ if (params.hicupDigest) {
   digestFasta = true
 
 } else {
-    exit 1, "HICUP digest file does not exist and --re is not set!"
+    log.info "HICUP digest and re motif not given. Results in assumption of micro-C protocol and skipping of truncation and alteration of filtering"
 
 }
 
@@ -219,21 +257,41 @@ if (chromSizesFile.endsWith('xml')) {
 
 }
 
-log.info ""
-log.info " parameters "
-log.info " ======================"
-log.info " Samples List             : ${params.samples}"
-log.info " Resolutions              : ${resolutions}"
-log.info " baseResolution           : ${baseResolution}"
-log.info " re                       : ${params.re}"
-log.info " Genome                   : ${params.genome}"
-log.info " Fasta                    : ${fastaFile}"
-log.info " ChromSizes               : ${chromSizesFile}"
-log.info " Bowtie2 Index            : ${bowtie2IndexFile}"
-log.info " HICUP Digest             : ${hicupDigestFile}"
-log.info " Output Directory         : ${params.outputDir}"
-log.info " ======================"
-log.info ""
+if (params.re) {
+  log.info ""
+  log.info " parameters "
+  log.info " ======================"
+  log.info " Samples List             : ${params.samples}"
+  log.info " Resolutions              : ${resolutions}"
+  log.info " baseResolution           : ${baseResolution}"
+  log.info " re                       : ${params.re}"
+  log.info " Genome                   : ${params.genome}"
+  log.info " Fasta                    : ${fastaFile}"
+  log.info " ChromSizes               : ${chromSizesFile}"
+  log.info " Bowtie2 Index            : ${bowtie2IndexFile}"
+  log.info " HICUP Digest             : ${hicupDigestFile}"
+  log.info " Output Directory         : ${params.outputDir}"
+  log.info " ======================"
+  log.info ""
+
+} else {
+  log.info ""
+  log.info " parameters "
+  log.info " ======================"
+  log.info " Samples List             : ${params.samples}"
+  log.info " Resolutions              : ${resolutions}"
+  log.info " baseResolution           : ${baseResolution}"
+  log.info " minMapDistance           : ${params.minMapDistance}"
+  log.info " Genome                   : ${params.genome}"
+  log.info " Fasta                    : ${fastaFile}"
+  log.info " ChromSizes               : ${chromSizesFile}"
+  log.info " Bowtie2 Index            : ${bowtie2IndexFile}"
+  log.info " HICUP Digest             : ${hicupDigestFile}"
+  log.info " Output Directory         : ${params.outputDir}"
+  log.info " ======================"
+  log.info ""
+
+}
 
 Channel
     .fromPath( params.samples )
@@ -373,26 +431,50 @@ resultsSplitting
             .groupTuple()
             .set { truncaterInputChannel }
 
-process hicupTruncater {
+if (params.re) {
+  process hicupTruncater {
 
-    tag { splitName }
+      tag { splitName }
 
-    input:
-    tuple val(splitName), file(fastqSplitPairs) from truncaterInputChannel
+      input:
+      tuple val(splitName), file(fastqSplitPairs) from truncaterInputChannel
 
-    output:
-    tuple val(splitName), file("${splitName}/${splitName}_*.trunc.fastq") into resultsHicupTruncater
-    tuple val(splitName), file("${splitName}/*summary*.txt") into hicupTruncaterReportChannel
+      output:
+      tuple val(splitName), file("${splitName}/${splitName}_*.trunc.fastq") into resultsHicupTruncater
+      tuple val(splitName), file("${splitName}/*summary*.txt") into hicupTruncaterReportChannel
 
-    shell:
-    '''
-    mkdir !{splitName}
-    hicup_truncater --outdir !{splitName} \
-                    --threads !{task.cpus} \
-                    --re1 !{params.re} \
-                    !{fastqSplitPairs[0]} \
-                    !{fastqSplitPairs[1]}
-    '''
+      shell:
+      '''
+      mkdir !{splitName}
+      hicup_truncater --outdir !{splitName} \
+                      --threads !{task.cpus} \
+                      --re1 !{params.re} \
+                      !{fastqSplitPairs[0]} \
+                      !{fastqSplitPairs[1]}
+      '''
+  }
+
+} else {
+  process makeDummyTruncationReport {
+
+      tag { splitName }
+
+      input:
+      tuple val(splitName), file(fastqSplitPairs) from truncaterInputChannel
+
+      output:
+      tuple val(splitName), file(fastqSplitPairs) into resultsHicupTruncater
+      tuple val(splitName), file("${splitName}/*summary*.txt") into hicupTruncaterReportChannel
+
+      shell:
+      '''
+      mkdir !{splitName}
+      dummyReportGenerator.py -1 !{fastqSplitPairs[0]} \
+                              -2 !{fastqSplitPairs[1]} \
+                              -o !{splitName}.dummy_truncater_summary.txt
+      '''
+  }
+
 }
 
 process hicupMapper {
@@ -420,32 +502,56 @@ process hicupMapper {
     '''
 }
 
-process hicupFilter {
+if (params.re) {
+  process hicupFilter {
 
-    tag { splitName }
+      tag { splitName }
 
-    input:
-    tuple val(splitName), file(splitSam) from resultsHicupMapper
-    file(digest) from hicupDigestIndex.collect()
+      input:
+      tuple val(splitName), file(splitSam) from resultsHicupMapper
+      file(digest) from hicupDigestIndex.collect()
 
-    output:
-    file("${splitName}/${splitName}_1_2.filt.sam") into resultsHicupFilter
-    tuple val(splitName), file("${splitName}/*summary*.txt"), file("${splitName}/*.ditag_size_distribution") into hicupFilterReportChannel
+      output:
+      file("${splitName}/${splitName}_1_2.filt.sam") into resultsHicupFilter
+      tuple val(splitName), file("${splitName}/*summary*.txt"), file("${splitName}/*.ditag_size_distribution") into hicupFilterReportChannel
 
-    shell:
-    bin = "${NXF_HOME}/assets/pavrilab/hicer-nf/bin"
-    '''
-    mkdir !{splitName}
+      shell:
+      bin = "${NXF_HOME}/assets/pavrilab/hicer-nf/bin"
+      '''
+      mkdir !{splitName}
 
-    # set PERL5LIB to make hicup_module.pm available for modified hicup_filter
-    LINK=$(which hicup)
-    HICUPPATH=$(readlink -f $LINK)
-    export PERL5LIB="$(dirname $HICUPPATH)"
+      # set PERL5LIB to make hicup_module.pm available for modified hicup_filter
+      LINK=$(which hicup)
+      HICUPPATH=$(readlink -f $LINK)
+      export PERL5LIB="$(dirname $HICUPPATH)"
 
-    !{bin}/hicup_filter --outdir !{splitName} \
-                        --digest !{digest} \
-                        !{splitSam}
-    '''
+      !{bin}/hicup_filter --outdir !{splitName} \
+                          --digest !{digest} \
+                          !{splitSam}
+      '''
+  }
+
+} else {
+  process sizeFilter {
+
+      tag { splitName }
+
+      input:
+      tuple val(splitName), file(splitSam) from resultsHicupMapper
+
+      output:
+      file("${splitName}/${splitName}_1_2.filt.sam") into resultsHicupFilter
+      tuple val(splitName), file("${splitName}/*summary*.txt"), file("${splitName}/*.ditag_size_distribution") into hicupFilterReportChannel
+
+      shell:
+      '''
+      mkdir !{splitName}
+      filterBySize.py -i !{splitSam} \
+                      --minDistance !{params.minMapDistance}
+                      -o !{splitName}/!{splitName}_1_2.filt.sam
+      '''
+  }
+
 }
 
 resultsHicupFilter
