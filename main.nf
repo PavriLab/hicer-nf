@@ -430,55 +430,53 @@ resultsSplitting
             .set { truncaterInputChannel }
 
 
-process hicupTruncater {
+if (params.re) {
+  process hicupTruncater {
 
-    tag { splitName }
+      tag { splitName }
 
-    input:
-    tuple val(splitName), file(fastqSplitPairs) from truncaterInputChannel
+      input:
+      tuple val(splitName), file(fastqSplitPairs) from truncaterInputChannel
 
-    output:
-    tuple val(splitName), file("${splitName}/${splitName}_*.trunc.fastq") into resultsHicupTruncater
-    tuple val(splitName), file("${splitName}/*summary*.txt") into hicupTruncaterReportChannel
+      output:
+      tuple val(splitName), file("${splitName}/${splitName}_*.trunc.fastq") into resultsHicupTruncater
+      tuple val(splitName), file("${splitName}/*summary*.txt") into hicupTruncaterReportChannel
 
-    when:
-    params.re
+      shell:
+      '''
+      mkdir !{splitName}
+      hicup_truncater --outdir !{splitName} \
+                      --threads !{task.cpus} \
+                      --re1 !{params.re} \
+                      !{fastqSplitPairs[0]} \
+                      !{fastqSplitPairs[1]}
+      '''
+  }
 
-    shell:
-    '''
-    mkdir !{splitName}
-    hicup_truncater --outdir !{splitName} \
-                    --threads !{task.cpus} \
-                    --re1 !{params.re} \
-                    !{fastqSplitPairs[0]} \
-                    !{fastqSplitPairs[1]}
-    '''
-}
+} else {
+  process analyzeTrimmed {
 
-process analyzeTrimmed {
+      tag { splitName }
 
-    tag { splitName }
+      input:
+      tuple val(splitName), file(fastqSplitPairs) from truncaterInputChannel
 
-    input:
-    tuple val(splitName), file(fastqSplitPairs) from truncaterInputChannel
+      output:
+      tuple val(splitName), file("${splitName}/${splitName}_*.trunc.fastq") into resultsHicupTruncater
+      tuple val(splitName), file("${splitName}/*summary*.txt") into hicupTruncaterReportChannel
 
-    output:
-    tuple val(splitName), file("${splitName}/${splitName}_*.trunc.fastq") into resultsHicupTruncater
-    tuple val(splitName), file("${splitName}/*summary*.txt") into hicupTruncaterReportChannel
+      shell:
+      '''
+      mkdir !{splitName}
+      dummyReportGenerator.py -1 !{fastqSplitPairs[0]} \
+                              -2 !{fastqSplitPairs[1]} \
+                              -o !{splitName}/!{splitName}.dummy_truncater_summary.txt
 
-    when:
-    !params.re
+      cp !{fastqSplitPairs[0]} !{splitName}/!{splitName}_1.trunc.fastq
+      cp !{fastqSplitPairs[1]} !{splitName}/!{splitName}_2.trunc.fastq
+      '''
+  }
 
-    shell:
-    '''
-    mkdir !{splitName}
-    dummyReportGenerator.py -1 !{fastqSplitPairs[0]} \
-                            -2 !{fastqSplitPairs[1]} \
-                            -o !{splitName}/!{splitName}.dummy_truncater_summary.txt
-
-    cp !{fastqSplitPairs[0]} !{splitName}/!{splitName}_1.trunc.fastq
-    cp !{fastqSplitPairs[1]} !{splitName}/!{splitName}_2.trunc.fastq
-    '''
 }
 
 process hicupMapper {
@@ -506,58 +504,56 @@ process hicupMapper {
     '''
 }
 
-process hicupFilter {
+if (params.re) {
+  process hicupFilter {
 
-    tag { splitName }
+      tag { splitName }
 
-    input:
-    tuple val(splitName), file(splitSam) from resultsHicupMapper
-    file(digest) from hicupDigestIndex.collect()
+      input:
+      tuple val(splitName), file(splitSam) from resultsHicupMapper
+      file(digest) from hicupDigestIndex.collect()
 
-    output:
-    file("${splitName}/${splitName}_1_2.filt.sam") into resultsHicupFilter
-    tuple val(splitName), file("${splitName}/*summary*.txt"), file("${splitName}/*.ditag_size_distribution") into hicupFilterReportChannel
+      output:
+      file("${splitName}/${splitName}_1_2.filt.sam") into resultsHicupFilter
+      tuple val(splitName), file("${splitName}/*summary*.txt"), file("${splitName}/*.ditag_size_distribution") into hicupFilterReportChannel
 
-    when:
-    params.re
+      shell:
+      bin = "${NXF_HOME}/assets/pavrilab/hicer-nf/bin"
+      '''
+      mkdir !{splitName}
 
-    shell:
-    bin = "${NXF_HOME}/assets/pavrilab/hicer-nf/bin"
-    '''
-    mkdir !{splitName}
+      # set PERL5LIB to make hicup_module.pm available for modified hicup_filter
+      LINK=$(which hicup)
+      HICUPPATH=$(readlink -f $LINK)
+      export PERL5LIB="$(dirname $HICUPPATH)"
 
-    # set PERL5LIB to make hicup_module.pm available for modified hicup_filter
-    LINK=$(which hicup)
-    HICUPPATH=$(readlink -f $LINK)
-    export PERL5LIB="$(dirname $HICUPPATH)"
+      !{bin}/hicup_filter --outdir !{splitName} \
+                          --digest !{digest} \
+                          !{splitSam}
+      '''
+  }
 
-    !{bin}/hicup_filter --outdir !{splitName} \
-                        --digest !{digest} \
-                        !{splitSam}
-    '''
-}
+} else {
+  process sizeFilter {
 
-process sizeFilter {
+      tag { splitName }
 
-    tag { splitName }
+      input:
+      tuple val(splitName), file(splitSam) from resultsHicupMapper
 
-    input:
-    tuple val(splitName), file(splitSam) from resultsHicupMapper
+      output:
+      file("${splitName}/${splitName}_1_2.filt.sam") into resultsHicupFilter
+      tuple val(splitName), file("${splitName}/*summary*.txt"), file("${splitName}/*.ditag_size_distribution") into hicupFilterReportChannel
 
-    output:
-    file("${splitName}/${splitName}_1_2.filt.sam") into resultsHicupFilter
-    tuple val(splitName), file("${splitName}/*summary*.txt"), file("${splitName}/*.ditag_size_distribution") into hicupFilterReportChannel
+      shell:
+      '''
+      mkdir !{splitName}
+      filterBySize.py -i !{splitSam} \
+                      --minDistance !{params.minMapDistance} \
+                      -o !{splitName}/!{splitName}_1_2.filt.sam
+      '''
+  }
 
-    when:
-    !params.re
-
-    shell:
-    '''
-    mkdir !{splitName}
-    filterBySize.py -i !{splitSam} \
-                    --minDistance !{params.minMapDistance} \
-                    -o !{splitName}/!{splitName}_1_2.filt.sam
-    '''
 }
 
 resultsHicupFilter
