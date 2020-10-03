@@ -74,7 +74,7 @@ header = '\t'.join(['File', 'Total_pairs', 'Valid_pairs', 'Cis_<10kbp',
 with open(prefix + '.size_filter_summary.txt', 'w') as summaryfile:
     summaryfile.write(header + '\n')
     summaryfile.write(args.inputFile)
-    for count in [total, valid, cis_l_10, cis_g_10, trans, invalid, 0, 0, sameInternal, 0, 0]:
+    for count in [total, valid, cis_l_10, cis_g_10, trans, invalid, 0, 0, sameInternal, 0, 0, 0]:
         summaryfile.write('\t' + str(count))
 
 with open(prefix + '.ditag_size_distribution', 'w') as sizedistributionfile:
