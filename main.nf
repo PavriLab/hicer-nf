@@ -550,7 +550,7 @@ process sizeFilter {
 
     when:
     !params.re
-    
+
     shell:
     '''
     mkdir !{splitName}
@@ -600,6 +600,12 @@ process hicupDeduplicator {
     mkdir !{name}
     hicup_deduplicator --outdir !{name} \
                        !{sam}
+
+    if [ !{params.re} = '' ]
+    then
+        getCisFractions.py -b !{name}/!{name}_1_2.dedup.sam \
+                           -r !{name}/*summary*.txt
+    fi
     '''
 }
 
