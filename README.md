@@ -45,9 +45,12 @@ nextflow run pavrilab/hicer-nf --samples samples.txt --genome mm9 --re ^GATC,Mbo
 
 # if HICUP digest and bowtie2 index are available
 nextflow run pavrilab/hicer-nf --samples samples.txt --genome mm9 --re ^GATC,MboI --bowtie2Index /path/to/bowtie2Index/genome_base_name --hicupDigest /path/to/hicup/digest/file --chromSizes chrom.sizes
+
+# if micro-C or similar protocols with non-specific cutters are used
+nextflow run pavrilab/hicer-nf --samples samples.txt --genome mm9 --resolutions 500 --chromSizes chrom.sizes
 ```
 
-These invocations compute cooler and hic files for a default resolution list of 5kb, 10kb, 25kb, 50kb, 100kb, 250kb, 500kb and 1Mb. If you want resolutions that are not listed here you could use the `--resolutions` parameter (see below). In addition to this, the pipeline parallelizes the hicup workflow in a more flexible way than the hicup control script by splitting the sample reads into chunks of specific length and threads these through the hicup scripts. Per default, the fastq chunks have a size of 25M reads, but this can be changed using the `--readsPerSplit` parameter to suit you sample size.
+These invocations compute cooler and hic files for a default resolution list of 5kb, 10kb, 25kb, 50kb, 100kb, 250kb, 500kb and 1Mb (except for the micro-C run). If you want resolutions that are not listed here you could use the `--resolutions` parameter (see below). In addition to this, the pipeline parallelizes the hicup workflow in a more flexible way than the hicup control script by splitting the sample reads into chunks of specific length and threads these through the hicup scripts. Per default, the fastq chunks have a size of 25M reads, but this can be changed using the `--readsPerSplit` parameter to suit you sample size. Be aware that in case of the micro-C mode, the pipeline alters the way it processes the read pairs. In particular the RE truncation is skipped and the filtering is solely based on mapping proximity of two reads of a pair which is 500 bp per default but can be altered by the `--minMapDistance` argument.
 
 The current resource configuration was tested for a 2.6B read Hi-C data set and ran in approximately 2 days. However, if you are using bigger samples you might have to change the settings in terms of job duration.
 
@@ -122,11 +125,11 @@ params {
 
 #### `--re`
 
-Hi-C experiments typically involve digestion of the with restriction enzymes after cross-linking. To be able to computationally identify artifacts in the sequence data arising from this process the HICUP pipeline requires the sequence motif the used enzyme cuts including its name. This information is given via the `--re` parameter in the form specified by [HICUP](https://www.bioinformatics.babraham.ac.uk/projects/hicup/read_the_docs/html/index.html) which is ^GATC,MboI, where ^ indicates the cutsite, GATC is the sequence motif the enzyme recognizes and MboI is the name of the enzyme. Due to some specificities of HICUP the current version of the pipeline does not support the double digestion protocol.
+Hi-C experiments typically involve digestion of the with restriction enzymes after cross-linking. To be able to computationally identify artifacts in the sequence data arising from this process the HICUP pipeline requires the sequence motif the used enzyme cuts including its name. This information is given via the `--re` parameter in the form specified by [HICUP](https://www.bioinformatics.babraham.ac.uk/projects/hicup/read_the_docs/html/index.html) which is ^GATC,MboI, where ^ indicates the cutsite, GATC is the sequence motif the enzyme recognizes and MboI is the name of the enzyme. Due to some specificities of HICUP the current version of the pipeline does not support the double digestion protocol. In case of micro-C or protocols with non-specific cutters, this parameter can be omitted.
 
 #### `--fasta`
 
-This parameter is used to specify the genome fasta file and is only required if no igenomes database is available or hicup digestion file or bowtie2 index is not available locally. The file is used for in-silico restriction digestion for HICUP (if the file is not specified manually with `--hicupDigest`, see below) and bowtie2 index computation (if not specified manually)
+This parameter is used to specify the genome fasta file and is only required if no igenomes database is available or hicup digestion file or bowtie2 index is not available locally. The file is used for in-silico restriction digestion for HICUP (if the file is not specified manually with `--hicupDigest`, see below) and bowtie2 index computation (if not specified manually). In case of omitting `--re` this can also be omitted if you already have a bowtie2 index specified.
 
 #### `--chromSizes`
 
@@ -181,6 +184,10 @@ By default, the pipeline computes matrices and normalizations thereof for resolu
 ```bash
 --resolution 20000 / --resolution 20000,75000,200000
 ```
+
+#### `--minMapDistance`
+
+This parameter specifies the minimum mapping distance of two reads of a pair and is only used when processing micro-C or similar data to filter out closely mapping pairs that are thought to belong to the same or adjacent fragments. By default this parameter is set to 500bp (roughly two nucleosomes).
 
 #### `--outputDir`
 
