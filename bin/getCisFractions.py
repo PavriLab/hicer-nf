@@ -26,7 +26,7 @@ with ps.AlignmentFile(args.inputFile, 'r') as inputSam:
 
         if read1.reference_name == read2.reference_name:
             read1pos = read1.reference_start if not read1.is_reverse else read1.reference_end
-            read2pos = read2.reference_start if not read2.is_reverse else read2.reference_en
+            read2pos = read2.reference_start if not read2.is_reverse else read2.reference_end
 
             if abs(read1pos - read2pos) < 10000:
                 cis_l_10 += 1
