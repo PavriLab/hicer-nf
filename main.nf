@@ -597,7 +597,7 @@ process hicupDeduplicator {
     hicup_deduplicator --outdir !{name} \
                        !{sam}
 
-    if [ !{params.re} ]
+    if [ ! !{params.re} ]
     then
         getCisFractions.py -i !{name}/!{name}_1_2.dedup.sam \
                            -r !{name}/*summary*.txt
