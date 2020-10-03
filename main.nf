@@ -603,7 +603,7 @@ process hicupDeduplicator {
 
     if [ !{params.re} = '' ]
     then
-        getCisFractions.py -b !{name}/!{name}_1_2.dedup.sam \
+        getCisFractions.py -i !{name}/!{name}_1_2.dedup.sam \
                            -r !{name}/*summary*.txt
     fi
     '''
