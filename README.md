@@ -115,7 +115,7 @@ params {
   genomes {
     'GRCh37' {
       fasta      = "/path/to/genome/fasta/file" // Used if no bowtie2 index or hicupDigest given
-      bowtie2    = "/path/to/bowtie2/index/basename
+      bowtie2    = "/path/to/bowtie2/index/basename"
       chromSizes = "/path/to/chrom/sizes/file"
     }
     // Any number of additional genomes, key is used with --genome
