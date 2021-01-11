@@ -79,9 +79,16 @@ def helpMessage() {
 }
 
 params.help = false
-igenomes_bowtie2 = params.genomes[ params.genome ].bowtie2 ?: false
-igenomes_fasta = params.genomes[ params.genome ].fasta ?: false
-igenomes_chromSizes = params.genomes[ params.genome ].chromSizes ?: false
+if (params.genomes && params.igenomes_ignore) {
+    igenomes_bowtie2 = params.genomes[ params.genome ].bowtie2 ?: false
+    igenomes_fasta = params.genomes[ params.genome ].fasta ?: false
+    igenomes_chromSizes = params.genomes[ params.genome ].chromSizes ?: false
+
+} else {
+    igenomes_bowtie2 = false
+    igenomes_fasta = false
+    igenomes_chromSizes = false
+}
 
 if (params.help) {
     helpMessage()
