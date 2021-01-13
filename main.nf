@@ -45,6 +45,8 @@ def helpMessage() {
                             - read2: Read file with second read mates (R2) in fastq(.gz) format
 
         --resolutions    comma-separated list of resolutions in bp to compute in addition to the default resolutions
+			 default resolutions are 5000,10000,25000,50000,100000,250000,500000,1000000 and resolutions
+			 specified via this parameter will be added to this list
 
         --re             regular expression to use for in-silico digestion by HICUP (e.g. ^GATC,MboI)
                          if not given the pipeline assumes the micro-C protocol was used and skips the truncation step
