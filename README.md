@@ -200,6 +200,30 @@ Name of the folder to which the output will be saved (default: results)
 ## General remarks for using the pipeline results with suites other than `cooltools` (especially HiCExplorer)
 Although we are using the KR implementation of the HiCExplorer in our pipeline, we do not perform rescaling of the balancing weights as their `hicCorrectMatrix` tool does. As described [here](https://github.com/deeptools/Knight-Ruiz-Matrix-balancing-algorithm/issues/19) this rescaling mainly has the purpose to subvert any issues the HiCExplorer tools may encounter with small values resulting from balancing rows and cols to a sum of 1. However, it has a major drawback, namely the reintroduction of the coverage bias. Since matrix balancing is intended to remove any coverage bias from the Hi-C data, two matrices from different conditions are assumed to be comparable after balancing. If we now recale with the factor sqrt(sum of balanced matrix / sum of unbalanced matrix) we effectively reintroduce the coverage bias and thus abolish comparability. Thus, if you intend to use tools other than `cooltools` and especially HiCExplorer keep this in mind if you need to have the balancing weights rescaled.
 
+
+## Reconfiguring the resource requirements
+In order to customize the resource requirements of the individual processes please make use of the way nextflow handles configuration overrides as described [here](https://www.nextflow.io/docs/latest/config.html). This will prevent any complication arising from directly editing the resource.config file. In brief, do the following:
+
+1. create a new nextflow.config file somewhere on your disc
+2. copy the respective process resource configurations you want to change from the resources.config file to the new nextflow.config file like this
+```
+process {
+   withName: processname {
+      cpus = 2
+      memory = { 20.GB * task.attempt }
+      time = { 4.h * task.attempt }
+   }
+   .
+   .
+   .
+}
+```
+
+3. Use this file via nextflows `-c` parameter to override the default configuration
+```bash
+nextflow run pavrilab/hicer-nf -c /path/to/custom/nextflow.config [further parameters]
+```
+
 ## Credits
 
 The pipeline was developed by [Tobias Neumann](mailto:tobias.neumann.at@gmail.com) and [Daniel Malzl](mailto:daniel.malzl@gmx.at) for use at the [IMP](https://www.imp.ac.at/), Vienna.
