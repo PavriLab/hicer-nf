@@ -106,7 +106,8 @@ if (params.resolutions) {
   }
 
   resolutionsList.sort()
-  baseResolution = resolutionsList[0].unique( false )
+  resolutionsList.unique()
+  baseResolution = resolutionsList[0]
 
   sb = new StringBuilder()
   for (Integer i: resolutionsList) {
