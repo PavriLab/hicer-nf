@@ -59,6 +59,9 @@ The current resource configuration was tested for a 2.6B read Hi-C data set and 
 
 ## Tips for a smooth user experience
 
+### Preferentially run with Singularity or Docker
+The pipeline comes with a prebuilt Docker container which contains all the software you need to run right away. To skip the process (and frustration of installing everything manually) we would recommend using Singularity or Docker with the respective profile for running the pipeline.
+
 ### Usage of the pipeline without an igenomes database
 In general, the pipeline was designed to run with a predefined reference genome database such as the igenomes, which location can be specified via the [`-c`](https://www.nextflow.io/docs/latest/config.html) option (detailed below in the section `Customizing the resource requirements, igenomes_base and other parameters`). However, if you do not want to use this feature you can just specify the whole genome fasta and the chrom.sizes file of the genome via the command line parameters `--fasta` and `--chromSizes` respectively. The pipeline than computes the bowtie2 index automatically or alternatively you can specify the index manually via the `--bowtie2Index` parameter. *If you do not use the igenomes database please make sure to omit the `--genome` parameter or set `--igenomes_ignore T` or the pipeline will otherwise try to access it*
 
