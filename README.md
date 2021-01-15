@@ -32,7 +32,9 @@ iii. Clone repository
 nextflow pull pavrilab/hicer-nf
 ```
 
-iv. Start running your own analysis!
+iv. Read the `Tips for a smooth user experience` right below this section
+
+v. Start running your own analysis!
 
 ```bash
 # if you have specified an igenomes directory from or run a profile from any of the institutions 
@@ -53,6 +55,57 @@ nextflow run pavrilab/hicer-nf --samples samples.txt --genome mm9 --resolutions 
 These invocations compute cooler and hic files for a default resolution list of 5kb, 10kb, 25kb, 50kb, 100kb, 250kb, 500kb and 1Mb (except for the micro-C run). If you want resolutions that are not listed here you could use the `--resolutions` parameter (see below). In addition to this, the pipeline parallelizes the hicup workflow in a more flexible way than the hicup control script by splitting the sample reads into chunks of specific length and threads these through the hicup scripts. Per default, the fastq chunks have a size of 25M reads, but this can be changed using the `--readsPerSplit` parameter to suit you sample size. Be aware that in case of the micro-C mode, the pipeline alters the way it processes the read pairs. In particular the RE truncation is skipped and the filtering is solely based on mapping proximity of two reads of a pair which is 500 bp per default but can be altered by the `--minMapDistance` argument. Be aware that because the restiction fragments are used to calculate the insert size distribution, this is not available in the micro-C invokation. Please also not that you might have to modify the memory of the balancing process due to the high resolution of micro-C. Additionally, the HICUP QC report will not contain an insert size distribution and only display the "Same fragment - internal" category for filtering.
 
 The current resource configuration was tested for a 2.6B read Hi-C data set and ran in approximately 2 days. However, if you are using bigger samples you might have to change the settings in terms of job duration.
+
+
+## Tips for a smooth user experience
+
+### Usage of the pipeline without an igenomes database
+In general, the pipeline was designed to run with a predefined reference genome database such as the igenomes, which location can be specified via the [`-c`](https://www.nextflow.io/docs/latest/config.html) option (detailed below in the section `Customizing the resource requirements, igenomes_base and other parameters`). However, if you do not want to use this feature you can just specify the whole genome fasta and the chrom.sizes file of the genome via the command line parameters `--fasta` and `--chromSizes` respectively. The pipeline than computes the bowtie2 index automatically or alternatively you can specify the index manually via the `--bowtie2Index` parameter. *If you do not use the igenomes database please make sure to omit the `--genome` parameter or set `--igenomes_ignore T` or the pipeline will otherwise try to access it*
+
+### Customizing the resolutions set
+We developed the pipeline with the aim to facilitate a smooth integration of the results into the two most widely used postprocessing frameworks [cooltools](https://cooltools.readthedocs.io/en/latest/index.html) and [juicer_tools](https://github.com/aidenlab/juicer/wiki/Download). This also included the possibility to directly view results on their respective browser right away. Thus, we prespecified a range of resolutions which will be computed by default (5000, 10000, 25000, 50000, 100000, 250000, 500000, 1000000) to meet this aim. The `--resolutions` parameter does not overwrite this default set but rather adds the specified resolutions to this list (duplicates are ignored). You can customize the default set as described below in `Customizing the resource requirements, igenomes_base and other parameters`. *Please be aware of this behaviour*
+
+### Remarks on formats of the samples.txt and chrom.sizes file
+Please make sure that the format of these files meet exactly the specifications detailed below. This means the paths to the fastq files must be given as full paths otherwise the pipeline will not find the respective files on your harddrive (see `--samples` section for more details). The chrom.sizes fill must exactly contain two tab-separated columns containing chromosome name and its size (see `--chromSizes` section for more details). This format is crucial as juicer_tools [`pre`](https://github.com/aidenlab/juicer/wiki/Pre) will crash if there are more than these two columns.
+
+### Customizing the resource requirements, igenomes_base and other parameters
+The resource requirements of this pipeline were mostly tweaked for use with the CBE cluster at the Vienna Biocenter. Thus you might want to customize these settings accorting to your infrastructure. In order to do so for individual processes please make use of the way nextflow handles configuration overrides as described [here](https://www.nextflow.io/docs/latest/config.html). This will prevent any complication arising from directly editing the resource.config file. In brief, do the following:
+
+1. create a new nextflow.config file somewhere on your disc
+2. copy the respective process resource configurations you want to change from the resources.config file to the new nextflow.config file like this
+```nextflow
+process {
+   withName: processname {
+      cpus = 2
+      memory = { 20.GB * task.attempt }
+      time = { 4.h * task.attempt }
+   }
+   .
+   .
+   .
+}
+```
+
+3. Use this file via nextflows `-c` parameter to override the default configuration
+```bash
+nextflow run pavrilab/hicer-nf -c /path/to/custom/nextflow.config [further parameters]
+```
+
+In addition to this you can also customize parameter settings such as the default resolutions list, the location of the igenomes database or the igenomes_ignore parameter by simply appending the nextflow.config file generated above with
+```nextflow
+params {
+   defaultResolutions = '1000,10000,100000,1000000'
+   igenomes_base      = '/path/to/igenomes/base/directory'
+   .
+   .
+   .
+}
+
+```
+
+## General remarks for using the pipeline results with suites other than `cooltools` (especially HiCExplorer)
+Although we are using the KR implementation of the HiCExplorer in our pipeline, we do not perform rescaling of the balancing weights as their `hicCorrectMatrix` tool does. As described [here](https://github.com/deeptools/Knight-Ruiz-Matrix-balancing-algorithm/issues/19) this rescaling mainly has the purpose to subvert any issues the HiCExplorer tools may encounter with small values resulting from balancing rows and cols to a sum of 1. However, it has a major drawback, namely the reintroduction of the coverage bias. Since matrix balancing is intended to remove any coverage bias from the Hi-C data, two matrices from different conditions are assumed to be comparable after balancing. If we now recale with the factor sqrt(sum of balanced matrix / sum of unbalanced matrix) we effectively reintroduce the coverage bias and thus abolish comparability. Thus, if you intend to use tools other than `cooltools` and especially HiCExplorer keep this in mind if you need to have the balancing weights rescaled.
+
 
 ## Main arguments
 
@@ -197,32 +250,6 @@ Name of the folder to which the output will be saved (default: results)
 --outputDir '[directory name]'
 ```
 
-## General remarks for using the pipeline results with suites other than `cooltools` (especially HiCExplorer)
-Although we are using the KR implementation of the HiCExplorer in our pipeline, we do not perform rescaling of the balancing weights as their `hicCorrectMatrix` tool does. As described [here](https://github.com/deeptools/Knight-Ruiz-Matrix-balancing-algorithm/issues/19) this rescaling mainly has the purpose to subvert any issues the HiCExplorer tools may encounter with small values resulting from balancing rows and cols to a sum of 1. However, it has a major drawback, namely the reintroduction of the coverage bias. Since matrix balancing is intended to remove any coverage bias from the Hi-C data, two matrices from different conditions are assumed to be comparable after balancing. If we now recale with the factor sqrt(sum of balanced matrix / sum of unbalanced matrix) we effectively reintroduce the coverage bias and thus abolish comparability. Thus, if you intend to use tools other than `cooltools` and especially HiCExplorer keep this in mind if you need to have the balancing weights rescaled.
-
-
-## Reconfiguring the resource requirements
-In order to customize the resource requirements of the individual processes please make use of the way nextflow handles configuration overrides as described [here](https://www.nextflow.io/docs/latest/config.html). This will prevent any complication arising from directly editing the resource.config file. In brief, do the following:
-
-1. create a new nextflow.config file somewhere on your disc
-2. copy the respective process resource configurations you want to change from the resources.config file to the new nextflow.config file like this
-```
-process {
-   withName: processname {
-      cpus = 2
-      memory = { 20.GB * task.attempt }
-      time = { 4.h * task.attempt }
-   }
-   .
-   .
-   .
-}
-```
-
-3. Use this file via nextflows `-c` parameter to override the default configuration
-```bash
-nextflow run pavrilab/hicer-nf -c /path/to/custom/nextflow.config [further parameters]
-```
 
 ## Credits
 
