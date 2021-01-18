@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import logging
 import argparse as ap
 import pysam as ps
