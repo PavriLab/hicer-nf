@@ -1,1 +1,5 @@
 Parallelize deduplication by splitting filtered reads by chromosome for each sample
+Sequencing order of reads is arbitrary (i.e. the chance of either read of a
+pair getting sequenced first is roughly 50/50, thus the file splitting needs to
+comply to a consistent read order to account for this e.g. sorting by chromosome
+and position)
