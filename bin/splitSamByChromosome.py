@@ -32,8 +32,7 @@ args = parser.parse_args()
 samheader = get_header_from_samfile(args.samfiles[0])
 
 outfile_handles = initialize_outputfiles(args.outputPrefix,
-                                         samheader.references,
-                                         header)
+                                         samheader)
 
 for file in args.samfiles:
     with ps.AlignmentFile(file, 'r') as samfile:
