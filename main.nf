@@ -571,6 +571,57 @@ resultsHicupFilter
                         def key = file.name.toString() - ~/(_[a-z]{4}_1_2\.filt\.sam)?$/
                         return tuple(key, file) }
               .groupTuple()
+              .set { resplitInputChannel }
+
+process resplitFiltered {
+
+    tag { name }
+
+    input:
+    tuple val(name), file(filterSams) from resplitInputChannel
+
+    output:
+    file "${name}/${name}*.sam" into resultsResplit
+
+    shell:
+    '''
+    mkdir !{name}
+    resplitByChromosome.py -i !{filterSams} \
+                           -o !{name}/!{name}
+    '''
+}
+
+process hicupDeduplicator {
+
+    tag { resplitName }
+
+    input:
+    file sam from resultsResplit.flatten()
+
+    output:
+    tuple val(resplitName), file("${resplitName}/${resplitName}_1_2.dedup.sam") into resultsHicupDeduplicate
+    tuple val(resplitName), file("${resplitName}/*summary*.txt") into hicupDeduplicatorReportChannel
+
+    shell:
+    resplitName = sam.getName() - ~/(_[a-z]{4}_1_2\.filt\.sam)?$/
+    '''
+    mkdir !{repsplitName}
+    hicup_deduplicator --outdir !{resplitName} \
+                       !{sam}
+
+    if [ ! !{params.re} ]
+    then
+        getCisFractions.py -i !{resplitName}/!{resplitName}_1_2.dedup.sam \
+                           -r !{resplitName}/*summary*.txt
+    fi
+    '''
+}
+
+resultsHicupDeduplicate
+              .map { file ->
+                        def key = file.name.toString() - ~/(_*_[a-z]{4}_1_2\.dedup\.sam)?$/
+                        return tuple(key, file) }
+              .groupTuple()
               .set { catSamInputChannel }
 
 process catSam {
@@ -578,40 +629,15 @@ process catSam {
     tag { name }
 
     input:
-    tuple val(name), file(filterSams) from catSamInputChannel
+    tuple val(name), file(dedupSams) from catSamInputChannel
 
     output:
-    tuple val(name), file("${name}_1_2.filt.sam") into resultsCatSam
+    tuple val(name), file("${name}_1_2.dedup.sam") into resultsHicup, sam2bamChannel
 
     shell:
     '''
-    samtools view -H !{filterSams[0]} > !{name}_1_2.filt.sam
-    cat !{filterSams} | grep -v '^@' >> !{name}_1_2.filt.sam
-    '''
-}
-
-process hicupDeduplicator {
-
-    tag { name }
-
-    input:
-    tuple val(name), file(sam) from resultsCatSam
-
-    output:
-    tuple val(name), file("${name}/${name}_1_2.dedup.sam") into resultsHicup, sam2bamChannel
-    tuple val(name), file("${name}/*summary*.txt") into hicupDeduplicatorReportChannel
-
-    shell:
-    '''
-    mkdir !{name}
-    hicup_deduplicator --outdir !{name} \
-                       !{sam}
-
-    if [ ! !{params.re} ]
-    then
-        getCisFractions.py -i !{name}/!{name}_1_2.dedup.sam \
-                           -r !{name}/*summary*.txt
-    fi
+    samtools view -H !{dedupSams[0]} > !{name}_1_2.dedup.sam
+    cat !{dedupSams} | grep -v '^@' >> !{name}_1_2.dedup.sam
     '''
 }
 
@@ -636,10 +662,17 @@ hicupFilterReportChannel
                 .groupTuple()
                 .set { hicupFilterGroupedChannel }
 
+hicupDeduplicatorReportChannel
+                .map{ it ->
+                        def key = it[0] - ~/(_*)$/
+                        return tuple(key, it[1]) }
+                .groupTuple()
+                .set { hicupDeduplicatorGroupedChannel }
+
 hicupTruncaterGroupedChannel
                 .join(hicupMapperGroupedChannel)
                 .join(hicupFilterGroupedChannel)
-                .join(hicupDeduplicatorReportChannel)
+                .join(hicupDeduplicatorGroupedChannel)
                 .map { it ->
                           def flatit = it.flatten()
                           return tuple(flatit[0], flatit[1..-1])}
