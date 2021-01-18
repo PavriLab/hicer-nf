@@ -5,9 +5,11 @@ import argparse as ap
 import pysam as ps
 
 
-def get_header_from_samfile(file)
-    f = ps.AlignmentFile(file, 'r')
-    return f.header
+def get_header_from_samfile(file):
+    with ps.AlignmentFile(file, 'r') as f:
+        header = f.header
+
+    return header
 
 
 def initialize_outputfiles(nameprefix, header):
