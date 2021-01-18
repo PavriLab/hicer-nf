@@ -15,7 +15,7 @@ def get_header_from_samfile(file):
 def initialize_outputfiles(nameprefix, header):
     handle_dict = {}
     for chrom in header.references:
-        filename = '_'.join([nameprefix, chrom, '1_2.sam'])
+        filename = '_'.join([nameprefix, chrom, '1_2.filt.sam'])
         handle_dict[chrom] = ps.AlignmentFile(filename, 'w', header = header)
 
     return handle_dict
