@@ -603,9 +603,7 @@ process hicupDeduplicator {
     tuple val(resplitName), file("${resplitName}/*summary*.txt") into hicupDeduplicatorReportChannel
 
     shell:
-    println sam
-    get_basename = { it.getName() - ~/(_[a-z]{4}_1_2\.filt\.sam)?$/ }
-    resplitName = get_basename(sam[0])
+    resplitName = (sam.getName() - ~/(_1_2\.filt\.sam)?$/)
 
     '''
     mkdir !{resplitName}
