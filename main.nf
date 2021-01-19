@@ -620,7 +620,7 @@ process hicupDeduplicator {
 
 resultsHicupDeduplicate
               .map { file ->
-                        def key = file.name.toString() - ~/(_*_[a-z]{4}_1_2\.dedup\.sam)?$/
+                        def key = file.name.toString() - ~/(_*_1_2\.dedup\.sam)?$/
                         return tuple(key, file) }
               .groupTuple()
               .set { catSamInputChannel }
