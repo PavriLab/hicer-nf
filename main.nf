@@ -599,7 +599,7 @@ process hicupDeduplicator {
     file sam from resultsResplit.flatten()
 
     output:
-    tuple val(resplitName), file("${resplitName}/${resplitName}_1_2.dedup.sam") into resultsHicupDeduplicate
+    file("${resplitName}/${resplitName}_1_2.dedup.sam") into resultsHicupDeduplicate
     tuple val(resplitName), file("${resplitName}/*summary*.txt") into hicupDeduplicatorReportChannel
 
     shell:
