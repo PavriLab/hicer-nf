@@ -270,12 +270,11 @@ for reportFileName in args.reports:
             fileNums['filter'] += 1
 
         elif 'deduplicator' in reportFileName:
-            print(reportFileName)
-            print(df)
-            idx = [args.prefix + '_1_2.filt.sam']
-            df.index = idx
-            statFrames['deduplicator'] = sum_frames(statFrames['deduplicator'], df)
-            fileNums['deduplicator'] += 1
+            if not df.empty:
+                idx = [args.prefix + '_1_2.filt.sam']
+                df.index = idx
+                statFrames['deduplicator'] = sum_frames(statFrames['deduplicator'], df)
+                fileNums['deduplicator'] += 1
 
 
 # recompute percentages
