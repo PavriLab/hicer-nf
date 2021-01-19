@@ -665,7 +665,7 @@ hicupFilterReportChannel
 
 hicupDeduplicatorReportChannel
                 .map{ it ->
-                        def key = it[0] - ~/(_*)$/
+                        def key = it[0] - ~/(_[0-9a-zA-Z]*)$/
                         return tuple(key, it[1]) }
                 .groupTuple()
                 .set { hicupDeduplicatorGroupedChannel }
