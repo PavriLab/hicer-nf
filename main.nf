@@ -605,7 +605,7 @@ process hicupDeduplicator {
     shell:
     resplitName = sam.getName() - ~/(_[a-z]{4}_1_2\.filt\.sam)?$/
     '''
-    mkdir !{repsplitName}
+    mkdir !{resplitName}
     hicup_deduplicator --outdir !{resplitName} \
                        !{sam}
 
