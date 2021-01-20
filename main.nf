@@ -267,6 +267,10 @@ if (chromSizesFile.endsWith('xml')) {
 
 }
 
+if (!params.genome) {
+  params.genome = file(params.fasta).getSimpleName()
+}
+
 if (params.re) {
   log.info ""
   log.info " parameters "
