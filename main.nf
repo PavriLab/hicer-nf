@@ -268,7 +268,7 @@ if (chromSizesFile.endsWith('xml')) {
 }
 
 if (!params.genome) {
-  params.genome = file(params.fasta).getSimpleName()
+  params.genome = file(fastaFile).getSimpleName()
 }
 
 if (params.re) {
