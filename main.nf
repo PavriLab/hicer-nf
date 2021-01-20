@@ -363,7 +363,10 @@ if (makeBowtie2Index) {
     """
     mkdir bowtie2Index
 
-    bowtie2-build ${fasta} bowtie2Index/${bwt2_base} --threads !{task.cpus}
+    bowtie2-build ${fasta} \
+                  bowtie2Index/${bwt2_base} \
+                  --threads !{task.cpus} \
+                  --large_index
     """
 
   }
