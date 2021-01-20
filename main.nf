@@ -267,9 +267,7 @@ if (chromSizesFile.endsWith('xml')) {
 
 }
 
-if (!params.genome) {
-  params.genome = file(fastaFile).getSimpleName()
-}
+genomeName = params.genome ? params.genome : file(fastaFile).getSimpleName()
 
 if (params.re) {
   log.info ""
@@ -279,7 +277,7 @@ if (params.re) {
   log.info " Resolutions              : ${resolutions}"
   log.info " baseResolution           : ${baseResolution}"
   log.info " re                       : ${params.re}"
-  log.info " Genome                   : ${params.genome}"
+  log.info " Genome                   : ${genomeName}"
   log.info " Fasta                    : ${fastaFile}"
   log.info " ChromSizes               : ${chromSizesFile}"
   log.info " Bowtie2 Index            : ${bowtie2IndexFile}"
@@ -296,7 +294,7 @@ if (params.re) {
   log.info " Resolutions              : ${resolutions}"
   log.info " baseResolution           : ${baseResolution}"
   log.info " minMapDistance           : ${params.minMapDistance}"
-  log.info " Genome                   : ${params.genome}"
+  log.info " Genome                   : ${genomeName}"
   log.info " Fasta                    : ${fastaFile}"
   log.info " ChromSizes               : ${chromSizesFile}"
   log.info " Bowtie2 Index            : ${bowtie2IndexFile}"
@@ -345,7 +343,7 @@ if (digestFasta) {
     """
     echo !{task.memory}
     echo !{task.cpus}
-    hicup_digester --genome !{params.genome} --re1 !{params.re} !{fasta}
+    hicup_digester --genome !{genomeName} --re1 !{params.re} !{fasta}
     """
   }
 }
