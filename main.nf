@@ -366,7 +366,7 @@ if (makeBowtie2Index) {
     bowtie2-build ${fasta} \
                   bowtie2Index/${bwt2_base} \
                   --threads !{task.cpus} \
-                  --large_index
+                  --large-index
     """
 
   }
