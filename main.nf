@@ -81,7 +81,7 @@ def helpMessage() {
 }
 
 params.help = false
-if (params.genomes && !params.igenomes_ignore) {
+if (params.genome && params.genomes && !params.igenomes_ignore) {
     igenomes_bowtie2 = params.genomes[ params.genome ].bowtie2 ?: false
     igenomes_fasta = params.genomes[ params.genome ].fasta ?: false
     igenomes_chromSizes = params.genomes[ params.genome ].chromSizes ?: false
