@@ -365,7 +365,7 @@ if (makeBowtie2Index) {
   process buildBowtie2Index {
 
     tag "${bwt2_base}"
-    memory = { genomeSizeType == 'large' ? process.memory * 5 : process. memory }
+    memory = { genomeSizeType == 'large' ? task.memory * 5 : task.memory }
 
     input:
     file(fasta) from fastaForBowtie2
@@ -374,13 +374,14 @@ if (makeBowtie2Index) {
     file("bowtie2Index") into bowtie2Index
 
     shell:
+    largeIndexFlag = genomeSizeType == 'large' ? '--large-index' : ''
     """
     mkdir bowtie2Index
 
     bowtie2-build ${fasta} \
                   bowtie2Index/${bwt2_base} \
                   --threads !{task.cpus} \
-                  --large-index
+                  ${largeIndexFlag}
     """
 
   }
@@ -511,7 +512,7 @@ if (params.re) {
 process hicupMapper {
 
     tag { splitName }
-    memory = { genomeSizeType == 'large' ? process.memory * 4 : process. memory }
+    memory = { genomeSizeType == 'large' ? task.memory * 4 : task.memory }
 
     input:
     tuple val(splitName), file(fastqTruncPairs) from resultsHicupTruncater
@@ -538,7 +539,7 @@ if (params.re) {
   process hicupFilter {
 
       tag { splitName }
-      memory = { genomeSizeType == 'large' ? process.memory * 4 : process. memory }
+      memory = { genomeSizeType == 'large' ? task.memory * 4 : task.memory }
 
       input:
       tuple val(splitName), file(splitSam) from resultsHicupMapper
