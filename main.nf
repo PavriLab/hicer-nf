@@ -366,6 +366,7 @@ if (makeBowtie2Index) {
 
     tag "${bwt2_base}"
     memory = { genomeSizeType == 'large' ? 100.GB * task.attempt : 20.GB * task.attempt }
+    time = { genomeSizeType == 'large' ? 8.h * task.attempt : 4.h * task.attempt }
 
     input:
     file(fasta) from fastaForBowtie2
