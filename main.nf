@@ -278,7 +278,6 @@ if (chromSizesFile.endsWith('xml')) {
 }
 
 genomeSizeType = genomeSize > 4000000000 ? 'large' : 'small'
-println genomeSizeType
 genomeName = params.genome ? params.genome : file(fastaFile).getSimpleName()
 
 if (params.re) {
