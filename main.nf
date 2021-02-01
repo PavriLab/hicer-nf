@@ -252,13 +252,23 @@ if (params.chromSizes) {
   exit 1, "--chromSizes not specified!"
 }
 
+genomeSize = 0
 if (chromSizesFile.endsWith('xml')) {
+  def parser = new XmlParser()
+  result = parser.parse(chromSizesFile)
+  result
+      .children()
+      .each { genomeSize += it.@totalBases.toLong() }
+
   xml2tsvChannel = Channel
                       .fromPath(chromSizesFile, checkIfExists: true)
                       .ifEmpty { exit 1, "chromSize file not found at ${chromSizesFile}" }
   convertChromSizes = true
 
 } else {
+  file(chromSizesFile)
+      .eachLine{ str -> genomeSize += str.split('\t')[1].toLong() }
+
   Channel
       .fromPath(chromSizesFile, checkIfExists: true)
       .ifEmpty { exit 1, "chromSize file not found at ${chromSizesFile}" }
@@ -278,6 +288,7 @@ if (params.re) {
   log.info " baseResolution           : ${baseResolution}"
   log.info " re                       : ${params.re}"
   log.info " Genome                   : ${genomeName}"
+  log.info " Genome Size              : ${genomeSize}"
   log.info " Fasta                    : ${fastaFile}"
   log.info " ChromSizes               : ${chromSizesFile}"
   log.info " Bowtie2 Index            : ${bowtie2IndexFile}"
@@ -295,6 +306,7 @@ if (params.re) {
   log.info " baseResolution           : ${baseResolution}"
   log.info " minMapDistance           : ${params.minMapDistance}"
   log.info " Genome                   : ${genomeName}"
+  log.info " Genome Size              : ${genomeSize}"
   log.info " Fasta                    : ${fastaFile}"
   log.info " ChromSizes               : ${chromSizesFile}"
   log.info " Bowtie2 Index            : ${bowtie2IndexFile}"
