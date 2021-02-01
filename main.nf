@@ -277,6 +277,8 @@ if (chromSizesFile.endsWith('xml')) {
 
 }
 
+genomeSizeType = genomeSize > 4000000000 ? 'large' : 'small'
+println genomeSizeType
 genomeName = params.genome ? params.genome : file(fastaFile).getSimpleName()
 
 if (params.re) {
@@ -288,7 +290,7 @@ if (params.re) {
   log.info " baseResolution           : ${baseResolution}"
   log.info " re                       : ${params.re}"
   log.info " Genome                   : ${genomeName}"
-  log.info " Genome Size              : ${genomeSize}"
+  log.info " Genome Size              : ${genomeSizeType}"
   log.info " Fasta                    : ${fastaFile}"
   log.info " ChromSizes               : ${chromSizesFile}"
   log.info " Bowtie2 Index            : ${bowtie2IndexFile}"
@@ -306,7 +308,7 @@ if (params.re) {
   log.info " baseResolution           : ${baseResolution}"
   log.info " minMapDistance           : ${params.minMapDistance}"
   log.info " Genome                   : ${genomeName}"
-  log.info " Genome Size              : ${genomeSize}"
+  log.info " Genome Size              : ${genomeSizeType}"
   log.info " Fasta                    : ${fastaFile}"
   log.info " ChromSizes               : ${chromSizesFile}"
   log.info " Bowtie2 Index            : ${bowtie2IndexFile}"
@@ -364,6 +366,7 @@ if (makeBowtie2Index) {
   process buildBowtie2Index {
 
     tag "${bwt2_base}"
+    memory = { genomeSizeType == 'large' ? process.memory * 5 : process. memory }
 
     input:
     file(fasta) from fastaForBowtie2
@@ -509,6 +512,7 @@ if (params.re) {
 process hicupMapper {
 
     tag { splitName }
+    memory = { genomeSizeType == 'large' ? process.memory * 4 : process. memory }
 
     input:
     tuple val(splitName), file(fastqTruncPairs) from resultsHicupTruncater
@@ -535,6 +539,7 @@ if (params.re) {
   process hicupFilter {
 
       tag { splitName }
+      memory = { genomeSizeType == 'large' ? process.memory * 4 : process. memory }
 
       input:
       tuple val(splitName), file(splitSam) from resultsHicupMapper
