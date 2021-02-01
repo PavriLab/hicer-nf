@@ -81,7 +81,7 @@ def helpMessage() {
 }
 
 params.help = false
-if (params.genomes && !params.igenomes_ignore) {
+if (params.genome && params.genomes && !params.igenomes_ignore) {
     igenomes_bowtie2 = params.genomes[ params.genome ].bowtie2 ?: false
     igenomes_fasta = params.genomes[ params.genome ].fasta ?: false
     igenomes_chromSizes = params.genomes[ params.genome ].chromSizes ?: false
@@ -252,13 +252,23 @@ if (params.chromSizes) {
   exit 1, "--chromSizes not specified!"
 }
 
+genomeSize = 0
 if (chromSizesFile.endsWith('xml')) {
+  def parser = new XmlParser()
+  result = parser.parse(chromSizesFile)
+  result
+      .children()
+      .each { genomeSize += it.@totalBases.toLong() }
+
   xml2tsvChannel = Channel
                       .fromPath(chromSizesFile, checkIfExists: true)
                       .ifEmpty { exit 1, "chromSize file not found at ${chromSizesFile}" }
   convertChromSizes = true
 
 } else {
+  file(chromSizesFile)
+      .eachLine{ str -> genomeSize += str.split('\t')[1].toLong() }
+
   Channel
       .fromPath(chromSizesFile, checkIfExists: true)
       .ifEmpty { exit 1, "chromSize file not found at ${chromSizesFile}" }
@@ -266,6 +276,9 @@ if (chromSizesFile.endsWith('xml')) {
   convertChromSizes = false
 
 }
+
+genomeSizeType = genomeSize > 4000000000 ? 'large' : 'small'
+genomeName = params.genome ? params.genome : file(fastaFile).getSimpleName()
 
 if (params.re) {
   log.info ""
@@ -275,7 +288,8 @@ if (params.re) {
   log.info " Resolutions              : ${resolutions}"
   log.info " baseResolution           : ${baseResolution}"
   log.info " re                       : ${params.re}"
-  log.info " Genome                   : ${params.genome}"
+  log.info " Genome                   : ${genomeName}"
+  log.info " Genome Size              : ${genomeSizeType}"
   log.info " Fasta                    : ${fastaFile}"
   log.info " ChromSizes               : ${chromSizesFile}"
   log.info " Bowtie2 Index            : ${bowtie2IndexFile}"
@@ -292,7 +306,8 @@ if (params.re) {
   log.info " Resolutions              : ${resolutions}"
   log.info " baseResolution           : ${baseResolution}"
   log.info " minMapDistance           : ${params.minMapDistance}"
-  log.info " Genome                   : ${params.genome}"
+  log.info " Genome                   : ${genomeName}"
+  log.info " Genome Size              : ${genomeSizeType}"
   log.info " Fasta                    : ${fastaFile}"
   log.info " ChromSizes               : ${chromSizesFile}"
   log.info " Bowtie2 Index            : ${bowtie2IndexFile}"
@@ -341,7 +356,7 @@ if (digestFasta) {
     """
     echo !{task.memory}
     echo !{task.cpus}
-    hicup_digester --genome !{params.genome} --re1 !{params.re} !{fasta}
+    hicup_digester --genome !{genomeName} --re1 !{params.re} !{fasta}
     """
   }
 }
@@ -350,6 +365,7 @@ if (makeBowtie2Index) {
   process buildBowtie2Index {
 
     tag "${bwt2_base}"
+    memory = { genomeSizeType == 'large' ? 100.GB * task.attempt : 20.GB * task.attempt }
 
     input:
     file(fasta) from fastaForBowtie2
@@ -358,10 +374,14 @@ if (makeBowtie2Index) {
     file("bowtie2Index") into bowtie2Index
 
     shell:
+    largeIndexFlag = genomeSizeType == 'large' ? '--large-index' : ''
     """
     mkdir bowtie2Index
 
-    bowtie2-build ${fasta} bowtie2Index/${bwt2_base} --threads !{task.cpus}
+    bowtie2-build ${fasta} \
+                  bowtie2Index/${bwt2_base} \
+                  --threads !{task.cpus} \
+                  ${largeIndexFlag}
     """
 
   }
@@ -492,6 +512,7 @@ if (params.re) {
 process hicupMapper {
 
     tag { splitName }
+    memory = { genomeSizeType == 'large' ? 80.GB * task.attempt : 20.GB * task.attempt }
 
     input:
     tuple val(splitName), file(fastqTruncPairs) from resultsHicupTruncater
@@ -518,6 +539,7 @@ if (params.re) {
   process hicupFilter {
 
       tag { splitName }
+      memory = { genomeSizeType == 'large' ? 40.GB * task.attempt : 10.GB * task.attempt }
 
       input:
       tuple val(splitName), file(splitSam) from resultsHicupMapper
@@ -571,6 +593,58 @@ resultsHicupFilter
                         def key = file.name.toString() - ~/(_[a-z]{4}_1_2\.filt\.sam)?$/
                         return tuple(key, file) }
               .groupTuple()
+              .set { resplitInputChannel }
+
+process resplitFiltered {
+
+    tag { name }
+
+    input:
+    tuple val(name), file(filterSams) from resplitInputChannel
+
+    output:
+    file "${name}/${name}*.sam" into resultsResplit
+
+    shell:
+    '''
+    mkdir !{name}
+    resplitByChromosome.py -i !{filterSams} \
+                           -o !{name}/!{name}
+    '''
+}
+
+process hicupDeduplicator {
+
+    tag { resplitName }
+
+    input:
+    file sam from resultsResplit.flatten()
+
+    output:
+    file("${resplitName}/${resplitName}_1_2.dedup.sam") into resultsHicupDeduplicate
+    tuple val(resplitName), file("${resplitName}/*summary*.txt") into hicupDeduplicatorReportChannel
+
+    shell:
+    resplitName = (sam.getName() - ~/(_1_2\.filt\.sam)?$/)
+
+    '''
+    mkdir !{resplitName}
+    hicup_deduplicator --outdir !{resplitName} \
+                       !{sam}
+
+    if [ ! !{params.re} ]
+    then
+        getCisFractions.py -i !{resplitName}/!{resplitName}_1_2.dedup.sam \
+                           -r !{resplitName}/*summary*.txt
+    fi
+    '''
+}
+
+resultsHicupDeduplicate
+              .map { file ->
+                        def key = file.name.toString() - ~/(_[0-9a-zA-Z]*_1_2\.dedup\.sam)?$/
+                        return tuple(key, file) }
+              .groupTuple()
               .set { catSamInputChannel }
 
 process catSam {
@@ -578,40 +652,15 @@ process catSam {
     tag { name }
 
     input:
-    tuple val(name), file(filterSams) from catSamInputChannel
+    tuple val(name), file(dedupSams) from catSamInputChannel
 
     output:
-    tuple val(name), file("${name}_1_2.filt.sam") into resultsCatSam
+    tuple val(name), file("${name}_1_2.dedup.sam") into resultsHicup, sam2bamChannel
 
     shell:
     '''
-    samtools view -H !{filterSams[0]} > !{name}_1_2.filt.sam
-    cat !{filterSams} | grep -v '^@' >> !{name}_1_2.filt.sam
-    '''
-}
-
-process hicupDeduplicator {
-
-    tag { name }
-
-    input:
-    tuple val(name), file(sam) from resultsCatSam
-
-    output:
-    tuple val(name), file("${name}/${name}_1_2.dedup.sam") into resultsHicup, sam2bamChannel
-    tuple val(name), file("${name}/*summary*.txt") into hicupDeduplicatorReportChannel
-
-    shell:
-    '''
-    mkdir !{name}
-    hicup_deduplicator --outdir !{name} \
-                       !{sam}
-
-    if [ ! !{params.re} ]
-    then
-        getCisFractions.py -i !{name}/!{name}_1_2.dedup.sam \
-                           -r !{name}/*summary*.txt
-    fi
+    samtools view -H !{dedupSams[0]} > !{name}_1_2.dedup.sam
+    cat !{dedupSams} | grep -v '^@' >> !{name}_1_2.dedup.sam
     '''
 }
 
@@ -636,10 +685,17 @@ hicupFilterReportChannel
                 .groupTuple()
                 .set { hicupFilterGroupedChannel }
 
+hicupDeduplicatorReportChannel
+                .map{ it ->
+                        def key = it[0] - ~/(_[0-9a-zA-Z]*)$/
+                        return tuple(key, it[1]) }
+                .groupTuple()
+                .set { hicupDeduplicatorGroupedChannel }
+
 hicupTruncaterGroupedChannel
                 .join(hicupMapperGroupedChannel)
                 .join(hicupFilterGroupedChannel)
-                .join(hicupDeduplicatorReportChannel)
+                .join(hicupDeduplicatorGroupedChannel)
                 .map { it ->
                           def flatit = it.flatten()
                           return tuple(flatit[0], flatit[1..-1])}
@@ -806,8 +862,9 @@ process baseBuilder {
     # making sure chromosomes are sorted semantically to comply with higlass
     sort -k1,1 -V !{chromSizeFile} > chromSizes.sort.tsv
 
-    cooler cload pairix --assembly !{params.genome} \
+    cooler cload pairix --assembly !{genomeName} \
                         -p !{task.cpus} \
+                        -s 5 \
                         chromSizes.sort.tsv:!{baseResolution} \
                         !{pairs} \
                         !{name}/!{name}_base.cool
