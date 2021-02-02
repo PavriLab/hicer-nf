@@ -12,7 +12,7 @@ args = parser.parse_args()
 
 with ps.AlignmentFile(args.pairedSam, 'r') as sam:
     for read in sam:
-        print(read.query_name,
+        print(read.query_name.replace('#', '$'),
               read.reference_name,
               read.reference_start + 1,
               '-' if read.is_reverse else '+',

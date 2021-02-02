@@ -863,12 +863,11 @@ process baseBuilder {
     # making sure chromosomes are sorted semantically to comply with higlass
     sort -k1,1 -V !{chromSizeFile} > chromSizes.sort.tsv
 
-    cooler cload pairix --assembly !{genomeName} \
-                        -p !{task.cpus} \
-                        -s 5 \
-                        chromSizes.sort.tsv:!{baseResolution} \
-                        !{pairs} \
-                        !{name}/!{name}_base.cool
+    cooler cload pairs --assembly !{genomeName} \
+                       -c1 2 -p1 3 -c2 4 -p2 5 \
+                       chromSizes.sort.tsv:!{baseResolution} \
+                       !{pairs} \
+                       !{name}/!{name}_base.cool
     '''
 
 }
