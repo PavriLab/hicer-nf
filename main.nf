@@ -45,8 +45,8 @@ def helpMessage() {
                             - read2: Read file with second read mates (R2) in fastq(.gz) format
 
         --resolutions    comma-separated list of resolutions in bp to compute in addition to the default resolutions
-			 default resolutions are 5000,10000,25000,50000,100000,250000,500000,1000000 and resolutions
-			 specified via this parameter will be added to this list
+			                   default resolutions are 5000,10000,25000,50000,100000,250000,500000,1000000 and resolutions
+			                   specified via this parameter will be added to this list
 
         --re             regular expression to use for in-silico digestion by HICUP (e.g. ^GATC,MboI)
                          if not given the pipeline assumes the micro-C protocol was used and skips the truncation step
@@ -58,6 +58,8 @@ def helpMessage() {
 
         --minMapDistance minimum mapping distance between to reads of a pair (default: 500)
                          is only used in case of micro-C (i.e. --re is not given)
+
+        --skip_juicer    if set, skips hic file generation with juicer
 
      References:
         --genome         Name of reference (hg38, mm10, ...)
@@ -817,7 +819,9 @@ process juicerHic {
              saveAs: { filename ->
                            if (filename.endsWith(".hic")) file(filename).getName()
                      }
-
+  when:
+  !params.skip_juicer
+  
   input:
   tuple val(name), file(pairs), file(pairsIndex) from resultsPairixJuicer
   file(chromSizeFile) from chromSizeChannelJuicer.collect()
