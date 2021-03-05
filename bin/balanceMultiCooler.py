@@ -70,7 +70,7 @@ def cooler2csr(cooleruri):
     return matrix
 
 
-def balance_kr(cooleruri):
+def balance_kr(cooleruri, per_chrom = False):
     '''
     applies KR matrix balancing to the given cooleruri
     code taken from HiCExplorer's hicCorrectMatrix see also
@@ -81,26 +81,40 @@ def balance_kr(cooleruri):
     :return:            KR balancing weights
     '''
     csrmatrix = cooler2csr(cooleruri)
-    kr = kr_balancing(csrmatrix.shape[0],
-                      csrmatrix.shape[1],
-                      csrmatrix.count_nonzero(),
-                      csrmatrix.indptr.astype(np.int64, copy=False),
-                      csrmatrix.indices.astype(np.int64, copy=False),
-                      csrmatrix.data.astype(np.float64, copy=False))
-    kr.computeKR()
 
-    # set it to False since the vector is already normalised
-    # with the previous True
-    # correction_factors = np.true_divide(1, kr.get_normalisation_vector(False).todense())
-    weights = kr.get_normalisation_vector(False).todense()
+    def apply_kr(m):
+        kr = kr_balancing(m.shape[0],
+                          m.shape[1],
+                          m.count_nonzero(),
+                          m.indptr.astype(np.int64, copy=False),
+                          m.indices.astype(np.int64, copy=False),
+                          m.data.astype(np.float64, copy=False))
+        kr.computeKR()
 
-    # flatten weights to comply with cooler format specification
-    weights = np.array(weights).flatten()
+        # set it to False since the vector is already normalised
+        # with the previous True
+        # correction_factors = np.true_divide(1, kr.get_normalisation_vector(False).todense())
+        w = kr.get_normalisation_vector(False).todense()
+
+        # flatten weights to comply with cooler format specification
+        return np.array(w).flatten()
+
+    if not per_chrom:
+        weights = apply_kr(csrmatrix)
+
+    else:
+        coolermatrix = cooler.Cooler(cooleruri)
+        weights = np.array([])
+        for chrom in coolermatrix.chromnames:
+            chromextent = coolermatrix.extent(chrom)
+            chromcsr = csrmatrix[chromextent[0]: chromextent[1], chromextent[0]: chromextent[1]]
+            chromweights = apply_kr(chromcsr)
+            weights = np.concatenate([weights, np.array(chromweights).flatten()])
 
     return remove_nan_bin_weights(csrmatrix, weights)
 
 
-def balance_ic(cooleruri, nproc):
+def balance_ic(cooleruri, nproc, per_chrom):
     '''
     applies IC matrix balancing to a given cooleruri
     code taken from cooler's cooler balance see also
@@ -121,7 +135,7 @@ def balance_ic(cooleruri, nproc):
         bias, stats = ice.iterative_correction(
             clr,
             chunksize=int(10e6),
-            cis_only=False,
+            cis_only=per_chrom,
             trans_only=False,
             tol=1e-5,
             min_nnz=10,
@@ -235,22 +249,24 @@ args = parser.parse_args()
 for resolution in get_resolutons(args.mcool):
     cooleruri = args.mcool + '::resolutions/' + resolution
 
-    if not check_weight(cooleruri, 'weight'):
-        logging.info('applying KR to {}::resolution/{}'.format(args.mcool, resolution))
-        krweights = balance_kr(cooleruri)
-        store_weights(cooleruri, krweights, 'weight')
-        del krweights
+    for weight_name, per_chrom, balancetype in zip(['weight', 'perChromKR'], [False, True], ['genomewide', 'per chromosome']):
+        if not check_weight(cooleruri, weight_name):
+            logging.info('applying {} KR to {}::resolution/{}'.format(balancetype, args.mcool, resolution))
+            krweights = balance_kr(cooleruri, per_chrom)
+            store_weights(cooleruri, krweights, weight_name)
+            del krweights
 
-    else:
-        logging.info('KR weights for {}::resolution/{} already exist. Skipping!'.format(args.mcool, resolution))
+        else:
+            logging.info('{} KR weights for {}::resolution/{} already exist. Skipping!'.format(balancetype, args.mcool, resolution))
 
-    if not check_weight(cooleruri, 'ICE'):
-        logging.info('applying IC to {}::resolution/{}'.format(args.mcool, resolution))
-        icweights = balance_ic(cooleruri, args.processors)
-        store_weights(cooleruri, icweights, 'ICE')
-        del icweights
+    for weight_name, per_chrom, balancetype in zip(['ICE', 'perChromIC'], [False, True], ['genomewide', 'per chromosome']):
+        if not check_weight(cooleruri, weight_name):
+            logging.info('applying {} IC to {}::resolution/{}'.format(balancetype, args.mcool, resolution))
+            icweights = balance_ic(cooleruri, args.processors, per_chrom)
+            store_weights(cooleruri, icweights, weight_name)
+            del icweights
 
-    else:
-        logging.info('IC weights for {}::resolution/{} already exist. Skipping!'.format(args.mcool, resolution))
+        else:
+            logging.info('{} IC weights for {}::resolution/{} already exist. Skipping!'.format(balancetype, args.mcool, resolution))
 
     gc.collect()
