@@ -3,15 +3,14 @@ process DIGEST_GENOME {
   tag "${fasta}"
 
   input:
-  file(fasta) from fastaForHicupDigest
+  path genome_fasta
+  val re_pattern
 
   output:
-  file("Digest*.txt") into hicupDigestIndex
+  path "Digest*.txt", emit: genome_digest
 
-  shell:
+  script:
   """
-  echo !{task.memory}
-  echo !{task.cpus}
-  hicup_digester --genome !{genomeName} --re1 !{params.re} !{fasta}
+  hicup_digester --genome !{genomeName} --re1 !{re_pattern} !{genome_fasta}
   """
 }

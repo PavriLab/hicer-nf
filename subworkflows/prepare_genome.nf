@@ -3,12 +3,20 @@ include { BOWTIE2_BUILD_INDEX } from '../modules/bowtie2_build_index.nf'
 
 workflow PREPARE_GENOME {
   take:
-  ch_genome
+  prepare_genome_for_tools
+  genome_fasta
+  re_pattern
 
   main:
-  ch_genome | \
-  //how do we actually fork this channel here to account for both processes
+
+  if ('bowtie2' in perpare_genome_for_tools) {
+      BOWTIE2_BUILD_INDEX( genome_fasta )
+  }
+
+  if ('hicup' in prepare_genome_for_tools) {
+      DIGEST_GENOME( genome_fasta, re_pattern)
+  }
 
   emit:
-  
+
 }

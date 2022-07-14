@@ -26,7 +26,14 @@
 
 nextflow.enable.dsl = 2
 
+WorkflowMain.initialise(workflow, params, log)
+/*
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    IMPORT WORKFLOW
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*/
 include { HICER } from 'workflows/hicer.nf'
+
 
 workflow {
   HICER()
