@@ -42,7 +42,7 @@ class WorkflowHicer {
     //
     public static ArrayList<Integer> makeResolutionList(resolution_string) {
         def resolutionsList = new ArrayList<Integer>()
-        for (String s: resolutions.split(',')) {
+        for (String s: resolutions_string.split(',')) {
             resolutionsList.add(s.toInteger())
         }
 
