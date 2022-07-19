@@ -128,6 +128,7 @@ workflow HICER {
     // check input sample sheet
     // adapted from nf-core/rnaseq
     INPUT_CHECK ( ch_input )
+        .out
         .reads
         .groupTuple(by: [0])
         .branch {
@@ -140,7 +141,8 @@ workflow HICER {
         .set { ch_fastq }
 
     // concatenate fastqs of samples with multiple readfiles
-    CAT_FASTQ( ch_fastq.multiple )
+    CAT_FASTQ ( ch_fastq.multiple )
+        .out
         .reads
         .mix ( ch_fastq.single )
         .set { ch_cat_fastq }
@@ -164,8 +166,8 @@ workflow HICER {
 
     // splitting fastqs for HICUP parallelization
     SPLIT_FASTQ ( TRIM_GALORE.out.reads )
-
-    SPLIT_FASTQ.out.reads
+        .out
+        .reads
         .map { WorkflowHicer.distributeMeta( it ) }
         .map {
             meta, file ->
@@ -191,15 +193,15 @@ workflow HICER {
         )
     }
 
-    SAM_TO_BAM ( ch_hicup.alignments )
+    SAM_TO_BAM ( ch_hicup.out.alignments )
 
     MAKE_PAIRS_FILE (
-        ch_hicup.alignments,
+        ch_hicup.out.alignments,
         ch_genome.genomeSizes
     )
 
     COOLER_MAKE_MATRIX (
-        MAKE_PAIRS_FILE.pairs,
+        MAKE_PAIRS_FILE.out.pairs,
         dynamic_params.genomeName,
         dynamic_params.genomeSizes,
         dynamic_params.baseResolution
@@ -208,16 +210,16 @@ workflow HICER {
 
     if (!params.skip_juicer) {
         JUICER_MAKE_MATRIX (
-            MAKE_PAIRS_FILE.pairs,
+            MAKE_PAIRS_FILE.out.pairs,
             dynamic_params.genomeSizes,
             dynamic_params.resolutions
         )
     }
 
     MULTIQC (
-        TRIM_GALORE.fastqc,
-        TRIM_GALORE.reports,
-        ch_hicup.multiqc
+        TRIM_GALORE.out.fastqc,
+        TRIM_GALORE.out.reports,
+        ch_hicup.out.multiqc
     )
 }
 
