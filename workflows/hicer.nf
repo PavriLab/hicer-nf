@@ -157,23 +157,23 @@ workflow HICER {
         .reads
         .mix ( ch_fastq.single )
         .set { ch_cat_fastq }
-    //
-    // // read QC
-    // TRIM_GALORE ( ch_cat_fastq )
-    //
-    // // splitting fastqs for HICUP parallelization
-    // SPLIT_FASTQ ( TRIM_GALORE.out.reads )
-    //     .out
-    //     .reads
-    //     .map { WorkflowHicer.distributeMeta( it ) }
-    //     .map {
-    //         meta, file ->
-    //             def clone_meta = meta.clone
-    //             clone_meta.id = file.name.toString() - ~/(_[12]\.fq)?$/
-    //             [ clone_meta, file ]
-    //     }
-    //     .groupTuple (by: [0])
-    //     .set { ch_split_fastq }
+
+    // read QC
+    TRIM_GALORE ( ch_cat_fastq )
+
+    // splitting fastqs for HICUP parallelization
+    SPLIT_FASTQ ( TRIM_GALORE.out.reads )
+        .out
+        .reads
+        .map { WorkflowHicer.distributeMeta( it ) }
+        .map {
+            meta, file ->
+                def clone_meta = meta.clone
+                clone_meta.id = file.name.toString() - ~/(_[12]\.fq)?$/
+                [ clone_meta, file ]
+        }
+        .groupTuple (by: [0])
+        .set { ch_split_fastq }
     //
     // if (params.re) {
     //     ch_hicup = HIC (
