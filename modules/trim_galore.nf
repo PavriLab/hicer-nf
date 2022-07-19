@@ -6,9 +6,9 @@ process TRIM_GALORE {
     tuple val(meta), path(reads)
 
     output:
+    tuple val(meta), path("*_trimmed_val_*.fq.gz"), emit: reads
     path "*fastqc.{zip,html}",                      emit: fastqc
     path "*trimming_report.txt",                    emit: reports
-    tuple val(meta), path("*_trimmed_val_*.fq.gz"), emit: reads
 
     script:
     read1       = reads[0]
