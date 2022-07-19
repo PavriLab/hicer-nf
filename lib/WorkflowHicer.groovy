@@ -3,13 +3,8 @@ class WorkflowHicer {
     public static void initialise(params, log) {
         genomeExistsError(params, log)
 
-        if (!params.bowtie2Index && !params.genome && !params.fasta) {
-            log.error "Neither genome nor fasta file nor bowtie2 index are specified but needed"
-            System.exit(1)
-        }
-
-        if (!params.hicupDigest && !params.genome && !params.fasta && params.re) {
-            log.error "Neither genome nor fasta file nor hicup digest are specified but RE pattern"
+        if (!params.genome && !params.fasta) {
+            log.error "Neither genome nor fasta file are specified"
             System.exit(1)
         }
     }
@@ -94,10 +89,10 @@ class WorkflowHicer {
         log.info " Resolutions              : ${dynamic.resolutions}"
         log.info " baseResolution           : ${dynamic.baseResolution}"
         if (params.re) {
-            log.info " re                       : ${params.re}"
+            log.info " re                   : ${params.re}"
 
         } else {
-            log.info " minMapDistance           : ${params.minMapDistance}"
+            log.info " minMapDistance       : ${params.minMapDistance}"
         }
 
         log.info " Genome                   : ${dynamic.genomeName}"
