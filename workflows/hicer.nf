@@ -121,6 +121,7 @@ include { MULTIQC            } from '../modules/multiqc.nf'
     RUN MAIN WORKFLOW
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
+
 workflow HICER {
     ch_input = file( params.input )
 
