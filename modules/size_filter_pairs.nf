@@ -11,7 +11,6 @@ process SIZE_FILTER_PAIRS {
 
     script:
     """
-    mkdir !{splitName}
     filterBySize.py \
         -i ${alignments} \
         --minDistance ${params.minMapDistance} \
