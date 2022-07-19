@@ -17,7 +17,7 @@ class WorkflowHicer {
     // include specified resolutions in resolution list sort them and remove duplicates
     //
     public static String makeResolutionsUnique(resolutions_string) {
-        resolutionsList = new ArrayList<Integer>()
+        def resolutionsList = new ArrayList<Integer>()
 
         for (String s: resolutions_string.split(',')) {
             resolutionsList.add(s.toInteger())
@@ -26,7 +26,7 @@ class WorkflowHicer {
         resolutionsList.sort()
         resolutionsList.unique()
 
-        sb = new StringBuilder()
+        def sb = new StringBuilder()
         for (Integer i: resolutionsList) {
             if (sb.length() > 0) {
                 sb.append(",");
@@ -41,7 +41,7 @@ class WorkflowHicer {
     // convert resolutions string to list
     //
     public static ArrayList<Integer> makeResolutionList(resolution_string) {
-        resolutionsList = new ArrayList<Integer>()
+        def resolutionsList = new ArrayList<Integer>()
         for (String s: resolutions.split(',')) {
             resolutionsList.add(s.toInteger())
         }
@@ -67,7 +67,7 @@ class WorkflowHicer {
     // larger genomes usually need more resources
     //
     public static String getGenomeSizeType(chromSizesFile) {
-        genomeSize = 0
+        def genomeSize = 0
         if (chromSizesFile.endsWith('xml')) {
               def parser = new XmlParser()
               result = parser.parse( chromSizesFile )
@@ -79,7 +79,7 @@ class WorkflowHicer {
               file( chromSizesFile ).eachLine{ str -> genomeSize += str.split('\t')[1].toLong() }
         }
 
-        genomeSizeType = genomeSize > 4000000000 ? "large" : "small"
+        def genomeSizeType = genomeSize > 4000000000 ? "large" : "small"
         return genomeSizeType
     }
 
@@ -111,9 +111,9 @@ class WorkflowHicer {
     }
 
     public static ArrayList distributeMeta(tuple) {
-        meta    = tuple[0]
-        files   = tuple[1]
-        distributed = []
+        def meta    = tuple[0]
+        def files   = tuple[1]
+        def distributed = []
         for (file in files) {
             distributed.add( [ meta, file ] )
         }
