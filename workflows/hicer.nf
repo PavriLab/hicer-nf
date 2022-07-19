@@ -159,8 +159,8 @@ workflow HICER {
         .set { ch_cat_fastq }
 
     // read QC
-    TRIM_GALORE ( ch_cat_fastq ).out.reads.view()
-    
+    TRIM_GALORE ( ch_cat_fastq )
+
     // splitting fastqs for HICUP parallelization
     SPLIT_FASTQ ( TRIM_GALORE.out.reads )
         .out
