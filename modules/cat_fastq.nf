@@ -8,8 +8,7 @@ process CAT_FASTQ {
     tuple val(meta), path("*.merged.fastq.gz"), emit: reads
 
     script:
-    reads.view()
-    def readList = reads.collect( it.toString() )
+    def readList = reads.collect { it.toString() }
     def read1 = []
     def read2 = []
     readList.eachWithIndex{ v, ix -> ( ix & 1 ? read2 : read1 ) << v }
