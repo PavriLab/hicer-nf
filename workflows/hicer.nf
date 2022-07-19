@@ -122,9 +122,8 @@ include { MULTIQC            } from '../modules/multiqc.nf'
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-println(dynamic_params)
+ch_input = file( params.input )
 workflow HICER {
-    ch_input = file( params.input )
 
     // check input sample sheet
     // adapted from nf-core/rnaseq
