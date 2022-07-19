@@ -18,7 +18,7 @@ workflow PREPARE_GENOME {
         ch_fasta = file( dynamic_params.genomeFasta )
     }
 
-    if ("bowtie2" in perpare_genome_for_tools) {
+    if ("bowtie2" in prepare_genome_for_tools) {
         ch_bowtie2_index = BOWTIE2_BUILD_INDEX (
             ch_fasta,
             dynamic_params.genomeSizeType
