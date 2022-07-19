@@ -139,87 +139,87 @@ workflow HICER {
         }
         .set { ch_fastq }
 
-    // concatenate fastqs of samples with multiple readfiles
-    CAT_FASTQ ( ch_fastq.multiple )
-        .out
-        .reads
-        .mix ( ch_fastq.single )
-        .set { ch_cat_fastq }
-
-    // prepare genome files
-    if (!prepare_genome_for_tools.isEmpty()) {
-        ch_genome = PREPARE_GENOME (
-            prepare_genome_for_tools,
-            dynamic_params
-        )
-
-    } else {
-        def ch_genome = [:]
-        ch_genome.index     = file( dynamic_params.bowtie2Index )
-        ch_genome.digest    = ''
-        ch_genome.sizes     = file( dynamic_params.genomeSizes )
-    }
-
-    // read QC
-    TRIM_GALORE ( ch_cat_fastq )
-
-    // splitting fastqs for HICUP parallelization
-    SPLIT_FASTQ ( TRIM_GALORE.out.reads )
-        .out
-        .reads
-        .map { WorkflowHicer.distributeMeta( it ) }
-        .map {
-            meta, file ->
-                def clone_meta = meta.clone
-                clone_meta.id = file.name.toString() - ~/(_[12]\.fq)?$/
-                [ clone_meta, file ]
-        }
-        .groupTuple (by: [0])
-        .set { ch_split_fastq }
-
-    if (params.re) {
-        ch_hicup = HIC (
-            ch_split_fastqs,
-            ch_genome,
-            dynamic_params.genomeSizeType
-        )
-
-    } else {
-        ch_hicup = MICROC (
-            ch_split_fastqs,
-            ch_genome,
-            dynamic_params.genomeSizeType
-        )
-    }
-
-    SAM_TO_BAM ( ch_hicup.alignments )
-
-    MAKE_PAIRS_FILE (
-        ch_hicup.alignments,
-        ch_genome.genomeSizes
-    )
-
-    COOLER_MAKE_MATRIX (
-        MAKE_PAIRS_FILE.out.pairs,
-        dynamic_params.genomeName,
-        dynamic_params.genomeSizes,
-        dynamic_params.baseResolution
-        dynamic_params.resolutions
-    )
-
-    if (!params.skip_juicer) {
-        JUICER_MAKE_MATRIX (
-            MAKE_PAIRS_FILE.out.pairs,
-            dynamic_params.genomeSizes,
-            dynamic_params.resolutions
-        )
-    }
-
-    MULTIQC (
-        TRIM_GALORE.out.fastqc,
-        TRIM_GALORE.out.reports,
-        ch_hicup.multiqc
-    )
+    // // concatenate fastqs of samples with multiple readfiles
+    // CAT_FASTQ ( ch_fastq.multiple )
+    //     .out
+    //     .reads
+    //     .mix ( ch_fastq.single )
+    //     .set { ch_cat_fastq }
+    //
+    // // prepare genome files
+    // if (!prepare_genome_for_tools.isEmpty()) {
+    //     ch_genome = PREPARE_GENOME (
+    //         prepare_genome_for_tools,
+    //         dynamic_params
+    //     )
+    //
+    // } else {
+    //     def ch_genome = [:]
+    //     ch_genome.index     = file( dynamic_params.bowtie2Index )
+    //     ch_genome.digest    = ''
+    //     ch_genome.sizes     = file( dynamic_params.genomeSizes )
+    // }
+    //
+    // // read QC
+    // TRIM_GALORE ( ch_cat_fastq )
+    //
+    // // splitting fastqs for HICUP parallelization
+    // SPLIT_FASTQ ( TRIM_GALORE.out.reads )
+    //     .out
+    //     .reads
+    //     .map { WorkflowHicer.distributeMeta( it ) }
+    //     .map {
+    //         meta, file ->
+    //             def clone_meta = meta.clone
+    //             clone_meta.id = file.name.toString() - ~/(_[12]\.fq)?$/
+    //             [ clone_meta, file ]
+    //     }
+    //     .groupTuple (by: [0])
+    //     .set { ch_split_fastq }
+    //
+    // if (params.re) {
+    //     ch_hicup = HIC (
+    //         ch_split_fastqs,
+    //         ch_genome,
+    //         dynamic_params.genomeSizeType
+    //     )
+    //
+    // } else {
+    //     ch_hicup = MICROC (
+    //         ch_split_fastqs,
+    //         ch_genome,
+    //         dynamic_params.genomeSizeType
+    //     )
+    // }
+    //
+    // SAM_TO_BAM ( ch_hicup.alignments )
+    //
+    // MAKE_PAIRS_FILE (
+    //     ch_hicup.alignments,
+    //     ch_genome.genomeSizes
+    // )
+    //
+    // COOLER_MAKE_MATRIX (
+    //     MAKE_PAIRS_FILE.out.pairs,
+    //     dynamic_params.genomeName,
+    //     dynamic_params.genomeSizes,
+    //     dynamic_params.baseResolution
+    //     dynamic_params.resolutions
+    // )
+    //
+    // if (!params.skip_juicer) {
+    //     JUICER_MAKE_MATRIX (
+    //         MAKE_PAIRS_FILE.out.pairs,
+    //         dynamic_params.genomeSizes,
+    //         dynamic_params.resolutions
+    //     )
+    // }
+    //
+    // MULTIQC (
+    //     TRIM_GALORE.out.fastqc,
+    //     TRIM_GALORE.out.reports,
+    //     ch_hicup.multiqc
+    // )
 }
 
 workflow.onComplete {
