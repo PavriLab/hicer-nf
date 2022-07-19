@@ -26,6 +26,7 @@
 
 nextflow.enable.dsl = 2
 
+params.help = false
 WorkflowMain.initialise(workflow, params, log)
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
