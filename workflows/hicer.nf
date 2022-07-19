@@ -122,13 +122,12 @@ include { MULTIQC            } from '../modules/multiqc.nf'
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-ch_input = file( params.input )
 workflow HICER {
+    ch_input = file( params.input )
 
     // check input sample sheet
     // adapted from nf-core/rnaseq
     INPUT_CHECK ( ch_input )
-        .out
         .reads
         .groupTuple(by: [0])
         .branch {
@@ -193,10 +192,10 @@ workflow HICER {
         )
     }
 
-    SAM_TO_BAM ( ch_hicup.out.alignments )
+    SAM_TO_BAM ( ch_hicup.alignments )
 
     MAKE_PAIRS_FILE (
-        ch_hicup.out.alignments,
+        ch_hicup.alignments,
         ch_genome.genomeSizes
     )
 
@@ -219,7 +218,7 @@ workflow HICER {
     MULTIQC (
         TRIM_GALORE.out.fastqc,
         TRIM_GALORE.out.reports,
-        ch_hicup.out.multiqc
+        ch_hicup.multiqc
     )
 }
 

@@ -27,26 +27,32 @@ workflow HIC {
         ch_genome.digest
     )
 
-    HICUP_FILTER_PAIRS.out.alignments
-                  .map {
-                      meta, file ->
-                            def meta_clone = meta.clone()
-                            meta_clone.id = file.name.toString() - ~/(_[a-z]{4}_1_2\.filt\.sam)?$/
-                            [ meta, file ]
-                    }
-                  .groupTuple ()
-                  .set { ch_filtered_pairs }
+    HICUP_FILTER_PAIRS
+        .out
+        .alignments
+        .map {
+            meta, file ->
+                def meta_clone = meta.clone()
+                meta_clone.id = file.name.toString() - ~/(_[a-z]{4}_1_2\.filt\.sam)?$/
+                [ meta, file ]
+        }
+        .groupTuple ()
+        .set { ch_filtered_pairs }
 
     RESPLIT_FILTERED_PAIRS ( ch_filtered_pairs )
 
-    RESPLIT_FILTERED_PAIRS.out.alignments
+    RESPLIT_FILTERED_PAIRS
+        .out
+        .alignments
         .map { WorkflowHicer.distributeMeta( it ) }
         .flatten()
         .set { ch_resplit_pairs }
 
     HICUP_DEDUPLICATE_PAIRS ( ch_resplit_pairs )
 
-    HICUP_DEDUPLICATE_PAIRS.out.alignments
+    HICUP_DEDUPLICATE_PAIRS
+        .out
+        .alignments
         .groupTuple(by: [0])
         .set { ch_cat_sam }
 

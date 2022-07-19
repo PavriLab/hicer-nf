@@ -26,7 +26,9 @@ workflow MICROC {
         ch_genome.digest
     )
 
-    HICUP_FILTER_PAIRS.out.alignments
+    HICUP_FILTER_PAIRS
+        .out
+        .alignments
         .map {
         meta, file ->
               def meta_clone = meta.clone()
@@ -45,7 +47,9 @@ workflow MICROC {
 
     HICUP_DEDUPLICATE_PAIRS ( ch_resplit_pairs )
 
-        HICUP_DEDUPLICATE_PAIRS.out.alignments
+    HICUP_DEDUPLICATE_PAIRS
+        .out
+        .alignments
         .groupTuple(by: [0])
         .set { ch_cat_sam }
 

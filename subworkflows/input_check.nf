@@ -15,7 +15,7 @@ workflow INPUT_CHECK {
 }
 
 def create_fastq_channel(LinkedHashMap row) {
-    meta = [:]
+    def meta = [:]
     meta.id = row.sample
 
     if(!file(row.fastq_1).exists()) {
