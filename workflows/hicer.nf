@@ -21,7 +21,6 @@ checkPathParamList = [
     params.input,
     params.fasta,
     params.chromSizes,
-    igenomes_bowtie2,
     igenomes_fasta,
     igenomes_chromSizes
 ]
