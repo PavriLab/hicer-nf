@@ -132,16 +132,16 @@ You will need to create a design file with information about the samples in your
 ```
 
 ```bash
-name read1 read2
+sample fastq_1 fastq_2
 WT WT_1.fastq.gz WT_2.fastq.gz
 KD KD_1.fastq.gz KD_2.fastq.gz
 ```
 
 | Column      | Description                                                                                                 |
 |-------------|-------------------------------------------------------------------------------------------------------------|
-| `name` | Name of this sample.
-| `read1`   | Full path to FastQ file for read 1. File has to be zipped and have the extension ".fastq.gz" or ".fq.gz".   |
-| `read2`   | Full path to FastQ file for read 2. File has to be zipped and have the extension ".fastq.gz" or ".fq.gz".   |
+| `sample` | Name of this sample.
+| `fastq_1`   | Full path to FastQ file for read 1. File has to be zipped and have the extension ".fastq.gz" or ".fq.gz".   |
+| `fastq_2`   | Full path to FastQ file for read 2. File has to be zipped and have the extension ".fastq.gz" or ".fq.gz".   |
 
 #### `--genome`
 
