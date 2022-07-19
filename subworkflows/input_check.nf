@@ -6,7 +6,7 @@ workflow INPUT_CHECK {
     main:
     Channel
         .fromPath ( samplesheet )
-        .splitCsv ( header:true, sep:'\t' )
+        .splitCsv ( header:true, sep:',' )
         .map { create_fastq_channel(it) }
         .set { reads }
 
@@ -18,7 +18,6 @@ def create_fastq_channel(LinkedHashMap row) {
     def meta = [:]
     meta.id = row.sample
 
-    println(row)
     if(!file(row.fastq_1).exists()) {
         exit 1, "ERROR: Please check input samplesheet -> Read 1 FastQ file does not exist!\n${row.fastq_1}"
     }
