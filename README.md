@@ -40,17 +40,14 @@ v. Start running your own analysis!
 ```bash
 # if you have specified an igenomes directory from or run a profile from any of the institutions 
 # listed here https://raw.githubusercontent.com/nf-core/configs/master/nfcore_custom.config
-nextflow run pavrilab/hicer-nf --samples samples.txt --genome mm9 --re ^GATC,MboI
+nextflow run pavrilab/hicer-nf --input samples.txt --genome mm9 --re ^GATC,MboI
 
 # else you can specify the most essential things manually
 # if HICUP digest and bowtie2 index are not available
-nextflow run pavrilab/hicer-nf --samples samples.txt --genome mm9 --re ^GATC,MboI --fasta genome.fa --chromSizes chrom.sizes
-
-# if HICUP digest and bowtie2 index are available
-nextflow run pavrilab/hicer-nf --samples samples.txt --genome mm9 --re ^GATC,MboI --bowtie2Index /path/to/bowtie2Index/genome_base_name --hicupDigest /path/to/hicup/digest/file --chromSizes chrom.sizes
+nextflow run pavrilab/hicer-nf --input samples.txt --genome mm9 --re ^GATC,MboI --fasta genome.fa --chromSizes chrom.sizes
 
 # if micro-C or similar protocols with non-specific cutters are used
-nextflow run pavrilab/hicer-nf --samples samples.txt --genome mm9 --resolutions 500 --chromSizes chrom.sizes
+nextflow run pavrilab/hicer-nf --input samples.txt --genome mm9 --resolutions 500 --chromSizes chrom.sizes
 ```
 
 These invocations compute cooler and hic files for a default resolution list of 5kb, 10kb, 25kb, 50kb, 100kb, 250kb, 500kb and 1Mb (except for the micro-C run). If you want resolutions that are not listed here you could use the `--resolutions` parameter (see below). In addition to this, the pipeline parallelizes the hicup workflow in a more flexible way than the hicup control script by splitting the sample reads into chunks of specific length and threads these through the hicup scripts. Per default, the fastq chunks have a size of 25M reads, but this can be changed using the `--readsPerSplit` parameter to suit you sample size. Be aware that in case of the micro-C mode, the pipeline alters the way it processes the read pairs. In particular the RE truncation is skipped and the filtering is solely based on mapping proximity of two reads of a pair which is 500 bp per default but can be altered by the `--minMapDistance` argument. Be aware that because the restiction fragments are used to calculate the insert size distribution, this is not available in the micro-C invokation. Please also not that you might have to modify the memory of the balancing process due to the high resolution of micro-C. Additionally, the HICUP QC report will not contain an insert size distribution and only display the "Same fragment - internal" category for filtering.
@@ -64,7 +61,7 @@ The current resource configuration was tested for a 2.6B read Hi-C data set and 
 The pipeline comes with a prebuilt Docker container which contains all the software you need to run right away. To skip the process (and frustration of installing everything manually) we would recommend using Singularity or Docker with the respective profile for running the pipeline.
 
 ### Usage of the pipeline without an igenomes database
-In general, the pipeline was designed to run with a predefined reference genome database such as the igenomes, which location can be specified via the [`-c`](https://www.nextflow.io/docs/latest/config.html) option (detailed below in the section `Customizing the resource requirements, igenomes_base and other parameters`). However, if you do not want to use this feature you can just specify the whole genome fasta and the chrom.sizes file of the genome via the command line parameters `--fasta` and `--chromSizes` respectively. The pipeline than computes the bowtie2 index automatically or alternatively you can specify the index manually via the `--bowtie2Index` parameter. *If you do not use the igenomes database please make sure to omit the `--genome` parameter or set `--igenomes_ignore T` or the pipeline will otherwise try to access it*
+In general, the pipeline was designed to run with a predefined reference genome database such as the igenomes, which location can be specified via the [`-c`](https://www.nextflow.io/docs/latest/config.html) option (detailed below in the section `Customizing the resource requirements, igenomes_base and other parameters`). However, if you do not want to use this feature you can just specify the whole genome fasta and the chrom.sizes file of the genome via the command line parameters `--fasta` and `--chromSizes` respectively. The pipeline than computes the bowtie2 index automatically. *If you do not use the igenomes database please make sure to omit the `--genome` parameter or set `--igenomes_ignore T` or the pipeline will otherwise try to access it*
 
 ### Customizing the resolutions set
 We developed the pipeline with the aim to facilitate a smooth integration of the results into the two most widely used postprocessing frameworks [cooltools](https://cooltools.readthedocs.io/en/latest/index.html) and [juicer_tools](https://github.com/aidenlab/juicer/wiki/Download). This also included the possibility to directly view results on their respective browser right away. Thus, we prespecified a range of resolutions which will be computed by default (5000, 10000, 25000, 50000, 100000, 250000, 500000, 1000000) to meet this aim. The `--resolutions` parameter does not overwrite this default set but rather adds the specified resolutions to this list (duplicates are ignored). You can customize the default set as described below in `Customizing the resource requirements, igenomes_base and other parameters`. *Please be aware of this behaviour*
@@ -126,9 +123,9 @@ If `-profile` is not specified at all the pipeline will be run locally and expec
   * A generic configuration profile to be used with [Singularity](http://singularity.lbl.gov/)
   * Pulls software from DockerHub: [`zuberlab/hicer-nf`](http://hub.docker.com/r/zuberlab/hicer-nf/)
 
-#### `--samples`
+#### `--input`
 
-You will need to create a design file with information about the samples in your experiment before running the pipeline. Use this parameter to specify its location. It has to be a tab-separated file with 3 columns, and a header row as shown in the examples below.
+You will need to create a design file with information about the samples in your experiment before running the pipeline. Use this parameter to specify its location. It has to be a tab-separated file with 3 columns, and a header row as shown in the examples below. Specified input samples will be grouped by samplename and analyzed as a whole (i.e. fastq files will be concatenated)
 
 ```bash
 --samples '[path to samples file]'
@@ -217,22 +214,6 @@ The XML will be converted to TSV in-situ where the pipeline uses the `contigName
 #### `--readsPerSplit`
 
 This parameter specifies the number of reads each split fastq file should contain for parallel processing. The default is 25M reads per split file.
-
-#### `--bowtie2Index`
-
-Full path to an existing bowtie2 index for your reference genome including the base name for the index. This is only necessary if you don't have an igenomes database and have a precomputed index for your fasta file that you want to use. Otherwise, the index will be computed from the fasta file specified with `--fasta`
-
-```bash
---bowtie2 '[directory containing bowtie2 index]/genome'
-```
-
-#### `--hicupDigest`
-
-File with digested genome of a given restriction enzyme as produced with `hicup_digester`. This can be used to override in-situ digestion of the fasta and use your own digestion file. However, the digest file *MUST* be constructed from the same reference genome as the bowtie2Index.
-
-```bash
---hicdigest '[file with digested genome]'
-```
 
 #### `--resolutions`
 
