@@ -138,25 +138,25 @@ workflow HICER {
         }
         .set { ch_fastq }
 
+    // prepare genome files
+    if (!prepare_genome_for_tools.isEmpty()) {
+        ch_genome = PREPARE_GENOME (
+            prepare_genome_for_tools,
+            dynamic_params
+        )
+
+    } else {
+        def ch_genome = [:]
+        ch_genome.index     = file( dynamic_params.bowtie2Index )
+        ch_genome.digest    = ''
+        ch_genome.sizes     = file( dynamic_params.genomeSizes )
+    }
+    
     // concatenate fastqs of samples with multiple readfiles
     CAT_FASTQ ( ch_fastq.multiple )
         .reads
         .mix ( ch_fastq.single )
         .set { ch_cat_fastq }
-    //
-    // // prepare genome files
-    // if (!prepare_genome_for_tools.isEmpty()) {
-    //     ch_genome = PREPARE_GENOME (
-    //         prepare_genome_for_tools,
-    //         dynamic_params
-    //     )
-    //
-    // } else {
-    //     def ch_genome = [:]
-    //     ch_genome.index     = file( dynamic_params.bowtie2Index )
-    //     ch_genome.digest    = ''
-    //     ch_genome.sizes     = file( dynamic_params.genomeSizes )
-    // }
     //
     // // read QC
     // TRIM_GALORE ( ch_cat_fastq )
