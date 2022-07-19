@@ -32,6 +32,7 @@ workflow PREPARE_GENOME {
     if ("hicup" in prepare_genome_for_tools) {
         ch_genome_digest = DIGEST_GENOME (
             ch_fasta,
+            dynamic_params.genomeName,
             dynamic_params.re
         )
     }
