@@ -43,8 +43,6 @@ class WorkflowMain {
             --genome         Name of reference (hg38, mm10, ...)
             --fasta          Alternatively, path to genome fasta file which will be digested
             --chromSizes     tab-separated file containing chromosome names and their sizes
-            --bowtie2Index   Optional: Path to bowtie2 index
-            --hicupDigest    Restriction site digest file for HICUP
 
          Profiles:
             standard         local execution

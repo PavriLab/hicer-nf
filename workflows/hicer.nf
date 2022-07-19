@@ -122,7 +122,6 @@ include { MULTIQC            } from '../modules/multiqc.nf'
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 workflow HICER {
-    main:
     ch_input = file( params.input )
 
     // check input sample sheet
