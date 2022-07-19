@@ -89,10 +89,10 @@ class WorkflowHicer {
         log.info " Resolutions              : ${dynamic.resolutions}"
         log.info " baseResolution           : ${dynamic.baseResolution}"
         if (params.re) {
-            log.info " re                   : ${params.re}"
+            log.info " re                       : ${params.re}"
 
         } else {
-            log.info " minMapDistance       : ${params.minMapDistance}"
+            log.info " minMapDistance           : ${params.minMapDistance}"
         }
 
         log.info " Genome                   : ${dynamic.genomeName}"
