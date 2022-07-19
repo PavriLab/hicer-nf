@@ -122,6 +122,7 @@ include { MULTIQC            } from '../modules/multiqc.nf'
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+println(dynamic_params)
 workflow HICER {
     ch_input = file( params.input )
 
