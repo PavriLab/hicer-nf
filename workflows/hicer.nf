@@ -155,14 +155,14 @@ workflow HICER {
         )
 
     } else {
-        ch_genome = [:]
+        def ch_genome = [:]
         ch_genome.index     = file( dynamic_params.bowtie2Index )
         ch_genome.digest    = ''
         ch_genome.sizes     = file( dynamic_params.genomeSizes )
     }
 
     // read QC
-    TRIM_GALORE ( ch_cat_fastq.reads )
+    TRIM_GALORE ( ch_cat_fastq )
 
     // splitting fastqs for HICUP parallelization
     SPLIT_FASTQ ( TRIM_GALORE.out.reads )
