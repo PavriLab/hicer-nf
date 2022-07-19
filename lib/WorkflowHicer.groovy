@@ -40,7 +40,7 @@ class WorkflowHicer {
     //
     // convert resolutions string to list
     //
-    public static ArrayList<Integer> makeResolutionList(resolution_string) {
+    public static ArrayList<Integer> makeResolutionList(resolutions_string) {
         def resolutionsList = new ArrayList<Integer>()
         for (String s: resolutions_string.split(',')) {
             resolutionsList.add(s.toInteger())
