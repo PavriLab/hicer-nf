@@ -1,4 +1,4 @@
-process SPLIT_FASTQS {
+process SPLIT_FASTQ {
 
     tag "$meta.id"
 
