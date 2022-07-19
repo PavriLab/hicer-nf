@@ -146,12 +146,12 @@ workflow HICER {
         )
 
     } else {
-        def ch_genome = [:]
+        ch_genome = [:]
         ch_genome.index     = file( dynamic_params.bowtie2Index )
         ch_genome.digest    = ''
         ch_genome.sizes     = file( dynamic_params.genomeSizes )
     }
-    
+
     // concatenate fastqs of samples with multiple readfiles
     CAT_FASTQ ( ch_fastq.multiple )
         .reads
