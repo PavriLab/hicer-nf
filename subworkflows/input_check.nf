@@ -7,7 +7,7 @@ workflow INPUT_CHECK {
     Channel
         .fromPath ( samplesheet )
         .splitCsv ( header:true, sep:'\t' )
-        .println( it )
+        .println()
         // .map { create_fastq_channel(it) }
         // .set { reads }
 
