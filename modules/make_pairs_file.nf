@@ -43,5 +43,5 @@ process MAKE_PAIRS_FILE {
 
     bgzip !{meta.id}.pairs
     pairix -p pairs !{meta.id}.pairs.gz
-    """
+    '''
 }
