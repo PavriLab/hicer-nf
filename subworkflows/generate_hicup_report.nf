@@ -42,7 +42,7 @@ workflow GENERATE_HICUP_REPORT {
         .map {
             meta, file ->
                 def meta_clone = meta.clone()
-                meta_clone.id = file.name.toString() ~/(_[0-9a-zA-Z]*)$/
+                meta_clone.id = file.name.toString() - ~/(_[0-9a-zA-Z]*)$/
                 [ meta_clone, file ]
         }
         .groupTuple ()
