@@ -33,6 +33,6 @@ process TRIM_GALORE {
     mv !{read1Base}_trimming_report.txt !{meta.id}_trimmed_val_1.fq.gz_trimming_report.txt
     sed -i 's/Command line parameters:.*\$/Command line parameters: !{meta.id}_trimmed_val_1/g' !{meta.id}_trimmed_val_1.fq.gz_trimming_report.txt
     mv !{read2Base}_trimming_report.txt !{meta.id}_trimmed_val_2.fq.gz_trimming_report.txt
-    sed -i 's/Command line parameters:.*\$/Command line parameters: ${meta.id}_trimmed_val_2/g' !{meta.id}_trimmed_val_2.fq.gz_trimming_report.txt
+    sed -i 's/Command line parameters:.*\$/Command line parameters: !{meta.id}_trimmed_val_2/g' !{meta.id}_trimmed_val_2.fq.gz_trimming_report.txt
     '''
 }
