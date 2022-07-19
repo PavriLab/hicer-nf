@@ -138,12 +138,12 @@ workflow HICER {
         }
         .set { ch_fastq }
 
-    // // concatenate fastqs of samples with multiple readfiles
-    // CAT_FASTQ ( ch_fastq.multiple )
-    //     .out
-    //     .reads
-    //     .mix ( ch_fastq.single )
-    //     .set { ch_cat_fastq }
+    // concatenate fastqs of samples with multiple readfiles
+    CAT_FASTQ ( ch_fastq.multiple )
+        .out
+        .reads
+        .mix ( ch_fastq.single )
+        .set { ch_cat_fastq }
     //
     // // prepare genome files
     // if (!prepare_genome_for_tools.isEmpty()) {
