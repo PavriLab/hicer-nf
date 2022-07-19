@@ -70,7 +70,7 @@ class WorkflowHicer {
         def genomeSize = 0
         if (chromSizesFile.endsWith('xml')) {
               def parser = new XmlParser()
-              result = parser.parse( chromSizesFile )
+              def result = parser.parse( chromSizesFile )
               result
                   .children()
                   .each{ genomeSize += it.@totalBases.toLong() }
