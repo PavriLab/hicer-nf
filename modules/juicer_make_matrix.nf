@@ -1,4 +1,4 @@
-process MAKE_CONTACT_MATRIX {
+process MAKE_MATRIX {
 
     tag "$meta.id"
 

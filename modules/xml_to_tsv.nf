@@ -1,4 +1,4 @@
-process xml2tsv {
+process XML_TO_TSV {
 
       tag "xml2tsv"
 
@@ -6,10 +6,10 @@ process xml2tsv {
       file chromSizeXML
 
       output:
-      file "chromSizes.tsv", emit: chromSizeTsv
+      file("chromSizes.tsv"), emit: chromSizeTsv
 
       script:
-      '''
+      """
       xml2tsv.py ${chromSizeXML} chromSizes.tsv
-      '''
+      """
 }
