@@ -1,0 +1,6 @@
+v0.1.0 -> v1.0.0
+Major changes:
+- Pipeline was refactored to comply to the new nextflow DSL2 standard
+
+Minor changes:
+- --bowtie2Index and --hicupDigest command line arguments were removed to simplify code and avoid inconsistencies if only one is given
