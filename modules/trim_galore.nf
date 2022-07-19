@@ -18,7 +18,6 @@ process TRIM_GALORE {
     lastPath    = read2.lastIndexOf(File.separator)
     read2Base   = read2.substring(lastPath+1)
 
-
     """
     trim_galore --paired \
                 --quality 20 \
