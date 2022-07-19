@@ -1,17 +1,18 @@
 process RESPLIT_FILTERED_PAIRS {
 
-    tag { name }
+    tag "$meta.id"
 
     input:
-    tuple val(name), file(filterSams) from resplitInputChannel
+    tuple val(meta), path(alignments)
 
     output:
-    file "${name}/${name}*.sam" into resultsResplit
+    tuple val(meta), file("${meta.id}/${meta.id}*.sam"), emit: alignments
 
-    shell:
-    '''
-    mkdir !{name}
-    resplitByChromosome.py -i !{filterSams} \
-                           -o !{name}/!{name}
-    '''
+    script:
+    """
+    mkdir ${meta.id}
+    resplitByChromosome.py \
+        -i ${alignments} \
+        -o ${meta.id}/${meta.id}
+    """
 }

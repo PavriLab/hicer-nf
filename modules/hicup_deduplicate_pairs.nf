@@ -1,26 +1,28 @@
 process HICUP_DEDUPLICATE_PAIRS {
 
-    tag { resplitName }
+    tag "$meta.id"
 
     input:
-    file sam from resultsResplit.flatten()
+    tuple val(meta), file(alignments)
 
     output:
-    file("${resplitName}/${resplitName}_1_2.dedup.sam") into resultsHicupDeduplicate
-    tuple val(resplitName), file("${resplitName}/*summary*.txt") into hicupDeduplicatorReportChannel
+    tuple val(meta) file("${resplitName}/${resplitName}_1_2.dedup.sam"), emit: alignments
+    tuple val(resplitName), file("${resplitName}/*summary*.txt"),        emit: reports
 
-    shell:
-    resplitName = (sam.getName() - ~/(_1_2\.filt\.sam)?$/)
+    script:
+    resplitName = alignments.getName() - ~/(_1_2\.filt\.sam)?$/
 
-    '''
-    mkdir !{resplitName}
-    hicup_deduplicator --outdir !{resplitName} \
-                       !{sam}
+    """
+    mkdir ${resplitName}
+    hicup_deduplicator \
+        --outdir ${resplitName} \
+        ${alignments}
 
-    if [ ! !{params.re} ]
+    if [ ! ${params.re} ]
     then
-        getCisFractions.py -i !{resplitName}/!{resplitName}_1_2.dedup.sam \
-                           -r !{resplitName}/*summary*.txt
+        getCisFractions.py \
+            -i ${resplitName}/${resplitName}_1_2.dedup.sam \
+            -r ${resplitName}/*summary*.txt
     fi
-    '''
+    """
 }

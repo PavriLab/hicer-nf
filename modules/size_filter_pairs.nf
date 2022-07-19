@@ -1,19 +1,20 @@
 process SIZE_FILTER_PAIRS {
 
-    tag { splitName }
+    tag "$meta.id"
 
     input:
-    tuple val(splitName), file(splitSam) from resultsHicupMapper
+    tuple val(meta), file(alignments)
 
     output:
-    file("${splitName}/${splitName}_1_2.filt.sam") into resultsHicupFilter
-    tuple val(splitName), file("${splitName}/*summary*.txt"), file("${splitName}/*.ditag_size_distribution") into hicupFilterReportChannel
+    tuple val(meta), file("${meta.id}_1_2.filt.sam"),                           emit: alignments
+    tuple val(meta), file("*summary*.txt"), file("*.ditag_size_distribution"),  emit: reports
 
-    shell:
-    '''
+    script:
+    """
     mkdir !{splitName}
-    filterBySize.py -i !{splitSam} \
-                    --minDistance !{params.minMapDistance} \
-                    -o !{splitName}/!{splitName}_1_2.filt.sam
-    '''
+    filterBySize.py \
+        -i ${alignments} \
+        --minDistance ${params.minMapDistance} \
+        -o ${meta.id}_1_2.filt.sam
+    """
 }

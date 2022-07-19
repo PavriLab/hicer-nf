@@ -1,18 +1,18 @@
 process MULTIQC {
 
-    tag { 'all' }
+    tag "multiqc"
 
     publishDir path: "${params.outputDir}",
                mode: 'copy',
                overwrite: 'true'
 
     input:
-    file (fastqc: 'fastqc/*') from fastqcResults.collect()
-    file (trim: 'trim/*') from trimgaloreResults.collect()
-    file (hicpt: 'hicup/*') from multiqcHicup.collect()
+    file (fastqc: 'fastqc/*')
+    file (trim: 'trim/*')
+    file (hicpt: 'hicup/*')
 
     output:
-    file "*multiqc_report.html" into multiqc_report
+    file "*multiqc_report.html"
 
     script:
     """

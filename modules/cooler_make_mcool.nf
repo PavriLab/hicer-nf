@@ -1,20 +1,19 @@
 process MAKE_MCOOL {
 
-    tag { name }
+    tag "$meta.id"
 
     input:
-    tuple val(name), file(basematrix) from resultsBaseBuilder
+    tuple val(meta), file(basematrix)
 
     output:
-    tuple val(name), file("${name}/${name}.mcool") into resultsZoomifyBase
+    tuple val(meta), file("${name}.mcool"), emit: matrix
 
-    shell:
-    '''
-    mkdir -p !{name}
-
-    cooler zoomify -p !{task.cpus} \
-                   -r !{resolutions} \
-                   -o !{name}/!{name}.mcool \
-                   !{basematrix}
-    '''
+    script:
+    """
+    cooler zoomify \
+        -p ${task.cpus} \
+        -r ${resolutions} \
+        -o ${meta.id}.mcool \
+        ${basematrix}
+    """
 }

@@ -1,29 +1,32 @@
 process HICUP_GENERATE_REPORT {
 
-    tag { name }
+    tag "$meta.id"
 
-    publishDir path: "${params.outputDir}/${name}/QC/",
+    publishDir path: "${params.outputDir}/${meta.id}/QC/",
                mode: 'copy',
                overwrite: 'true',
-               pattern: "${name}/*html",
-               saveAs: { filename ->
-                             if (filename.endsWith(".html")) file(filename).getName()
-                       }
+               pattern: "${meta.id}/*html",
+               saveAs: {
+                   file ->
+                        if (file.endsWith(".html")) file(file).getName()
+               }
 
     input:
-    tuple val(name), file(hicupReportFiles) from hicupReporterInputChannel
+    tuple val(meta), file(reports)
 
     output:
-    file("${name}/*html") into htmlHicup
-    file("${name}/HiCUP_summary_report*") into multiqcHicup
+    file("${meta.id}/*html")
+    file("${meta.id}/HiCUP_summary_report*")
 
-    shell:
+    script:
     resourceDir = "${NXF_HOME}/assets/pavrilab/hicer-nf/resource"
-    '''
-    mkdir !{name}
-    hicupReportMerger.py -o !{name} \
-                         !{hicupReportFiles} \
-                         !{resourceDir}/hicup_report_template.html \
-                         !{name}
-    '''
+
+    """
+    mkdir ${meta.id}
+    hicupReportMerger.py \
+        -o ${meta.id} \
+        ${reports} \
+        ${resourceDir}/hicup_report_template.html \
+        ${meta.id}
+    """
 }

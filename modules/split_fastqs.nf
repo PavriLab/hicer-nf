@@ -1,23 +1,24 @@
 process SPLIT_FASTQS {
 
-    tag { name }
+    tag "$meta.id"
 
     input:
-    tuple val(name), file(fastq1), file(fastq2) from resultsTrimming
+    tuple val(meta), path(reads)
 
     output:
-    file("${name}/${name}_*") into resultsSplitting
+    tuple val(meta), path("${meta.id}/${meta.id}_*"), emit: reads
 
-    shell:
+    script:
     numberOfLinesPerSplit = params.readsPerSplit.toInteger() * 4
-    '''
-    mkdir !{name}
+
+    """
+    mkdir ${meta.id}
 
     # ampersand at the end of the line lets linux execute the commands in parallel
-    zcat !{fastq1} | \
-    split -l !{numberOfLinesPerSplit} -a 4 --additional-suffix _1.fq - !{name}/!{name}_ &
+    zcat ${reads[0]} | \
+    split -l ${numberOfLinesPerSplit} -a 4 --additional-suffix _1.fq - ${meta.id}/${meta.id}_ &
 
-    zcat !{fastq2} | \
-    split -l !{numberOfLinesPerSplit} -a 4 --additional-suffix _2.fq - !{name}/!{name}_
-    '''
+    zcat ${reads[1]} | \
+    split -l ${numberOfLinesPerSplit} -a 4 --additional-suffix _2.fq - ${meta.id}/${meta.id}_
+    """
 }

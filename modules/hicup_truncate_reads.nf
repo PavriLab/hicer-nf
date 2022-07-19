@@ -1,21 +1,21 @@
 process HICUP_TRUNCATE_READS {
 
-    tag { splitName }
+    tag "$meta.id"
 
     input:
-    tuple val(splitName), file(fastqSplitPairs) from truncaterInputChannel
+    tuple val(meta), path(reads)
 
     output:
-    tuple val(splitName), file("${splitName}/${splitName}_*.trunc.fastq") into resultsHicupTruncater
-    tuple val(splitName), file("${splitName}/*summary*.txt") into hicupTruncaterReportChannel
+    tuple val(meta), file("${meta.id}_*.trunc.fastq"),  emit: reads
+    tuple val(meta), file("*summary*.txt"),             emit: reports
 
-    shell:
-    '''
-    mkdir !{splitName}
-    hicup_truncater --outdir !{splitName} \
-                    --threads !{task.cpus} \
-                    --re1 !{params.re} \
-                    !{fastqSplitPairs[0]} \
-                    !{fastqSplitPairs[1]}
-    '''
+    script:
+    """
+    hicup_truncater \
+        --outdir ${meta.id} \
+        --threads ${task.cpus} \
+        --re1 ${params.re} \
+        ${reads[0]} \
+        ${reads[1]}
+    """
 }

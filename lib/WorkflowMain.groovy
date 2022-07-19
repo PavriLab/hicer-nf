@@ -61,47 +61,6 @@ class WorkflowMain {
     }
 
     //
-    // Print parameter summary log to screen
-    //
-    public static void paramsSummaryLog(params, log) {
-        if (params.re) {
-            log.info ""
-            log.info " parameters "
-            log.info " ======================"
-            log.info " Samples List             : ${params.samples}"
-            log.info " Resolutions              : ${resolutions}"
-            log.info " baseResolution           : ${baseResolution}"
-            log.info " re                       : ${params.re}"
-            log.info " Genome                   : ${genomeName}"
-            log.info " Genome Size              : ${genomeSizeType}"
-            log.info " Fasta                    : ${fastaFile}"
-            log.info " ChromSizes               : ${chromSizesFile}"
-            log.info " Bowtie2 Index            : ${bowtie2IndexFile}"
-            log.info " HICUP Digest             : ${hicupDigestFile}"
-            log.info " Output Directory         : ${params.outputDir}"
-            log.info " ======================"
-            log.info ""
-
-        } else {
-            log.info ""
-            log.info " parameters "
-            log.info " ======================"
-            log.info " Samples List             : ${params.samples}"
-            log.info " Resolutions              : ${resolutions}"
-            log.info " baseResolution           : ${baseResolution}"
-            log.info " minMapDistance           : ${params.minMapDistance}"
-            log.info " Genome                   : ${genomeName}"
-            log.info " Genome Size              : ${genomeSizeType}"
-            log.info " Fasta                    : ${fastaFile}"
-            log.info " ChromSizes               : ${chromSizesFile}"
-            log.info " Bowtie2 Index            : ${bowtie2IndexFile}"
-            log.info " Output Directory         : ${params.outputDir}"
-            log.info " ======================"
-            log.info ""
-        }
-    }
-
-    //
     // Validate parameters and print summary to screen
     //
     public static void initialise(workflow, params, log) {

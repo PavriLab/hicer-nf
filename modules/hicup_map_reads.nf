@@ -1,25 +1,27 @@
 process HICUP_MAP_READS {
 
-    tag { splitName }
+    tag "$meta.id"
     memory = { genomeSizeType == 'large' ? 80.GB * task.attempt : 20.GB * task.attempt }
 
     input:
-    tuple val(splitName), file(fastqTruncPairs) from resultsHicupTruncater
-    file(index) from bowtie2Index.collect()
+    tuple val(meta), path(reads)
+    file(index)
+    val(genomeSizeType)
 
     output:
-    tuple val(splitName), file("${splitName}/${splitName}_1_2.pair.sam") into resultsHicupMapper
-    tuple val(splitName), file("${splitName}/*summary*.txt") into hicupMapperReportChannel
+    tuple val(meta), file("${meta.id}/${meta.id}_1_2.pair.sam"),    emit: alignments
+    tuple val(meta), file("${meta.id}/*summary*.txt"),              emit: reports
 
-    shell:
-    '''
-    mkdir !{splitName}
-    hicup_mapper --outdir !{splitName} \
-                 --threads !{task.cpus} \
-                 --format Sanger \
-                 --index !{index}/!{bwt2_base} \
-                 --bowtie2 $(which bowtie2) \
-                 !{fastqTruncPairs[0]} \
-                 !{fastqTruncPairs[1]}
-    '''
+    script:
+    """
+    mkdir ${meta.id}
+    hicup_mapper \
+        --outdir ${meta.id} \
+        --threads ${task.cpus} \
+        --format Sanger \
+        --index ${index}/${bwt2_base} \
+        --bowtie2 $(which bowtie2) \
+        ${reads[0]} \
+        ${reads[1]}
+    """
 }

@@ -62,6 +62,64 @@ class WorkflowHicer {
         return val
     }
 
+    //
+    // Compute genome length to determine resource needs
+    // larger genomes usually need more resources
+    //
+    public static String getGenomeSizeType(chromSizesFile) {
+        genomeSize = 0
+        if (chromSizesFile.endsWith('xml')) {
+              def parser = new XmlParser()
+              result = parser.parse( chromSizesFile )
+              result
+                  .children()
+                  .each{ genomeSize += it.@totalBases.toLong() }
+
+        } else {
+              file( chromSizesFile ).eachLine{ str -> genomeSize += str.split('\t')[1].toLong() }
+        }
+
+        genomeSizeType = genomeSize > 4000000000 ? "large" : "small"
+        return genomeSizeType
+    }
+
+    //
+    // Print parameter summary log to screen
+    //
+    public static void paramsSummaryLog(params, dynamic, log) {
+        log.info ""
+        log.info " parameters "
+        log.info " ======================"
+        log.info " Samples List             : ${params.input}"
+        log.info " Resolutions              : ${dynamic.resolutions}"
+        log.info " baseResolution           : ${dynamic.baseResolution}"
+        if (params.re) {
+            log.info " re                       : ${params.re}"
+
+        } else {
+            log.info " minMapDistance           : ${params.minMapDistance}"
+        }
+
+        log.info " Genome                   : ${dynamic.genomeName}"
+        log.info " Genome Size              : ${dynamic.genomeSizeType}"
+        log.info " Fasta                    : ${dynamic.genomeFasta}"
+        log.info " ChromSizes               : ${dynamic.genomeSizes}"
+        log.info " Bowtie2 Index            : ${dynamic.bowtie2Index}"
+        log.info " Output Directory         : ${params.outputDir}"
+        log.info " ======================"
+        log.info ""
+    }
+
+    public static ArrayList distributeMeta(tuple) {
+        meta    = tuple[0]
+        files   = tuple[1]
+        distributed = []
+        for (file in files) {
+            distributed.add( [ meta, file ] )
+        }
+        return distributed
+    }
+
     // private methods
     //
     // check if specified genome exists

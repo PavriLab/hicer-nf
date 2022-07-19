@@ -1,28 +1,26 @@
 process HICUP_FILTER_PAIRS {
 
-    tag { splitName }
+    tag "$meta.id"
     memory = { genomeSizeType == 'large' ? 40.GB * task.attempt : 10.GB * task.attempt }
 
     input:
-    tuple val(splitName), file(splitSam) from resultsHicupMapper
-    file(digest) from hicupDigestIndex.collect()
+    tuple val(meta), file(alignments)
+    file(digest)
 
     output:
-    file("${splitName}/${splitName}_1_2.filt.sam") into resultsHicupFilter
-    tuple val(splitName), file("${splitName}/*summary*.txt"), file("${splitName}/*.ditag_size_distribution") into hicupFilterReportChannel
+    tuple val(meta), file("${meta.id}_1_2.filt.sam"),                           emit: alignments
+    tuple val(meta), file("*summary*.txt"), file("*.ditag_size_distribution"),  emit: reports
 
-    shell:
+    script:
     bin = "${NXF_HOME}/assets/pavrilab/hicer-nf/bin"
-    '''
-    mkdir !{splitName}
-
+    """
     # set PERL5LIB to make hicup_module.pm available for modified hicup_filter
     LINK=$(which hicup)
     HICUPPATH=$(readlink -f $LINK)
     export PERL5LIB="$(dirname $HICUPPATH)"
 
-    !{bin}/hicup_filter --outdir !{splitName} \
-                        --digest !{digest} \
-                        !{splitSam}
-    '''
+    ${bin}/hicup_filter --outdir ${meta.id} \
+                        --digest ${digest} \
+                        ${alignments}
+    """
 }

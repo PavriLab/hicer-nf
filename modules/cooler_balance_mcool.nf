@@ -1,21 +1,20 @@
 process BALANCE_MCOOL {
 
-    publishDir  path: "${params.outputDir}/${name}/matrices/",
+    tag "$meta.id"
+
+    publishDir  path: "${params.outputDir}/${meta.id}/matrices/",
                 mode: 'copy',
                 overwrite: 'true',
-                pattern: "${name}.mcool"
-
-    tag { name }
+                pattern: "${meta.id}.mcool"
 
     input:
-    tuple val(name), file(mcool) from resultsZoomifyBase
+    tuple val(meta), file(mcool)
 
     output:
-    tuple val(name), file("${mcool}") into resultsMcoolNormalizer
+    tuple val(meta), file("${mcool}"), emit: matrix
 
-    shell:
-
-    '''
-    balanceMultiCooler.py -m !{mcool} -p !{task.cpus}
-    '''
+    script:
+    """
+    balanceMultiCooler.py -m ${mcool} -p ${task.cpus}
+    """
 }

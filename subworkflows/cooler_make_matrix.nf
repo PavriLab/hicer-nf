@@ -3,15 +3,26 @@ include { MAKE_MCOOL       } from '../modules/cooler_make_mcool.nf'
 include { BALANCE_MCOOL    } from '../modules/cooler_balance_mcool.nf'
 
 workflow COOLER_MAKE_MATRIX {
-  take:
-  ch_pairs
+    take:
+    ch_pairs
+    genomeName
+    baseResolution
+    resolutions
+    genomeSizes
 
-  main:
-  ch_pairs | \
-  MAKE_BASE_MATRIX | \
-  MAKE_MCOOL | \
-  BALANCE_MCOOL
+    main:
+    MAKE_BASE_MATRIX (
+        ch_pairs,
+        genomeSizes,
+        genomeName,
+        baseResolution
+    )
 
-  emit:
-  
+    MAKE_MCOOL (
+        MAKE_BASE_MATRIX.out.matrix
+    )
+
+    BALANCE_MCOOL (
+        MAKE_MCOOL.out.matrix
+    )
 }

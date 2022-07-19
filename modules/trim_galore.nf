@@ -1,39 +1,39 @@
 process TRIM_GALORE {
 
-    tag { parameters.name }
+    tag "$meta.id"
 
     input:
-    val(parameters) from samplesChannel
+    tuple val(meta), path(reads)
 
     output:
-    file "${parameters.name}/*_fastqc.{zip,html}" into fastqcResults
-    file "${parameters.name}/*trimming_report.txt" into trimgaloreResults
-    tuple val("${parameters.name}"), file("${parameters.name}/*_trimmed_val_1.fq.gz"), file("${parameters.name}/*_trimmed_val_2.fq.gz") into resultsTrimming
+    file "*fastqc.{zip,html}",                      emit: fastqc
+    file "*trimming_report.txt",                    emit: reports
+    tuple val(meta), path("*_trimmed_val_*.fq.gz"), emit: reads
 
-    shell:
-    lastPath = parameters.read1.lastIndexOf(File.separator)
-    read1Base = parameters.read1.substring(lastPath+1)
-    lastPath = parameters.read2.lastIndexOf(File.separator)
-    read2Base = parameters.read2.substring(lastPath+1)
-    trimDir = parameters.name
+    script:
+    read1       = reads[0]
+    read2       = reads[1]
+    lastPath    = read1.lastIndexOf(File.separator)
+    read1Base   = read1.substring(lastPath+1)
+    lastPath    = read2.lastIndexOf(File.separator)
+    read2Base   = read2.substring(lastPath+1)
+
 
     """
-    mkdir -p !{parameters.name}
-
     trim_galore --paired \
                 --quality 20 \
                 --fastqc \
                 --illumina \
                 --gzip \
-                --output_dir !{parameters.name} \
-                --basename !{parameters.name}_trimmed \
-                --cores !{task.cpus} \
-                !{parameters.read1} \
-                !{parameters.read2}
+                --output_dir ${meta.id} \
+                --basename ${meta.id}_trimmed \
+                --cores ${task.cpus} \
+                ${read1} \
+                ${read2}
 
-    mv !{trimDir}/!{read1Base}_trimming_report.txt !{trimDir}/!{parameters.name}_trimmed_val_1.fq.gz_trimming_report.txt
-    sed -i 's/Command line parameters:.*\$/Command line parameters: !{parameters.name}_trimmed_val_1/g' !{trimDir}/!{parameters.name}_trimmed_val_1.fq.gz_trimming_report.txt
-    mv !{trimDir}/!{read2Base}_trimming_report.txt !{trimDir}/!{parameters.name}_trimmed_val_2.fq.gz_trimming_report.txt
-    sed -i 's/Command line parameters:.*\$/Command line parameters: !{parameters.name}_trimmed_val_2/g' !{trimDir}/!{parameters.name}_trimmed_val_2.fq.gz_trimming_report.txt
+    mv ${read1Base}_trimming_report.txt ${parameters.name}_trimmed_val_1.fq.gz_trimming_report.txt
+    sed -i 's/Command line parameters:.*\$/Command line parameters: ${meta.id}_trimmed_val_1/g' ${meta.id}_trimmed_val_1.fq.gz_trimming_report.txt
+    mv ${read2Base}_trimming_report.txt ${meta.id}_trimmed_val_2.fq.gz_trimming_report.txt
+    sed -i 's/Command line parameters:.*\$/Command line parameters: ${meta.id}_trimmed_val_2/g' ${meta.id}_trimmed_val_2.fq.gz_trimming_report.txt
     """
 }
