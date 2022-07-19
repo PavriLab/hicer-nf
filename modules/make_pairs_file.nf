@@ -39,7 +39,7 @@ process MAKE_PAIRS_FILE {
     # add generic header to make pairix compatible with juicer prefix
     echo "## pairs format v1.0" > !{meta.id}.pairs
     echo "#columns: readID chr1 pos1 chr2 pos2 strand1 strand2" >> !{meta.id}.pairs
-    zcat !{meta.id}/!{meta.id}.pairs.tmp.blksrt.gz >> !{meta.id}.pairs
+    zcat !{meta.id}.pairs.tmp.blksrt.gz >> !{meta.id}.pairs
 
     bgzip !{meta.id}.pairs
     pairix -p pairs !{meta.id}.pairs.gz
