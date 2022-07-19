@@ -12,16 +12,16 @@ process HICUP_MAP_READS {
     tuple val(meta), file("${meta.id}/${meta.id}_1_2.pair.sam"),    emit: alignments
     tuple val(meta), file("${meta.id}/*summary*.txt"),              emit: reports
 
-    script:
+    shell:
     """
-    mkdir ${meta.id}
+    mkdir !{meta.id}
     hicup_mapper \
-        --outdir ${meta.id} \
-        --threads ${task.cpus} \
+        --outdir !{meta.id} \
+        --threads !{task.cpus} \
         --format Sanger \
-        --index ${index}/${bwt2_base} \
+        --index !{index} \
         --bowtie2 $(which bowtie2) \
-        ${reads[0]} \
-        ${reads[1]}
+        !{reads[0]} \
+        !{reads[1]}
     """
 }
