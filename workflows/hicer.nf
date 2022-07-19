@@ -140,7 +140,6 @@ workflow HICER {
 
     // concatenate fastqs of samples with multiple readfiles
     CAT_FASTQ ( ch_fastq.multiple )
-        .out
         .reads
         .mix ( ch_fastq.single )
         .set { ch_cat_fastq }
