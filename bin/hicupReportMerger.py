@@ -106,8 +106,6 @@ def initialize_frame(processedFilePrefix, reportType):
 
 
 def sum_frames(df1, df2):
-    print(df1)
-    print(df2)
     for idx, row in df1.iterrows():
         if idx == 'dummy':
             continue
@@ -352,6 +350,8 @@ for idx, row in map_df.iterrows():
             map_df.loc[idx, f'%{column}'] = round(row[column] / row['Total_reads_processed'] * 100, 2)
 
 statFrames['mapper'] = map_df
+
+print(statFrames['deduplicator'])
 
 d = dict(
     INPUT_FILENAME = args.prefix,
