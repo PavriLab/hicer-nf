@@ -3,7 +3,7 @@ process PSEUDO_TRUNCATE_READS {
     tag "$meta.id"
 
     input:
-    tuple val(meta.id), file(reads)
+    tuple val(meta), file(reads)
 
     output:
     tuple val(meta), file("${meta.id}_*.trunc.fastq"),  emit: reads
