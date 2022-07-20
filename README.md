@@ -38,7 +38,7 @@ iv. Read the `Tips for a smooth user experience` right below this section
 v. Start running your own analysis!
 
 ```bash
-# if you have specified an igenomes directory from or run a profile from any of the institutions 
+# if you have specified an igenomes directory from or run a profile from any of the institutions
 # listed here https://raw.githubusercontent.com/nf-core/configs/master/nfcore_custom.config
 nextflow run pavrilab/hicer-nf --input samples.txt --genome mm9 --re ^GATC,MboI
 
@@ -203,7 +203,7 @@ cat chrom.sizes.xml
 
 <sequenceSizes genomeName="genome">
         <chromosome fileName="genome.fa" contigName="chr1" totalBases="10000" isCircular="false" md5="be7e6a13cc6b9da7c1da7b7fc32c5506" ploidy="2" knownBases="126847849" />
-        <chromosome fileName="genome.fa" contigName="chr2" totalBases="30499" isCircular="false" 
+        <chromosome fileName="genome.fa" contigName="chr2" totalBases="30499" isCircular="false"
 </sequenceSizes>
 ```
 
@@ -227,12 +227,12 @@ By default, the pipeline computes matrices and normalizations thereof for resolu
 
 This parameter specifies the minimum mapping distance of two reads of a pair and is only used when processing micro-C or similar data to filter out closely mapping pairs that are thought to belong to the same or adjacent fragments. By default this parameter is set to 500bp (roughly two nucleosomes).
 
-#### `--outputDir`
+#### `--outdir`
 
 Name of the folder to which the output will be saved (default: results)
 
 ```bash
---outputDir '[directory name]'
+--outdir '[directory name]'
 ```
 
 
@@ -253,7 +253,7 @@ Many thanks to others who have helped out along the way too, including (but not 
 
 * [Bowtie 2](https://www.ncbi.nlm.nih.gov/pubmed/22388286/)
   > Langmead B, Salzberg SL. Fast gapped-read alignment with Bowtie 2. Nat Methods. 2012 Mar 4;9(4):357-9. doi: 10.1038/nmeth.1923. PubMed PMID: 22388286; PubMed Central PMCID: PMC3322381.
-  
+
 * [Juicer](https://www.cell.com/cell-systems/fulltext/S2405-4712%2816%2930219-8)
   > Neva C. Durand, Muhammad S. Shamim, Ido Machol, Suhas S. P. Rao, Miriam H. Huntley, Eric S. Lander, and Erez Lieberman Aiden. "Juicer provides a one-click system for analyzing loop-resolution Hi-C experiments." Cell Systems 3(1), 2016. doi: 10.1016/j.cels.2016.07.002
 
@@ -279,19 +279,19 @@ Many thanks to others who have helped out along the way too, including (but not 
 
 * [pandas](https://pandas.pydata.org/docs/index.html)
   > Wes McKinney. Data Structures for Statistical Computing in Python, Proceedings of the 9th Python in Science Conference, 51-56 (2010)
-  
+
 * [cooler](https://cooler.readthedocs.io/en/latest/)
   > Nezar Abdennur, Leonid A Mirny, Cooler: scalable storage for Hi-C data and other genomically labeled arrays, Bioinformatics, Volume 36, Issue 1, 1 January 2020, Pages 311–316. doi: 10.1093/bioinformatics/btz540
-  
+
 * [numpy](https://numpy.org/)
   > Stéfan van der Walt, S. Chris Colbert and Gaël Varoquaux. The NumPy Array: A Structure for Efficient Numerical Computation, Computing in Science & Engineering, 13, 22-30 (2011). doi: 10.1109/MCSE.2011.37
-  
+
 * [scipy](https://www.scipy.org/)
   > Virtanen, P., Gommers, R., Oliphant, T.E. et al. SciPy 1.0: fundamental algorithms for scientific computing in Python. Nat Methods 17, 261–272 (2020). doi: 10.1038/s41592-019-0686-2
-  
+
 * [pysam](https://pysam.readthedocs.io/en/latest/index.html)
   > Li H, Handsaker B, Wysoker A, Fennell T, Ruan J, Homer N, Marth G, Abecasis G, Durbin R; 1000 Genome Project Data Processing Subgroup. The Sequence Alignment/Map format and SAMtools. Bioinformatics. 2009 Aug 15;25(16):2078-9. doi: 10.1093/bioinformatics/btp352. Epub 2009 Jun 8. PubMed PMID: 19505943; PubMed Central PMCID: PMC2723002.
-  
+
 * [h5py](https://github.com/h5py/h5py)
 
 ### Software packaging/containerisation tools

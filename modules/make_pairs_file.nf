@@ -1,17 +1,7 @@
 process MAKE_PAIRS_FILE {
 
     tag "$meta.id"
-
-    publishDir path: "${params.outputDir}/${meta.id}/pairs/",
-               mode: 'copy',
-               overwrite: 'true',
-               pattern: "*pairs.gz*",
-               saveAs: {
-                   filename ->
-                       if (file.endsWith(".pairs.gz")) file(file).getName()
-                       else if (file.endsWith(".pairs.gz.px2")) file(file).getName()
-               }
-
+    
     input:
     tuple val(meta), file(alignments)
     file(genomeSizes)

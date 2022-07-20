@@ -2,15 +2,6 @@ process HICUP_GENERATE_REPORT {
 
     tag "$meta.id"
 
-    publishDir path: "${params.outputDir}/${meta.id}/QC/",
-               mode: 'copy',
-               overwrite: 'true',
-               pattern: "${meta.id}/*html",
-               saveAs: {
-                   outfile ->
-                        if (outfile.endsWith(".html")) file(outfile).getName()
-               }
-
     input:
     tuple val(meta), file(reports)
 

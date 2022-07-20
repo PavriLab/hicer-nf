@@ -2,15 +2,6 @@ process MAKE_MATRIX {
 
     tag "$meta.id"
 
-    publishDir path: "${params.outputDir}/${meta.id}/matrices/",
-               mode: 'copy',
-               overwrite: 'true',
-               pattern: "*.hic",
-               saveAs: {
-                   filename ->
-                      if (file.endsWith(".hic")) file(file).getName()
-               }
-
     when:
     !params.skip_juicer
 

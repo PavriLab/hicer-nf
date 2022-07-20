@@ -2,10 +2,6 @@ process MULTIQC {
 
     tag "multiqc"
 
-    publishDir path: "${params.outputDir}",
-               mode: 'copy',
-               overwrite: 'true'
-
     input:
     file (fastqc: 'fastqc/*')
     file (trim: 'trim/*')
