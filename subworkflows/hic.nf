@@ -47,7 +47,7 @@ workflow HIC {
         .map {
             meta, file ->
                 def meta_clone = meta.clone()
-                meta_clone.id = file.name.toString - ~/(_1_2\.filt\.sam)?$/
+                meta_clone.id = file.name.toString() - ~/(_1_2\.filt\.sam)?$/
                 [ meta_clone, file ]
         }
         .set { ch_resplit_pairs }
