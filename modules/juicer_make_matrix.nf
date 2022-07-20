@@ -15,7 +15,7 @@ process MAKE_MATRIX {
     !params.skip_juicer
 
     input:
-    tuple val(meta), path(pairs) from resultsPairixJuicer
+    tuple val(meta), path(pairs)
     file(genomeSizes)
     val(resolutions)
 
