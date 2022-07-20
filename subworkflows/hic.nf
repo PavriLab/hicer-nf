@@ -39,13 +39,13 @@ workflow HIC {
         .groupTuple (by: [0])
         .set { ch_filtered_pairs }
 
-    // RESPLIT_FILTERED_PAIRS ( ch_filtered_pairs )
-    //     .alignments
-    //     .map { WorkflowHicer.distributeMetaSingle( it ) }
-    //     .flatten ()
-    //     .collate ( 2 )
-    //     .set { ch_resplit_pairs }
-    //
+    RESPLIT_FILTERED_PAIRS ( ch_filtered_pairs )
+        .alignments
+        .map { WorkflowHicer.distributeMetaSingle( it ) }
+        .flatten ()
+        .collate ( 2 )
+        .set { ch_resplit_pairs }
+
     // HICUP_DEDUPLICATE_PAIRS ( ch_resplit_pairs )
     //     .alignments
     //     .groupTuple(by: [0])
