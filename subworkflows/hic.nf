@@ -31,14 +31,14 @@ workflow HIC {
         .out
         .alignments
         .map { println( it ) }
-        .map {
-            meta, file ->
-                def meta_clone = meta.clone()
-                meta_clone.id = file.name.toString() - ~/(_[a-z]{4}_1_2\.filt\.sam)?$/
-                [ meta, file ]
-        }
-        .groupTuple (by: [0])
-        .set { ch_filtered_pairs }
+        // .map {
+        //     meta, file ->
+        //         def meta_clone = meta.clone()
+        //         meta_clone.id = file.name.toString() - ~/(_[a-z]{4}_1_2\.filt\.sam)?$/
+        //         [ meta, file ]
+        // }
+        // .groupTuple (by: [0])
+        // .set { ch_filtered_pairs }
 
     RESPLIT_FILTERED_PAIRS ( ch_filtered_pairs )
         .alignments

@@ -8,8 +8,8 @@ process HICUP_FILTER_PAIRS {
     file(digest)
 
     output:
-    tuple val(meta), path("${meta.id}_1_2.filt.sam"),                           emit: alignments
-    tuple val(meta), path("*summary*.txt"), path("*.ditag_size_distribution"),  emit: reports
+    tuple val(meta), file("${meta.id}_1_2.filt.sam"),                           emit: alignments
+    tuple val(meta), file("*summary*.txt"), file("*.ditag_size_distribution"),  emit: reports
 
     shell:
     bin = "${NXF_HOME}/assets/pavrilab/hicer-nf/bin"
