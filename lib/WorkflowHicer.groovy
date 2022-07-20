@@ -100,7 +100,7 @@ class WorkflowHicer {
         log.info " Fasta                    : ${dynamic.genomeFasta}"
         log.info " ChromSizes               : ${dynamic.genomeSizes}"
         log.info " Bowtie2 Index            : ${dynamic.bowtie2Index}"
-        log.info " Output Directory         : ${params.outputDir}"
+        log.info " Output Directory         : ${params.outdir}"
         log.info " ======================"
         log.info ""
     }
