@@ -9,3 +9,5 @@ Minor changes:
 - change input format from tsv to csv to avoid problems with tabs and spaces when copying lines
 - change params.outputDir to params.outdir
 - drop sample specific output tree in favour of modules.config opportunities
+- improve linting
+- fix issue in which low coverage samples generate faulty report
