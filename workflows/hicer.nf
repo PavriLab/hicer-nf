@@ -164,6 +164,8 @@ workflow HICER {
         .set { ch_trim_fastq }
 
     // splitting fastqs for HICUP parallelization
+    // flatten().collate() relies on the fact that each file is interspersed
+    // by a meta object after the first map invocation
     SPLIT_FASTQ ( ch_trim_fastq )
         .reads
         .map { WorkflowHicer.distributeMetaSingle( it ) }
