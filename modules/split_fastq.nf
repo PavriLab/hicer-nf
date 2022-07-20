@@ -9,7 +9,7 @@ process SPLIT_FASTQ {
     tuple val(meta), path("${meta.id}/${meta.id}_*"), emit: reads
 
     script:
-    numberOfLinesPerSplit = params.readsPerSplit.toInteger() * 4
+    def numberOfLinesPerSplit = params.readsPerSplit.toInteger() * 4
 
     """
     mkdir ${meta.id}

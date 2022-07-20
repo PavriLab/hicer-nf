@@ -3,14 +3,14 @@ process HICUP_DEDUPLICATE_PAIRS {
     tag "$meta.id"
 
     input:
-    tuple val(meta), file(alignments)
+    tuple val(meta), path(alignments)
 
     output:
     tuple val(meta) file("${resplitName}/${resplitName}_1_2.dedup.sam"), emit: alignments
     tuple val(resplitName), file("${resplitName}/*summary*.txt"),        emit: reports
 
     script:
-    resplitName = alignments.getName() - ~/(_1_2\.filt\.sam)?$/
+    def resplitName = alignments.name - ~/(_1_2\.filt\.sam)?$/
 
     """
     mkdir ${resplitName}
