@@ -169,15 +169,14 @@ workflow HICER {
         .map { WorkflowHicer.distributeMetaSingle( it ) }
         .flatten ()
         .collate ( 2 )
-        .map { println( it ) }
-        // .map {
-        //     meta, files ->
-        //         def clone_meta = meta.clone()
-        //         clone_meta.id = files[0].name.toString() - ~/(_[12]\.fq)?$/
-        //         [ clone_meta, files ]
-        // }
-        // .groupTuple (by: [0])
-        // .set { ch_split_fastq }
+        .map {
+            meta, files ->
+                def clone_meta = meta.clone()
+                clone_meta.id = files[0].name.toString() - ~/(_[12]\.fq)?$/
+                [ clone_meta, files ]
+        }
+        .groupTuple (by: [0])
+        .set { ch_split_fastq }
     //
     // if (params.re) {
     //     ch_hicup = HIC (
