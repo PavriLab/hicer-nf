@@ -175,7 +175,7 @@ workflow HICER {
             meta, file ->
                 def meta_clone = meta.clone()
                 meta_clone.id = file.name.toString() - ~/(_[12]\.fq)?$/
-                [ clone_meta, file ]
+                [ meta_clone, file ]
         }
         .groupTuple (by: [0])
         .set { ch_split_fastq }
