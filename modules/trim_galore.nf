@@ -17,14 +17,14 @@ process TRIM_GALORE {
                 --fastqc \
                 --illumina \
                 --gzip \
-                --output_dir !{meta.id} \
+                --output_dir . \
                 --basename !{meta.id}_trimmed \
                 --cores !{task.cpus} \
                 !{reads}
 
-    mv !{meta.id}/!{reads[0].name}_trimming_report.txt !{meta.id}_trimmed_val_1.fq.gz_trimming_report.txt
+    mv !{reads[0].name}_trimming_report.txt !{meta.id}_trimmed_val_1.fq.gz_trimming_report.txt
     sed -i 's/Command line parameters:.*\$/Command line parameters: !{meta.id}_trimmed_val_1/g' !{meta.id}_trimmed_val_1.fq.gz_trimming_report.txt
-    mv !{meta.id}/!{reads[1].name}_trimming_report.txt !{meta.id}_trimmed_val_2.fq.gz_trimming_report.txt
+    mv !{reads[1].name}_trimming_report.txt !{meta.id}_trimmed_val_2.fq.gz_trimming_report.txt
     sed -i 's/Command line parameters:.*\$/Command line parameters: !{meta.id}_trimmed_val_2/g' !{meta.id}_trimmed_val_2.fq.gz_trimming_report.txt
     '''
 }
