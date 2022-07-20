@@ -59,9 +59,9 @@ workflow MICROC {
     CAT_SAM ( ch_cat_sam )
 
     GENERATE_HICUP_REPORT (
-        HICUP_TRUNCATE_READS.out.reports,
+        PSEUDO_TRUNCATE_READS.out.reports,
         HICUP_MAP_READS.out.reports,
-        HICUP_FILTER_PAIRS.out.reports,
+        SIZE_FILTER_PAIRS.out.reports,
         HICUP_DEDUPLICATE_PAIRS.out.reports
     )
 
