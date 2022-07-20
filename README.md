@@ -1,6 +1,6 @@
 # hicer-nf
 
-[![Nextflow](https://img.shields.io/badge/nextflow%20DSL2-%E2%89%A521.10.3-23aa62.svg)](https://www.nextflow.io/)
+[![Nextflow](https://img.shields.io/badge/nextflow%20DSL2-%E2%89%A521.10.3-23aa62.svg)](https://www.nextflow.io/) [![DOI](https://zenodo.org/badge/225567013.svg)](https://zenodo.org/badge/latestdoi/225567013)
 
 ## Introduction
 
