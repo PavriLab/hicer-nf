@@ -165,7 +165,6 @@ workflow HICER {
 
     // splitting fastqs for HICUP parallelization
     SPLIT_FASTQ ( ch_trim_fastq )
-        .out
         .reads
         .map { WorkflowHicer.distributeMeta( it ) }
         .map {
