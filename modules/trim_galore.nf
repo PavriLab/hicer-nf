@@ -11,13 +11,6 @@ process TRIM_GALORE {
     path "*trimming_report.txt",                    emit: reports
 
     shell:
-    read1       = reads[0]
-    read2       = reads[1]
-    lastPath    = read1.lastIndexOf(File.separator)
-    read1Base   = read1.substring(lastPath+1)
-    lastPath    = read2.lastIndexOf(File.separator)
-    read2Base   = read2.substring(lastPath+1)
-
     '''
     trim_galore --paired \
                 --quality 20 \
@@ -27,12 +20,11 @@ process TRIM_GALORE {
                 --output_dir !{meta.id} \
                 --basename !{meta.id}_trimmed \
                 --cores !{task.cpus} \
-                !{read1} \
-                !{read2}
+                !{reads}
 
-    mv !{read1Base}_trimming_report.txt !{meta.id}_trimmed_val_1.fq.gz_trimming_report.txt
+    mv !{reads[0].name.toString()}_trimming_report.txt !{meta.id}_trimmed_val_1.fq.gz_trimming_report.txt
     sed -i 's/Command line parameters:.*\$/Command line parameters: !{meta.id}_trimmed_val_1/g' !{meta.id}_trimmed_val_1.fq.gz_trimming_report.txt
-    mv !{read2Base}_trimming_report.txt !{meta.id}_trimmed_val_2.fq.gz_trimming_report.txt
+    mv !{reads[1].name.toString}_trimming_report.txt !{meta.id}_trimmed_val_2.fq.gz_trimming_report.txt
     sed -i 's/Command line parameters:.*\$/Command line parameters: !{meta.id}_trimmed_val_2/g' !{meta.id}_trimmed_val_2.fq.gz_trimming_report.txt
     '''
 }
