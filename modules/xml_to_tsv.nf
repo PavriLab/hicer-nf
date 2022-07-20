@@ -6,7 +6,7 @@ process XML_TO_TSV {
       file(chromSizeXML)
 
       output:
-      path()"chromSizes.tsv"), emit: sizes
+      path("chromSizes.tsv"), emit: sizes
 
       script:
       """
