@@ -107,8 +107,8 @@ def initialize_frame(processedFilePrefix, reportType):
 
 def sum_frames(df1, df2):
     for idx, row in df1.iterrows():
-        if idx == 'dummy':
-            continue
+        # if idx == 'dummy':
+        #     continue
 
         for column in df1.columns:
             if column == 'File':
