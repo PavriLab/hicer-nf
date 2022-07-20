@@ -12,6 +12,7 @@ workflow PREPARE_GENOME {
 
     // Uncompress genome fasta file if required
     if (params.fasta.endsWith('.gz')) {
+        println(dynamic_params.genomeFasta)
         ch_fasta = GUNZIP_FASTA ( dynamic_params.genomeFasta )
 
     } else {
