@@ -105,14 +105,13 @@ class WorkflowHicer {
         log.info ""
     }
 
-    public static ArrayList distributeMeta(tuple) {
-        def meta    = tuple[0]
-        def files   = tuple[1]
-        def distributed = []
-        for (file in files) {
-            distributed.add( [ meta, file ] )
-        }
-        return distributed
+    public static ArrayList distributeMetaSingle(tuple) {
+        return distributeMeta(tuple)
+    }
+
+    public static ArrayList distributeMetaPaired(tuple) {
+        def transformed_tuple = [ tuple[0], pairFiles(tuple[1]) ]
+        return distributeMeta(transformed_tuple)
     }
 
     // private methods
@@ -129,4 +128,28 @@ class WorkflowHicer {
             System.exit(1)
         }
     }
+
+    //
+    // distributes meta to all items in a collection
+    //
+    private static ArrayList distributeMeta(tuple) {
+        def meta    = tuple[0]
+        def items   = tuple[1]
+        def distributed = []
+        for (item in items) {
+            distributed.add( [ meta, item ] )
+        }
+        return distributed
+    }
+
+    //
+    // paires up files in a list of files where two successive files are a pair
+    //
+    private static ArrayList pairFiles(files) {
+        def read1 = []
+        def read2 = []
+        files.eachWithIndex { v, ix -> ( ix & 1 ? read2 : read1 ) << v }
+        return [read1, read2].transpose()
+    }
+
 }

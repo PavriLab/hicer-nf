@@ -41,7 +41,7 @@ workflow MICROC {
     RESPLIT_FILTERED_PAIRS ( ch_filtered_pairs )
 
     RESPLIT_FILTERED_PAIRS.out.alignments
-        .map { WorkflowHicer.distributeMeta( it ) }
+        .map { WorkflowHicer.distributeMetaSingle( it ) }
         .flatten()
         .set { ch_resplit_pairs }
 

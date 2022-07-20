@@ -44,7 +44,7 @@ workflow HIC {
     RESPLIT_FILTERED_PAIRS
         .out
         .alignments
-        .map { WorkflowHicer.distributeMeta( it ) }
+        .map { WorkflowHicer.distributeMetaSingle( it ) }
         .flatten()
         .set { ch_resplit_pairs }
 
