@@ -13,7 +13,6 @@ process HICUP_GENERATE_REPORT {
     def resourceDir = "${NXF_HOME}/assets/pavrilab/hicer-nf/resource"
 
     """
-    mkdir ${meta.id}
     hicupReportMerger.py \
         -o . \
         ${reports} \

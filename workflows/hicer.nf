@@ -225,7 +225,3 @@ workflow HICER {
         ch_hicup.multiqc.collect()
     )
 }
-
-workflow.onComplete {
-	println ( workflow.success ? "COMPLETED!" : "FAILED" )
-}

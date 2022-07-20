@@ -83,12 +83,14 @@ def balance_kr(cooleruri, per_chrom = False):
     csrmatrix = cooler2csr(cooleruri)
 
     def apply_kr(m):
-        kr = kr_balancing(m.shape[0],
-                          m.shape[1],
-                          m.count_nonzero(),
-                          m.indptr.astype(np.int64, copy=False),
-                          m.indices.astype(np.int64, copy=False),
-                          m.data.astype(np.float64, copy=False))
+        kr = kr_balancing(
+            m.shape[0],
+            m.shape[1],
+            m.count_nonzero(),
+            m.indptr.astype(np.int64, copy=False),
+            m.indices.astype(np.int64, copy=False),
+            m.data.astype(np.float64, copy=False)
+        )
         kr.computeKR()
 
         # set it to False since the vector is already normalised
@@ -146,7 +148,8 @@ def balance_ic(cooleruri, nproc, per_chrom):
             ignore_diags=2,
             rescale_marginals=True,
             use_lock=False,
-            map=map_)
+            map=map_
+        )
 
     finally:
         if nproc > 1:
@@ -238,18 +241,32 @@ def rename_weights(cooleruri, name_map):
             del grp['bins'][old_name]
 
 
-logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO)
+logging.basicConfig(
+    format='%(asctime)s - %(message)s',
+    level=logging.INFO
+)
 parser = ap.ArgumentParser()
-parser.add_argument('-m', '--mcool', required = True,
-                    help = 'MultiCooler file to balance')
-parser.add_argument('-p', '--processors', default = 1, type = int,
-                    help = 'number of processors to use for IC balancing')
+parser.add_argument(
+    '-m', '--mcool',
+    required = True,
+    help = 'MultiCooler file to balance'
+)
+parser.add_argument(
+    '-p', '--processors',
+    default = 1,
+    type = int,
+    help = 'number of processors to use for IC balancing'
+)
 args = parser.parse_args()
 
 for resolution in get_resolutons(args.mcool):
     cooleruri = args.mcool + '::resolutions/' + resolution
 
-    for weight_name, per_chrom, balancetype in zip(['weight', 'perChromKR'], [False, True], ['genomewide', 'per chromosome']):
+    for weight_name, per_chrom, balancetype in zip(
+        ['weight', 'perChromKR'],
+        [False, True],
+        ['genomewide', 'per chromosome']
+    ):
         if not check_weight(cooleruri, weight_name):
             logging.info('applying {} KR to {}::resolution/{}'.format(balancetype, args.mcool, resolution))
             krweights = balance_kr(cooleruri, per_chrom)
