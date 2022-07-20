@@ -220,9 +220,9 @@ workflow HICER {
     }
 
     MULTIQC (
-        TRIM_GALORE.out.fastqc,
-        TRIM_GALORE.out.reports,
-        ch_hicup.multiqc
+        TRIM_GALORE.out.fastqc.collect(),
+        TRIM_GALORE.out.reports.collect(),
+        ch_hicup.multiqc.collect()
     )
 }
 
