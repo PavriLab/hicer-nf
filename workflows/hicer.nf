@@ -195,9 +195,9 @@ workflow HICER {
             dynamic_params.genomeSizeType
         )
     }
-    //
-    // SAM_TO_BAM ( ch_hicup.alignments )
-    //
+    
+    SAM_TO_BAM ( ch_hicup.alignments )
+
     // MAKE_PAIRS_FILE (
     //     ch_hicup.alignments,
     //     ch_genome.genomeSizes
