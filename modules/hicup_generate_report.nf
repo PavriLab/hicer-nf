@@ -15,8 +15,8 @@ process HICUP_GENERATE_REPORT {
     tuple val(meta), file(reports)
 
     output:
-    file("${meta.id}/*html")
-    file("${meta.id}/HiCUP_summary_report*")
+    file("${meta.id}/*html"),                   emit: html
+    file("${meta.id}/HiCUP_summary_report*"),   emit: multiqc
 
     script:
     resourceDir = "${NXF_HOME}/assets/pavrilab/hicer-nf/resource"
