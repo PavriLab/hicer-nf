@@ -9,7 +9,7 @@ process BOWTIE2_BUILD_INDEX {
     val(genomeSizeType)
 
     output:
-    path("bowtie2Index")
+    tuple val(bwt2_base), path("bowtie2Index")
 
     script:
     def largeIndexFlag = genomeSizeType == 'large' ? '--large-index' : ''
