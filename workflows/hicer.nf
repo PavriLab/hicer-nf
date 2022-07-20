@@ -206,9 +206,9 @@ workflow HICER {
     COOLER_MAKE_MATRIX (
         MAKE_PAIRS_FILE.out.pairs,
         dynamic_params.genomeName,
-        ch_genome.sizes,
         dynamic_params.baseResolution,
-        dynamic_params.resolutions
+        dynamic_params.resolutions,
+        ch_genome.sizes
     )
 
     if (!params.skip_juicer) {

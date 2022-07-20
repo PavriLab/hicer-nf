@@ -11,16 +11,16 @@ process MAKE_BASE_MATRIX {
     output:
     tuple val(meta), file("${meta.id}_base.cool"), emit: matrix
 
-    shell:
-    '''
+    script:
+    """
     # making sure chromosomes are sorted semantically to comply with higlass
-    sort -k1,1 -V !{genomeSizes} > chromSizes.sort.tsv
+    sort -k1,1 -V ${genomeSizes} > chromSizes.sort.tsv
 
     cooler cload pairs
-        --assembly !{genomeName} \
+        --assembly ${genomeName} \
         -c1 2 -p1 3 -c2 4 -p2 5 \
-        chromSizes.sort.tsv:!{baseResolution} \
-        !{pairs[0]} \
-        !{meta.id}_base.cool
-    '''
+        chromSizes.sort.tsv:${baseResolution} \
+        ${pairs[0]} \
+        ${meta.id}_base.cool
+    """
 }
