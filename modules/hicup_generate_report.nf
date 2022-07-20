@@ -6,8 +6,8 @@ process HICUP_GENERATE_REPORT {
     tuple val(meta), path(reports, stageAs: 'reports/*')
 
     output:
-    path("${meta.id}/*html"),                   emit: html
-    path("${meta.id}/HiCUP_summary_report*"),   emit: multiqc
+    path("*html"),                   emit: html
+    path("HiCUP_summary_report*"),   emit: multiqc
 
     script:
     def resourceDir = "${NXF_HOME}/assets/pavrilab/hicer-nf/resource"
