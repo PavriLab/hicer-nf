@@ -13,6 +13,7 @@ process HICUP_MAP_READS {
     tuple val(meta), file("${meta.id}/*summary*.txt"),              emit: reports
 
     shell:
+    println(index)
     '''
     mkdir !{meta.id}
     hicup_mapper \
@@ -21,7 +22,6 @@ process HICUP_MAP_READS {
         --format Sanger \
         --index !{index} \
         --bowtie2 $(which bowtie2) \
-        !{reads[0]} \
-        !{reads[1]}
+        !{reads}
     '''
 }
