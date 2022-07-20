@@ -18,7 +18,6 @@ workflow MICROC {
     HICUP_MAP_READS (
         PSEUDO_TRUNCATE_READS.out.reads,
         bowtie2Index,
-        bowtie2Index.getSimpleName(),
         genomeSizeType
     )
 
