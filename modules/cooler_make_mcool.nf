@@ -7,7 +7,7 @@ process MAKE_MCOOL {
     val(resolutions)
 
     output:
-    tuple val(meta), file("${name}.mcool"), emit: matrix
+    tuple val(meta), file("${meta.id}.mcool"), emit: matrix
 
     script:
     """
