@@ -168,12 +168,11 @@ workflow HICER {
         .reads
         .map { WorkflowHicer.distributeMetaPaired( it ) }
         .collect()
-        .map { println( it ) }
         .map {
-            meta, file ->
+            meta, files ->
                 def clone_meta = meta.clone()
-                clone_meta.id = file.name.toString() - ~/(_[12]\.fq)?$/
-                [ clone_meta, file ]
+                clone_meta.id = files[0].name.toString() - ~/(_[12]\.fq)?$/
+                [ clone_meta, files ]
         }
         .groupTuple (by: [0])
         .set { ch_split_fastq }
