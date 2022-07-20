@@ -195,35 +195,35 @@ workflow HICER {
             dynamic_params.genomeSizeType
         )
     }
-    
+
     SAM_TO_BAM ( ch_hicup.alignments )
 
-    // MAKE_PAIRS_FILE (
-    //     ch_hicup.alignments,
-    //     ch_genome.genomeSizes
-    // )
-    //
-    // COOLER_MAKE_MATRIX (
-    //     MAKE_PAIRS_FILE.out.pairs,
-    //     dynamic_params.genomeName,
-    //     dynamic_params.genomeSizes,
-    //     dynamic_params.baseResolution
-    //     dynamic_params.resolutions
-    // )
-    //
-    // if (!params.skip_juicer) {
-    //     JUICER_MAKE_MATRIX (
-    //         MAKE_PAIRS_FILE.out.pairs,
-    //         dynamic_params.genomeSizes,
-    //         dynamic_params.resolutions
-    //     )
-    // }
-    //
-    // MULTIQC (
-    //     TRIM_GALORE.out.fastqc,
-    //     TRIM_GALORE.out.reports,
-    //     ch_hicup.multiqc
-    // )
+    MAKE_PAIRS_FILE (
+        ch_hicup.alignments,
+        ch_genome.genomeSizes
+    )
+
+    COOLER_MAKE_MATRIX (
+        MAKE_PAIRS_FILE.out.pairs,
+        dynamic_params.genomeName,
+        dynamic_params.genomeSizes,
+        dynamic_params.baseResolution,
+        dynamic_params.resolutions
+    )
+
+    if (!params.skip_juicer) {
+        JUICER_MAKE_MATRIX (
+            MAKE_PAIRS_FILE.out.pairs,
+            dynamic_params.genomeSizes,
+            dynamic_params.resolutions
+        )
+    }
+
+    MULTIQC (
+        TRIM_GALORE.out.fastqc,
+        TRIM_GALORE.out.reports,
+        ch_hicup.multiqc
+    )
 }
 
 workflow.onComplete {
