@@ -6,7 +6,7 @@ process CAT_SAM {
     tuple val(meta), path(alignments)
 
     output:
-    tuple val(meta), file("${name}_1_2.dedup.sam"), emit: alignments
+    tuple val(meta), file("${meta.id}_1_2.dedup.sam"), emit: alignments
 
     script:
     """
