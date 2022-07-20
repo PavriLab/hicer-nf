@@ -14,12 +14,12 @@ workflow HIC {
     genomeSizeType
 
     main:
-    println(bowtie2Index)
     HICUP_TRUNCATE_READS ( ch_fastq )
 
     HICUP_MAP_READS (
         HICUP_TRUNCATE_READS.out.reads,
         bowtie2Index,
+        bowtie2Index.getSimpleName(),
         genomeSizeType
     )
 

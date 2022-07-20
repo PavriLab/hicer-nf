@@ -6,6 +6,7 @@ process HICUP_MAP_READS {
     input:
     tuple val(meta), path(reads)
     path(index, stageAs: 'bowtie2Index')
+    val(bwt2_base)
     val(genomeSizeType)
 
     output:
@@ -20,7 +21,7 @@ process HICUP_MAP_READS {
         --outdir !{meta.id} \
         --threads !{task.cpus} \
         --format Sanger \
-        --index !{index} \
+        --index !{index}/!{bwt2_base} \
         --bowtie2 $(which bowtie2) \
         !{reads}
     '''
