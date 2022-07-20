@@ -47,7 +47,6 @@ workflow HIC {
         .set { ch_resplit_pairs }
 
     HICUP_DEDUPLICATE_PAIRS ( ch_resplit_pairs )
-        .out
         .alignments
         .groupTuple(by: [0])
         .set { ch_cat_sam }

@@ -9,20 +9,20 @@ process HICUP_DEDUPLICATE_PAIRS {
     tuple val(meta) file("${resplitName}/${resplitName}_1_2.dedup.sam"), emit: alignments
     tuple val(resplitName), file("${resplitName}/*summary*.txt"),        emit: reports
 
-    script:
+    shell:
     def resplitName = alignments.name - ~/(_1_2\.filt\.sam)?$/
 
-    """
-    mkdir ${resplitName}
+    '''
+    mkdir !{resplitName}
     hicup_deduplicator \
-        --outdir ${resplitName} \
-        ${alignments}
+        --outdir !{resplitName} \
+        !{alignments}
 
-    if [ ! ${params.re} ]
+    if [ ! !{params.re} ]
     then
         getCisFractions.py \
-            -i ${resplitName}/${resplitName}_1_2.dedup.sam \
-            -r ${resplitName}/*summary*.txt
+            -i !{resplitName}/!{resplitName}_1_2.dedup.sam \
+            -r !{resplitName}/*summary*.txt
     fi
-    """
+    '''
 }
