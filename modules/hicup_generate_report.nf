@@ -7,8 +7,8 @@ process HICUP_GENERATE_REPORT {
                overwrite: 'true',
                pattern: "${meta.id}/*html",
                saveAs: {
-                   file ->
-                        if (file.endsWith(".html")) file(file).getName()
+                   outfile ->
+                        if (outfile.endsWith(".html")) file(outfile).getName()
                }
 
     input:
