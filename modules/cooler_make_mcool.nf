@@ -4,6 +4,7 @@ process MAKE_MCOOL {
 
     input:
     tuple val(meta), file(basematrix)
+    val(resolutions)
 
     output:
     tuple val(meta), file("${name}.mcool"), emit: matrix

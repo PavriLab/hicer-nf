@@ -19,7 +19,8 @@ workflow COOLER_MAKE_MATRIX {
     )
 
     MAKE_MCOOL (
-        MAKE_BASE_MATRIX.out.matrix
+        MAKE_BASE_MATRIX.out.matrix,
+        resolutions
     )
 
     BALANCE_MCOOL (
