@@ -11,7 +11,6 @@ process TRIM_GALORE {
     path "*trimming_report.txt",                    emit: reports
 
     shell:
-    println(reads[0].name)
     '''
     trim_galore --paired \
                 --quality 20 \

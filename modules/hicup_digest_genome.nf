@@ -1,6 +1,6 @@
 process DIGEST_GENOME {
 
-    tag "${fasta}"
+    tag "${genomeFasta}"
 
     input:
     file(genomeFasta)
