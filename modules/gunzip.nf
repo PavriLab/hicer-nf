@@ -9,7 +9,7 @@ process GUNZIP {
     path("${gunzip}"), emit: gunzip
 
     script:
-    def gunzip = archive.toString() - '.gz'
+    gunzip = archive.toString() - '.gz'
 
     """
     gunzip \
