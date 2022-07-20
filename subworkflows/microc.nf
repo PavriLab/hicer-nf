@@ -34,15 +34,26 @@ workflow MICROC {
         .set { ch_filtered_pairs }
 
     RESPLIT_FILTERED_PAIRS ( ch_filtered_pairs )
-
-    RESPLIT_FILTERED_PAIRS.out.alignments
+        .alignments
         .map { WorkflowHicer.distributeMetaSingle( it ) }
         .flatten ()
         .collate ( 2 )
+        .map {
+            meta, file ->
+                def meta_clone = meta.clone()
+                meta_clone.id = file.name.toString() - ~/(_1_2\.filt\.sam)?$/
+                [ meta_clone, file ]
+        }
         .set { ch_resplit_pairs }
 
     HICUP_DEDUPLICATE_PAIRS ( ch_resplit_pairs )
         .alignments
+        .map {
+            meta, file ->
+                def meta_clone = meta.clone()
+                meta_clone.id = file.name.toString() - ~/(_[a-zA-Z0-9]+_1_2\.dedup\.sam)?$/
+                [ meta_clone, file ]
+        }
         .groupTuple(by: [0])
         .set { ch_cat_sam }
 
