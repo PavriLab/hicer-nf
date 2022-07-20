@@ -12,7 +12,7 @@ workflow GENERATE_HICUP_REPORT {
         .map {
              meta, file ->
                 def meta_clone = meta.clone()
-                meta_clone.id = file.name.toString() - ~/(_[a-z]{4})$/
+                meta_clone.id = meta.id - ~/(_[a-z]{4})$/
                 [ meta_clone, file ]
         }
         .groupTuple ()
@@ -22,7 +22,7 @@ workflow GENERATE_HICUP_REPORT {
         .map {
             meta, file ->
                 def meta_clone = meta.clone()
-                meta_clone.id = file.name.toString() - ~/(_[a-z]{4})$/
+                meta_clone.id = meta.id - ~/(_[a-z]{4})$/
                 [ meta_clone, file ]
         }
         .groupTuple ()
@@ -32,7 +32,7 @@ workflow GENERATE_HICUP_REPORT {
         .map {
             meta, summary, distribution ->
                 def meta_clone = meta.clone()
-                meta_clone.id = file.name.toString() - ~/(_[a-z]{4})$/
+                meta_clone.id = meta.id - ~/(_[a-z]{4})$/
                 [ meta_clone, [ summary, distribution ] ]
         }
         .groupTuple ()
@@ -42,7 +42,7 @@ workflow GENERATE_HICUP_REPORT {
         .map {
             meta, file ->
                 def meta_clone = meta.clone()
-                meta_clone.id = file.name.toString() - ~/(_[0-9a-zA-Z]*)$/
+                meta_clone.id = meta.id - ~/(_[0-9a-zA-Z]*)$/
                 [ meta_clone, file ]
         }
         .groupTuple ()
