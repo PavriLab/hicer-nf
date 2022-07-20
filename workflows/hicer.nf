@@ -154,7 +154,6 @@ workflow HICER {
 
     // concatenate fastqs of samples with multiple readfiles
     CAT_FASTQ ( ch_fastq.multiple )
-        .out
         .reads
         .mix ( ch_fastq.single )
         .set { ch_cat_fastq }
@@ -163,7 +162,7 @@ workflow HICER {
     TRIM_GALORE ( ch_cat_fastq )
 
     // splitting fastqs for HICUP parallelization
-    SPLIT_FASTQ ( TRIM_GALORE.out.reads )
+    SPLIT_FASTQ ( TRIM_GALORE.reads )
         .out
         .reads
         .map { WorkflowHicer.distributeMeta( it ) }
