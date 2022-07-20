@@ -46,12 +46,12 @@ workflow HIC {
         .collate ( 2 )
         .set { ch_resplit_pairs }
 
-    // HICUP_DEDUPLICATE_PAIRS ( ch_resplit_pairs )
-    //     .alignments
-    //     .groupTuple(by: [0])
-    //     .set { ch_cat_sam }
-    //
-    // CAT_SAM ( ch_cat_sam )
+    HICUP_DEDUPLICATE_PAIRS ( ch_resplit_pairs )
+        .alignments
+        .groupTuple(by: [0])
+        .set { ch_cat_sam }
+
+    CAT_SAM ( ch_cat_sam )
     //
     // GENERATE_HICUP_REPORT (
     //     HICUP_TRUNCATE_READS.out.reports,
