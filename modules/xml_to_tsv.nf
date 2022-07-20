@@ -3,10 +3,10 @@ process XML_TO_TSV {
       tag "xml2tsv"
 
       input:
-      path chromSizeXML
+      file(chromSizeXML)
 
       output:
-      path "chromSizes.tsv", emit: chromSizeTsv
+      path()"chromSizes.tsv"), emit: sizes
 
       script:
       """
