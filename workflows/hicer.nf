@@ -160,9 +160,11 @@ workflow HICER {
 
     // read QC
     TRIM_GALORE ( ch_cat_fastq )
+        .reads
+        .set { ch_trim_fastq }
 
     // splitting fastqs for HICUP parallelization
-    SPLIT_FASTQ ( TRIM_GALORE.reads )
+    SPLIT_FASTQ ( ch_trim_fastq )
         .out
         .reads
         .map { WorkflowHicer.distributeMeta( it ) }
