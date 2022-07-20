@@ -3,10 +3,10 @@ process GUNZIP {
     tag "$archive"
 
     input:
-    tuple val(meta), path(archive)
+    path(archive)
 
     output:
-    tuple val(meta), path("$gunzip"), emit: gunzip
+    path("$gunzip"), emit: gunzip
 
     script:
     gunzip = archive.toString() - '.gz'
