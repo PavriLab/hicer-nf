@@ -28,7 +28,7 @@ workflow MICROC {
             meta, file ->
                   def meta_clone = meta.clone()
                   meta_clone.id = file.name.toString() - ~/(_[a-z]{4}_1_2\.filt\.sam)?$/
-                  [ meta, file ]
+                  [ meta_clone, file ]
         }
         .groupTuple (by: [0])
         .set { ch_filtered_pairs }

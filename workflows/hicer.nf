@@ -173,8 +173,8 @@ workflow HICER {
         .collate ( 2 )
         .map {
             meta, file ->
-                def clone_meta = meta.clone()
-                clone_meta.id = file.name.toString() - ~/(_[12]\.fq)?$/
+                def meta_clone = meta.clone()
+                meta_clone.id = file.name.toString() - ~/(_[12]\.fq)?$/
                 [ clone_meta, file ]
         }
         .groupTuple (by: [0])
