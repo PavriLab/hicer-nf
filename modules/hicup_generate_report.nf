@@ -3,7 +3,7 @@ process HICUP_GENERATE_REPORT {
     tag "$meta.id"
 
     input:
-    tuple val(meta), file(reports)
+    tuple val(meta), path(reports, stageAs: 'reports/*')
 
     output:
     path("${meta.id}/*html"),                   emit: html
@@ -15,8 +15,8 @@ process HICUP_GENERATE_REPORT {
     """
     mkdir ${meta.id}
     hicupReportMerger.py \
-        -o ${meta.id} \
-        ${reports} \
+        -o . \
+        reports/${reports} \
         ${resourceDir}/hicup_report_template.html \
         ${meta.id}
     """
