@@ -25,6 +25,7 @@ workflow PREPARE_GENOME {
         )
 
     } else {
+        println( file( dynamic_params.bowtie2Index ).getSimpleName() )
         ch_bowtie2_index = [
             file( dynamic_params.bowtie2Index ).getSimpleName(),
             file( dynamic_params.bowtie2Index ).getParent()
