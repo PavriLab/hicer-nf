@@ -167,6 +167,7 @@ workflow HICER {
     SPLIT_FASTQ ( ch_trim_fastq )
         .reads
         .map { WorkflowHicer.distributeMetaPaired( it ) }
+        .map { println( it ) }
         .map {
             meta, file ->
                 def clone_meta = meta.clone()
