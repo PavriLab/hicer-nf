@@ -200,13 +200,13 @@ workflow HICER {
 
     MAKE_PAIRS_FILE (
         ch_hicup.alignments,
-        ch_genome.genomeSizes
+        ch_genome.sizes
     )
 
     COOLER_MAKE_MATRIX (
         MAKE_PAIRS_FILE.out.pairs,
         dynamic_params.genomeName,
-        dynamic_params.genomeSizes,
+        ch_genome.sizes,
         dynamic_params.baseResolution,
         dynamic_params.resolutions
     )
@@ -214,7 +214,7 @@ workflow HICER {
     if (!params.skip_juicer) {
         JUICER_MAKE_MATRIX (
             MAKE_PAIRS_FILE.out.pairs,
-            dynamic_params.genomeSizes,
+            ch_genome.sizes,
             dynamic_params.resolutions
         )
     }
