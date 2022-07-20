@@ -20,7 +20,7 @@ process HICUP_FILTER_PAIRS {
     export PERL5LIB="$(dirname $HICUPPATH)"
 
     !{bin}/hicup_filter \
-        --outdir !{meta.id} \
+        --outdir . \
         --digest !{digest} \
         !{alignments}
     '''
