@@ -102,7 +102,7 @@ bins = np.linspace(
     dtype = int
 )
 
-hist, _ = np.histogramm(
+hist, _ = np.histogram(
     ditagSizes,
     bins
 )
