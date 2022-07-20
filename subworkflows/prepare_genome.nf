@@ -13,7 +13,7 @@ workflow PREPARE_GENOME {
     // Uncompress genome fasta file if required
     if (params.fasta.endsWith('.gz')) {
         ch_fasta = GUNZIP_FASTA (
-             file(dynamic_params.genomeFasta) // needs to be wrapped in file for GUNZIP to recognize as input
+             file( dynamic_params.genomeFasta ) // needs to be wrapped in file for GUNZIP to recognize as input
         )
 
     } else {
@@ -42,7 +42,9 @@ workflow PREPARE_GENOME {
     }
 
     if ("chromSizes" in prepare_genome_for_tools) {
-        ch_genome_sizes = XML_TO_TSV ( dynamic_params.genomeSizes )
+        ch_genome_sizes = XML_TO_TSV (
+            file( dynamic_params.genomeSizes )
+        )
 
     } else {
         ch_genome_sizes = file( dynamic_params.genomeSizes )
