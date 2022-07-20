@@ -25,8 +25,9 @@ workflow PREPARE_GENOME {
         )
 
     } else {
-        def tmpFile = file( dynamic_params.bowtie2Index )
-        ch_bowtie2_index = [ tmpFile.getSimpleName(), tmpFile.getParent() ]
+        def bwt2_base = file( dynamic_params.bowtie2Index ).getSimpleName()
+        def bwt2_dir = file( dynamic_params.bowtie2Index ).getParent()
+        ch_bowtie2_index = [ bwt2_base, bwt2_dir ]
     }
 
     ch_genome_digest = Channel.empty()
