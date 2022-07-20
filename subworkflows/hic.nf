@@ -14,6 +14,7 @@ workflow HIC {
     genomeSizeType
 
     main:
+    println(bowtie2Index)
     HICUP_TRUNCATE_READS ( ch_fastq )
 
     HICUP_MAP_READS (

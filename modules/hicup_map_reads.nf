@@ -5,7 +5,7 @@ process HICUP_MAP_READS {
 
     input:
     tuple val(meta), path(reads)
-    file(index)
+    path(index)
     val(genomeSizeType)
 
     output:
