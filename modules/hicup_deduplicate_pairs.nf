@@ -6,7 +6,7 @@ process HICUP_DEDUPLICATE_PAIRS {
     tuple val(meta), path(alignments)
 
     output:
-    tuple val(meta) file("${resplitName}/${resplitName}_1_2.dedup.sam"), emit: alignments
+    tuple val(meta), file("${resplitName}/${resplitName}_1_2.dedup.sam"), emit: alignments
     tuple val(resplitName), file("${resplitName}/*summary*.txt"),        emit: reports
 
     shell:
