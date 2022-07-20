@@ -297,6 +297,11 @@ for reportFileName in args.reports:
             sep = '\t'
         )
 
+        # making sure NaNs do not mess up the report
+        # NaNs might be present in samples where there are very few reads
+        # so usually not a problem
+        df.fillna(0, inplace = True)
+        
         df.set_index(
             'File',
             inplace = True
@@ -324,9 +329,7 @@ for reportFileName in args.reports:
             if not df.empty:
                 idx = [args.prefix + '_1_2.filt.sam']
                 df.index = idx
-                print(df)
                 statFrames['deduplicator'] = sum_frames(statFrames['deduplicator'], df)
-                print(statFrames['deduplicator'])
                 fileNums['deduplicator'] += 1
 
 
