@@ -16,7 +16,7 @@ process HICUP_GENERATE_REPORT {
     mkdir ${meta.id}
     hicupReportMerger.py \
         -o . \
-        reports/${reports} \
+        ${reports} \
         ${resourceDir}/hicup_report_template.html \
         ${meta.id}
     """
