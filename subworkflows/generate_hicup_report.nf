@@ -53,9 +53,9 @@ workflow GENERATE_HICUP_REPORT {
         .join ( ch_grouped_filter_reports )
         .join ( ch_grouped_deduplicate_reports )
         .map {
-            meta, files ->
-            def flatit = it.flatten()
-            return tuple(flatit[0], flatit[1..-1])
+            it ->
+                def flatit = it.flatten()
+                return tuple(flatit[0], flatit[1..-1])
         }
         .set{ ch_hicup_reports }
 
