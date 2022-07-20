@@ -107,7 +107,6 @@ class WorkflowHicer {
 
     public static ArrayList distributeMeta(tuple) {
         def meta    = tuple[0]
-        println(meta)
         def files   = tuple[1]
         def distributed = []
         for (file in files) {
