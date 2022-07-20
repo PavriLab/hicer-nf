@@ -30,10 +30,10 @@ workflow GENERATE_HICUP_REPORT {
 
     ch_filter_reports
         .map {
-            meta, file ->
+            meta, summary, distribution ->
                 def meta_clone = meta.clone()
                 meta_clone.id = file.name.toString() - ~/(_[a-z]{4})$/
-                [ meta_clone, file ]
+                [ meta_clone, [ summary, distribution ] ]
         }
         .groupTuple ()
         .set { ch_grouped_filter_reports }
