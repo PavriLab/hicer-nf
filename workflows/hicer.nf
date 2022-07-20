@@ -69,6 +69,9 @@ if (!params.genome) {
         System.exit(1)
     }
 
+    if (params.chromSizes.endsWith("xml")) {
+        prepare_genome_for_tools << "chromSizes"
+    }
 // if --genome is specified we check if everything is there
 } else {
     if (!igenomes_bowtie2) {
