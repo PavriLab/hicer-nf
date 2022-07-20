@@ -37,6 +37,7 @@ workflow HIC {
                 [ meta_clone, file ]
         }
         .groupTuple (by: [0])
+        .map { println( it ) }
         .set { ch_filtered_pairs }
 
     RESPLIT_FILTERED_PAIRS ( ch_filtered_pairs )
