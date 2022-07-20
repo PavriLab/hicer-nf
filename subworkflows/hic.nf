@@ -61,7 +61,6 @@ workflow HIC {
                 [ meta_clone, file ]
         }
         .groupTuple(by: [0])
-        .map { println( it ) }
         .set { ch_cat_sam }
 
     CAT_SAM ( ch_cat_sam )
