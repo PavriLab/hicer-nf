@@ -169,9 +169,7 @@ workflow HICER {
         .map { WorkflowHicer.distributeMetaPaired( it ) }
         .map {
             meta, file ->
-                println(meta)
-                println(file)
-                def clone_meta = meta.clone
+                def clone_meta = meta.clone()
                 clone_meta.id = file.name.toString() - ~/(_[12]\.fq)?$/
                 [ clone_meta, file ]
         }
