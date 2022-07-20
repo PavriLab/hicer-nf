@@ -16,7 +16,7 @@ workflow MICROC {
     PSEUDO_TRUNCATE_READS ( ch_fastq )
 
     HICUP_MAP_READS (
-        HICUP_TRUNCATE_READS.out.reads,
+        PSEUDO_TRUNCATE_READS.out.reads,
         bowtie2Index,
         bowtie2Index.getSimpleName(),
         genomeSizeType
