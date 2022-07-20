@@ -28,7 +28,6 @@ workflow HIC {
     )
 
     HICUP_FILTER_PAIRS
-        .out
         .alignments
         .map {
             meta, file ->
@@ -37,7 +36,6 @@ workflow HIC {
                 [ meta_clone, file ]
         }
         .groupTuple (by: [0])
-        .map { println( it ) }
         .set { ch_filtered_pairs }
 
     RESPLIT_FILTERED_PAIRS ( ch_filtered_pairs )
