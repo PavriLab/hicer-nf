@@ -30,6 +30,7 @@ workflow HIC {
     HICUP_FILTER_PAIRS
         .out
         .alignments
+        .map { println( it ) }
         .map {
             meta, file ->
                 def meta_clone = meta.clone()
