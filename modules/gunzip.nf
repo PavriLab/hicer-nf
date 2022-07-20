@@ -6,11 +6,11 @@ process GUNZIP {
     file(archive)
 
     output:
-    tuple val(genome_base), path("${gunzip}"), emit: gunzip
+    path("${gunzip}"), emit: gunzip
 
     script:
     def gunzip = archive.toString() - '.gz'
-    def genome_base = archive.getSimpleName() - '.fa'
+
     """
     gunzip \
         -f \
