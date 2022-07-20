@@ -6,12 +6,10 @@ process HICUP_DEDUPLICATE_PAIRS {
     tuple val(meta), path(alignments)
 
     output:
-    tuple val(meta), file("${resplitName}_1_2.dedup.sam"), emit: alignments
-    tuple val(resplitName), file("*summary*.txt"),         emit: reports
+    tuple val(meta), file("${meta.id}_1_2.dedup.sam"),  emit: alignments
+    tuple val(meta), file("*summary*.txt"),             emit: reports
 
     shell:
-    def resplitName = alignments.name - ~/(_1_2\.filt\.sam)?$/
-
     '''
     hicup_deduplicator \
         --outdir . \
@@ -20,7 +18,7 @@ process HICUP_DEDUPLICATE_PAIRS {
     if [ ! !{params.re} ]
     then
         getCisFractions.py \
-            -i !{resplitName}_1_2.dedup.sam \
+            -i !{meta.id}_1_2.dedup.sam \
             -r *summary*.txt
     fi
     '''
