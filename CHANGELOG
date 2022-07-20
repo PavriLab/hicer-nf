@@ -8,3 +8,4 @@ Minor changes:
 - outsource analysis possibilities to a separate repository https://github.com/PavriLab/hic_analysis
 - change input format from tsv to csv to avoid problems with tabs and spaces when copying lines
 - change params.outputDir to params.outdir
+- drop sample specific output tree in favour of modules.config opportunities
