@@ -16,7 +16,7 @@ process MAKE_BASE_MATRIX {
     # making sure chromosomes are sorted semantically to comply with higlass
     sort -k1,1 -V ${genomeSizes} > chromSizes.sort.tsv
 
-    cooler cload pairs
+    cooler cload pairs \
         --assembly ${genomeName} \
         -c1 2 -p1 3 -c2 4 -p2 5 \
         chromSizes.sort.tsv:${baseResolution} \
