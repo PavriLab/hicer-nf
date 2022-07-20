@@ -7,8 +7,8 @@ process SAM_TO_BAM {
                overwrite: 'true',
                pattern: "*.bam",
                saveAs: {
-                   file ->
-                        if (file.endsWith(".bam")) file(file).getName()
+                   outfile ->
+                        if (outfile.endsWith(".bam")) file(outfile).getName()
                 }
 
     input:
