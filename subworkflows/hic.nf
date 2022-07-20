@@ -28,6 +28,7 @@ workflow HIC {
     )
 
     HICUP_FILTER_PAIRS
+        .out
         .alignments
         .map {
             meta, file ->
@@ -38,28 +39,28 @@ workflow HIC {
         .groupTuple (by: [0])
         .set { ch_filtered_pairs }
 
-    RESPLIT_FILTERED_PAIRS ( ch_filtered_pairs )
-        .alignments
-        .map { WorkflowHicer.distributeMetaSingle( it ) }
-        .flatten ()
-        .collate ( 2 )
-        .set { ch_resplit_pairs }
-
-    HICUP_DEDUPLICATE_PAIRS ( ch_resplit_pairs )
-        .alignments
-        .groupTuple(by: [0])
-        .set { ch_cat_sam }
-
-    CAT_SAM ( ch_cat_sam )
-
-    GENERATE_HICUP_REPORT (
-        HICUP_TRUNCATE_READS.out.reports,
-        HICUP_MAP_READS.out.reports,
-        HICUP_FILTER_PAIRS.out.reports,
-        HICUP_DEDUPLICATE_PAIRS.out.reports
-    )
-
-    emit:
-    alignments  = CAT_SAM.out.alignments
-    multiqc     = GENERATE_HICUP_REPORT.out.multiqc
+    // RESPLIT_FILTERED_PAIRS ( ch_filtered_pairs )
+    //     .alignments
+    //     .map { WorkflowHicer.distributeMetaSingle( it ) }
+    //     .flatten ()
+    //     .collate ( 2 )
+    //     .set { ch_resplit_pairs }
+    //
+    // HICUP_DEDUPLICATE_PAIRS ( ch_resplit_pairs )
+    //     .alignments
+    //     .groupTuple(by: [0])
+    //     .set { ch_cat_sam }
+    //
+    // CAT_SAM ( ch_cat_sam )
+    //
+    // GENERATE_HICUP_REPORT (
+    //     HICUP_TRUNCATE_READS.out.reports,
+    //     HICUP_MAP_READS.out.reports,
+    //     HICUP_FILTER_PAIRS.out.reports,
+    //     HICUP_DEDUPLICATE_PAIRS.out.reports
+    // )
+    //
+    // emit:
+    // alignments  = CAT_SAM.out.alignments
+    // multiqc     = GENERATE_HICUP_REPORT.out.multiqc
 }
