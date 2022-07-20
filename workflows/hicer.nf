@@ -179,21 +179,21 @@ workflow HICER {
         }
         .groupTuple (by: [0])
         .set { ch_split_fastq }
-    //
-    // if (params.re) {
-    //     ch_hicup = HIC (
-    //         ch_split_fastqs,
-    //         ch_genome,
-    //         dynamic_params.genomeSizeType
-    //     )
-    //
-    // } else {
-    //     ch_hicup = MICROC (
-    //         ch_split_fastqs,
-    //         ch_genome,
-    //         dynamic_params.genomeSizeType
-    //     )
-    // }
+
+    if (params.re) {
+        ch_hicup = HIC (
+            ch_split_fastqs,
+            ch_genome,
+            dynamic_params.genomeSizeType
+        )
+
+    } else {
+        ch_hicup = MICROC (
+            ch_split_fastqs,
+            ch_genome,
+            dynamic_params.genomeSizeType
+        )
+    }
     //
     // SAM_TO_BAM ( ch_hicup.alignments )
     //
