@@ -25,7 +25,7 @@ workflow PREPARE_GENOME {
         )
 
     } else {
-        ch_bowtie2_index = file( dynamic_params.bowtie2Index )
+        ch_bowtie2_index = file( dynamic_params.bowtie2Index ).getParent()
     }
 
     ch_genome_digest = Channel.empty()
