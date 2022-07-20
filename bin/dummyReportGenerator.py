@@ -10,14 +10,23 @@ def get_read_length(fq_handle):
     qual = fq_handle.readline()
     return len(seq.rstrip())
 
-logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO)
+logging.basicConfig(
+    format='%(asctime)s - %(message)s',
+    level=logging.INFO
+)
 parser = ap.ArgumentParser()
-parser.add_argument('-1', '--fastq1',
-                    help = 'fastq file containing reads1 to count')
-parser.add_argument('-2', '--fastq2',
-                    help = 'fastq file containing reads2 to count')
-parser.add_argument('-o', '--outputFile',
-                    help = 'name of the summaryfile to generate')
+parser.add_argument(
+    '-1', '--fastq1',
+    help = 'fastq file containing reads1 to count'
+)
+parser.add_argument(
+    '-2', '--fastq2',
+    help = 'fastq file containing reads2 to count'
+)
+parser.add_argument(
+    '-o', '--outputFile',
+    help = 'name of the summaryfile to generate'
+)
 args = parser.parse_args()
 
 readcount1 = 0
@@ -41,9 +50,13 @@ with open(args.fastq2, 'r') as fq2:
 
 readcount1 = readcount1 - 1
 readcount2 = readcount2 - 1
-header = '\t'.join(['File', 'Total_Reads_Processed', 'Truncated',
-                    '%Truncated', 'Not_truncated', '%Not_truncated',
-                    'Average_length_truncated_sequence'])
+header = '\t'.join(
+    [
+        'File', 'Total_Reads_Processed', 'Truncated',
+        '%Truncated', 'Not_truncated', '%Not_truncated',
+        'Average_length_truncated_sequence'
+    ]
+)
 
 with open(args.outputFile, 'w') as o:
     o.write(header + '\n')

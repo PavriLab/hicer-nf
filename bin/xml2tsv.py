@@ -4,10 +4,19 @@ import argparse as ap
 import xml.etree.ElementTree as ET
 import logging
 
-logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO)
+logging.basicConfig(
+    format='%(asctime)s - %(message)s',
+    level=logging.INFO
+)
 parser = ap.ArgumentParser()
-parser.add_argument('xml', help = 'chromsize xml file as given in igenomes')
-parser.add_argument('tsv', help = 'chromsize tsv file')
+parser.add_argument(
+    'xml',
+    help = 'chromsize xml file as given in igenomes'
+)
+parser.add_argument(
+    'tsv',
+    help = 'chromsize tsv file'
+)
 args = parser.parse_args()
 
 tree = ET.parse(args.xml)

@@ -20,7 +20,7 @@ The pipeline is built using [Nextflow](https://www.nextflow.io), a workflow tool
 7. Compute matrix normalization vectors for all aggregated resolutions with the [KR](https://doi.org/10.1093/imanum/drs019) and the [IC](https://www.nature.com/articles/nmeth.2148) algorithm (HiCExplorers [C++ implementation of the KR algorithm](https://github.com/deeptools/Knight-Ruiz-Matrix-balancing-algorithm) and [`cooler`](https://cooler.readthedocs.io/en/latest/) Out-Of-Core balancing)
 8. Present QC for raw reads, alignment and filtering [`MultiQC`](http://multiqc.info/)
 
-The generated mcool files are compatible with [cooltools](https://cooltools.readthedocs.io/en/latest/index.html) for downstream analysis and [Higlass](https://github.com/higlass/higlass) for visualization. KR balancing weights are stored in the `'weight'`, IC balancing weights are stored in the `'ICE'` column of the bins table of each cooler. A range of possible downstream analyses can be found in the possibilities directory of this repo. In addition the pipeline also generates [hic](http://www.cell.com/cms/attachment/2065039642/2066196726/mmc1.pdf) files with [juicer_tools](https://github.com/aidenlab/juicer/wiki/Download) pre for visualization in [juicebox](https://github.com/aidenlab/Juicebox) and/or loop calling with juicer's [HICCUPS](https://github.com/aidenlab/juicer/wiki/HiCCUPS) algorithm.
+The generated mcool files are compatible with [cooltools](https://cooltools.readthedocs.io/en/latest/index.html) for downstream analysis and [Higlass](https://github.com/higlass/higlass) for visualization. KR balancing weights are stored in the `'weight'`, IC balancing weights are stored in the `'ICE'` column of the bins table of each cooler. A range of possible downstream analyses can be found in our [hic_analysis repo](https://github.com/PavriLab/hic_analysis). In addition the pipeline also generates [hic](http://www.cell.com/cms/attachment/2065039642/2066196726/mmc1.pdf) files with [juicer_tools](https://github.com/aidenlab/juicer/wiki/Download) pre for visualization in [juicebox](https://github.com/aidenlab/Juicebox) and/or loop calling with juicer's [HICCUPS](https://github.com/aidenlab/juicer/wiki/HiCCUPS) algorithm.
 
 ## Quick Start
 
@@ -38,19 +38,16 @@ iv. Read the `Tips for a smooth user experience` right below this section
 v. Start running your own analysis!
 
 ```bash
-# if you have specified an igenomes directory from or run a profile from any of the institutions 
+# if you have specified an igenomes directory from or run a profile from any of the institutions
 # listed here https://raw.githubusercontent.com/nf-core/configs/master/nfcore_custom.config
-nextflow run pavrilab/hicer-nf --samples samples.txt --genome mm9 --re ^GATC,MboI
+nextflow run pavrilab/hicer-nf --input samples.txt --genome mm9 --re ^GATC,MboI
 
 # else you can specify the most essential things manually
 # if HICUP digest and bowtie2 index are not available
-nextflow run pavrilab/hicer-nf --samples samples.txt --genome mm9 --re ^GATC,MboI --fasta genome.fa --chromSizes chrom.sizes
-
-# if HICUP digest and bowtie2 index are available
-nextflow run pavrilab/hicer-nf --samples samples.txt --genome mm9 --re ^GATC,MboI --bowtie2Index /path/to/bowtie2Index/genome_base_name --hicupDigest /path/to/hicup/digest/file --chromSizes chrom.sizes
+nextflow run pavrilab/hicer-nf --input samples.txt --genome mm9 --re ^GATC,MboI --fasta genome.fa --chromSizes chrom.sizes
 
 # if micro-C or similar protocols with non-specific cutters are used
-nextflow run pavrilab/hicer-nf --samples samples.txt --genome mm9 --resolutions 500 --chromSizes chrom.sizes
+nextflow run pavrilab/hicer-nf --input samples.txt --genome mm9 --resolutions 500 --chromSizes chrom.sizes
 ```
 
 These invocations compute cooler and hic files for a default resolution list of 5kb, 10kb, 25kb, 50kb, 100kb, 250kb, 500kb and 1Mb (except for the micro-C run). If you want resolutions that are not listed here you could use the `--resolutions` parameter (see below). In addition to this, the pipeline parallelizes the hicup workflow in a more flexible way than the hicup control script by splitting the sample reads into chunks of specific length and threads these through the hicup scripts. Per default, the fastq chunks have a size of 25M reads, but this can be changed using the `--readsPerSplit` parameter to suit you sample size. Be aware that in case of the micro-C mode, the pipeline alters the way it processes the read pairs. In particular the RE truncation is skipped and the filtering is solely based on mapping proximity of two reads of a pair which is 500 bp per default but can be altered by the `--minMapDistance` argument. Be aware that because the restiction fragments are used to calculate the insert size distribution, this is not available in the micro-C invokation. Please also not that you might have to modify the memory of the balancing process due to the high resolution of micro-C. Additionally, the HICUP QC report will not contain an insert size distribution and only display the "Same fragment - internal" category for filtering.
@@ -64,7 +61,7 @@ The current resource configuration was tested for a 2.6B read Hi-C data set and 
 The pipeline comes with a prebuilt Docker container which contains all the software you need to run right away. To skip the process (and frustration of installing everything manually) we would recommend using Singularity or Docker with the respective profile for running the pipeline.
 
 ### Usage of the pipeline without an igenomes database
-In general, the pipeline was designed to run with a predefined reference genome database such as the igenomes, which location can be specified via the [`-c`](https://www.nextflow.io/docs/latest/config.html) option (detailed below in the section `Customizing the resource requirements, igenomes_base and other parameters`). However, if you do not want to use this feature you can just specify the whole genome fasta and the chrom.sizes file of the genome via the command line parameters `--fasta` and `--chromSizes` respectively. The pipeline than computes the bowtie2 index automatically or alternatively you can specify the index manually via the `--bowtie2Index` parameter. *If you do not use the igenomes database please make sure to omit the `--genome` parameter or set `--igenomes_ignore T` or the pipeline will otherwise try to access it*
+In general, the pipeline was designed to run with a predefined reference genome database such as the igenomes, which location can be specified via the [`-c`](https://www.nextflow.io/docs/latest/config.html) option (detailed below in the section `Customizing the resource requirements, igenomes_base and other parameters`). However, if you do not want to use this feature you can just specify the whole genome fasta and the chrom.sizes file of the genome via the command line parameters `--fasta` and `--chromSizes` respectively. The pipeline than computes the bowtie2 index automatically. *If you do not use the igenomes database please make sure to omit the `--genome` parameter or set `--igenomes_ignore T` or the pipeline will otherwise try to access it*
 
 ### Customizing the resolutions set
 We developed the pipeline with the aim to facilitate a smooth integration of the results into the two most widely used postprocessing frameworks [cooltools](https://cooltools.readthedocs.io/en/latest/index.html) and [juicer_tools](https://github.com/aidenlab/juicer/wiki/Download). This also included the possibility to directly view results on their respective browser right away. Thus, we prespecified a range of resolutions which will be computed by default (5000, 10000, 25000, 50000, 100000, 250000, 500000, 1000000) to meet this aim. The `--resolutions` parameter does not overwrite this default set but rather adds the specified resolutions to this list (duplicates are ignored). You can customize the default set as described below in `Customizing the resource requirements, igenomes_base and other parameters`. *Please be aware of this behaviour*
@@ -126,25 +123,25 @@ If `-profile` is not specified at all the pipeline will be run locally and expec
   * A generic configuration profile to be used with [Singularity](http://singularity.lbl.gov/)
   * Pulls software from DockerHub: [`zuberlab/hicer-nf`](http://hub.docker.com/r/zuberlab/hicer-nf/)
 
-#### `--samples`
+#### `--input`
 
-You will need to create a design file with information about the samples in your experiment before running the pipeline. Use this parameter to specify its location. It has to be a tab-separated file with 3 columns, and a header row as shown in the examples below.
+You will need to create a design file with information about the samples in your experiment before running the pipeline. Use this parameter to specify its location. It has to be a comma-separated file with 3 columns, and a header row as shown in the examples below. Specified input samples will be grouped by samplename and analyzed as a whole (i.e. fastq files will be concatenated)
 
 ```bash
 --samples '[path to samples file]'
 ```
 
 ```bash
-name read1 read2
-WT WT_1.fastq.gz WT_2.fastq.gz
-KD KD_1.fastq.gz KD_2.fastq.gz
+sample,fastq_1,fastq_2
+WT,/path/to/WT_1.fastq.gz,/path/to/WT_2.fastq.gz
+KD,/path/to/KD_1.fastq.gz,/path/to/KD_2.fastq.gz
 ```
 
 | Column      | Description                                                                                                 |
 |-------------|-------------------------------------------------------------------------------------------------------------|
-| `name` | Name of this sample.
-| `read1`   | Full path to FastQ file for read 1. File has to be zipped and have the extension ".fastq.gz" or ".fq.gz".   |
-| `read2`   | Full path to FastQ file for read 2. File has to be zipped and have the extension ".fastq.gz" or ".fq.gz".   |
+| `sample` | Name of this sample.
+| `fastq_1`   | Full path to FastQ file for read 1. File has to be zipped and have the extension ".fastq.gz" or ".fq.gz".   |
+| `fastq_2`   | Full path to FastQ file for read 2. File has to be zipped and have the extension ".fastq.gz" or ".fq.gz".   |
 
 #### `--genome`
 
@@ -206,7 +203,7 @@ cat chrom.sizes.xml
 
 <sequenceSizes genomeName="genome">
         <chromosome fileName="genome.fa" contigName="chr1" totalBases="10000" isCircular="false" md5="be7e6a13cc6b9da7c1da7b7fc32c5506" ploidy="2" knownBases="126847849" />
-        <chromosome fileName="genome.fa" contigName="chr2" totalBases="30499" isCircular="false" 
+        <chromosome fileName="genome.fa" contigName="chr2" totalBases="30499" isCircular="false"
 </sequenceSizes>
 ```
 
@@ -217,22 +214,6 @@ The XML will be converted to TSV in-situ where the pipeline uses the `contigName
 #### `--readsPerSplit`
 
 This parameter specifies the number of reads each split fastq file should contain for parallel processing. The default is 25M reads per split file.
-
-#### `--bowtie2Index`
-
-Full path to an existing bowtie2 index for your reference genome including the base name for the index. This is only necessary if you don't have an igenomes database and have a precomputed index for your fasta file that you want to use. Otherwise, the index will be computed from the fasta file specified with `--fasta`
-
-```bash
---bowtie2 '[directory containing bowtie2 index]/genome'
-```
-
-#### `--hicupDigest`
-
-File with digested genome of a given restriction enzyme as produced with `hicup_digester`. This can be used to override in-situ digestion of the fasta and use your own digestion file. However, the digest file *MUST* be constructed from the same reference genome as the bowtie2Index.
-
-```bash
---hicdigest '[file with digested genome]'
-```
 
 #### `--resolutions`
 
@@ -246,12 +227,12 @@ By default, the pipeline computes matrices and normalizations thereof for resolu
 
 This parameter specifies the minimum mapping distance of two reads of a pair and is only used when processing micro-C or similar data to filter out closely mapping pairs that are thought to belong to the same or adjacent fragments. By default this parameter is set to 500bp (roughly two nucleosomes).
 
-#### `--outputDir`
+#### `--outdir`
 
 Name of the folder to which the output will be saved (default: results)
 
 ```bash
---outputDir '[directory name]'
+--outdir '[directory name]'
 ```
 
 
@@ -272,7 +253,7 @@ Many thanks to others who have helped out along the way too, including (but not 
 
 * [Bowtie 2](https://www.ncbi.nlm.nih.gov/pubmed/22388286/)
   > Langmead B, Salzberg SL. Fast gapped-read alignment with Bowtie 2. Nat Methods. 2012 Mar 4;9(4):357-9. doi: 10.1038/nmeth.1923. PubMed PMID: 22388286; PubMed Central PMCID: PMC3322381.
-  
+
 * [Juicer](https://www.cell.com/cell-systems/fulltext/S2405-4712%2816%2930219-8)
   > Neva C. Durand, Muhammad S. Shamim, Ido Machol, Suhas S. P. Rao, Miriam H. Huntley, Eric S. Lander, and Erez Lieberman Aiden. "Juicer provides a one-click system for analyzing loop-resolution Hi-C experiments." Cell Systems 3(1), 2016. doi: 10.1016/j.cels.2016.07.002
 
@@ -298,19 +279,19 @@ Many thanks to others who have helped out along the way too, including (but not 
 
 * [pandas](https://pandas.pydata.org/docs/index.html)
   > Wes McKinney. Data Structures for Statistical Computing in Python, Proceedings of the 9th Python in Science Conference, 51-56 (2010)
-  
+
 * [cooler](https://cooler.readthedocs.io/en/latest/)
   > Nezar Abdennur, Leonid A Mirny, Cooler: scalable storage for Hi-C data and other genomically labeled arrays, Bioinformatics, Volume 36, Issue 1, 1 January 2020, Pages 311–316. doi: 10.1093/bioinformatics/btz540
-  
+
 * [numpy](https://numpy.org/)
   > Stéfan van der Walt, S. Chris Colbert and Gaël Varoquaux. The NumPy Array: A Structure for Efficient Numerical Computation, Computing in Science & Engineering, 13, 22-30 (2011). doi: 10.1109/MCSE.2011.37
-  
+
 * [scipy](https://www.scipy.org/)
   > Virtanen, P., Gommers, R., Oliphant, T.E. et al. SciPy 1.0: fundamental algorithms for scientific computing in Python. Nat Methods 17, 261–272 (2020). doi: 10.1038/s41592-019-0686-2
-  
+
 * [pysam](https://pysam.readthedocs.io/en/latest/index.html)
   > Li H, Handsaker B, Wysoker A, Fennell T, Ruan J, Homer N, Marth G, Abecasis G, Durbin R; 1000 Genome Project Data Processing Subgroup. The Sequence Alignment/Map format and SAMtools. Bioinformatics. 2009 Aug 15;25(16):2078-9. doi: 10.1093/bioinformatics/btp352. Epub 2009 Jun 8. PubMed PMID: 19505943; PubMed Central PMCID: PMC2723002.
-  
+
 * [h5py](https://github.com/h5py/h5py)
 
 ### Software packaging/containerisation tools
