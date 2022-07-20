@@ -14,7 +14,6 @@ process HICUP_MAP_READS {
     tuple val(meta), file("${meta.id}/*summary*.txt"),              emit: reports
 
     shell:
-    println(index)
     '''
     mkdir !{meta.id}
     hicup_mapper \
