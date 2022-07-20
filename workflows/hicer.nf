@@ -167,6 +167,7 @@ workflow HICER {
     SPLIT_FASTQ ( ch_trim_fastq )
         .reads
         .map { WorkflowHicer.distributeMetaPaired( it ) }
+        .collect()
         .map { println( it ) }
         .map {
             meta, file ->
