@@ -324,7 +324,9 @@ for reportFileName in args.reports:
             if not df.empty:
                 idx = [args.prefix + '_1_2.filt.sam']
                 df.index = idx
+                print(df)
                 statFrames['deduplicator'] = sum_frames(statFrames['deduplicator'], df)
+                print(statFrames['deduplicator'])
                 fileNums['deduplicator'] += 1
 
 
@@ -350,8 +352,6 @@ for idx, row in map_df.iterrows():
             map_df.loc[idx, f'%{column}'] = round(row[column] / row['Total_reads_processed'] * 100, 2)
 
 statFrames['mapper'] = map_df
-
-print(statFrames['deduplicator'])
 
 d = dict(
     INPUT_FILENAME = args.prefix,
