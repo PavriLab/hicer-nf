@@ -178,6 +178,7 @@ workflow HICER {
                 [ clone_meta, files ]
         }
         .groupTuple (by: [0])
+        .map { println (it) }
         .set { ch_split_fastq }
 
     if (params.re) {
