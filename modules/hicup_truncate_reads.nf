@@ -12,10 +12,9 @@ process HICUP_TRUNCATE_READS {
     script:
     """
     hicup_truncater \
-        --outdir ${meta.id} \
+        --outdir . \
         --threads ${task.cpus} \
         --re1 ${params.re} \
-        ${reads[0]} \
-        ${reads[1]}
+        ${reads}
     """
 }
