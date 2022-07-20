@@ -9,7 +9,8 @@ include { GENERATE_HICUP_REPORT   } from '../subworkflows/generate_hicup_report.
 workflow HIC {
     take:
     ch_fastq
-    ch_genome
+    bowtie2Index,
+    genomeDigest,
     genomeSizeType
 
     main:
@@ -18,13 +19,13 @@ workflow HIC {
 
     HICUP_MAP_READS (
         HICUP_TRUNCATE_READS.out.reads,
-        ch_genome.index,
+        bowtie2Index,
         genomeSizeType
     )
 
     HICUP_FILTER_PAIRS (
         HICUP_MAP_READS.out.alignments,
-        ch_genome.digest
+        genomeDigest
     )
 
     HICUP_FILTER_PAIRS
@@ -36,22 +37,17 @@ workflow HIC {
                 meta_clone.id = file.name.toString() - ~/(_[a-z]{4}_1_2\.filt\.sam)?$/
                 [ meta, file ]
         }
-        .groupTuple ()
+        .groupTuple (by: [0])
         .set { ch_filtered_pairs }
 
     RESPLIT_FILTERED_PAIRS ( ch_filtered_pairs )
-
-    RESPLIT_FILTERED_PAIRS
-        .out
         .alignments
         .map { WorkflowHicer.distributeMetaSingle( it ) }
-        .flatten()
+        .flatten ()
+        .collate ( 2 )
         .set { ch_resplit_pairs }
 
     HICUP_DEDUPLICATE_PAIRS ( ch_resplit_pairs )
-
-    HICUP_DEDUPLICATE_PAIRS
-        .out
         .alignments
         .groupTuple(by: [0])
         .set { ch_cat_sam }

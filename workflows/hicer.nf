@@ -183,14 +183,15 @@ workflow HICER {
     if (params.re) {
         ch_hicup = HIC (
             ch_split_fastq,
-            ch_genome,
+            ch_genome.index,
+            ch_genome.digest,
             dynamic_params.genomeSizeType
         )
 
     } else {
         ch_hicup = MICROC (
             ch_split_fastq,
-            ch_genome,
+            ch_genome.index,
             dynamic_params.genomeSizeType
         )
     }
