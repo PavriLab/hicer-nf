@@ -3,7 +3,7 @@ process GUNZIP {
     tag "$archive"
 
     input:
-    path(archive)
+    file(archive)
 
     output:
     path("$gunzip"), emit: gunzip
