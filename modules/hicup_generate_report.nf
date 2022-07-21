@@ -10,7 +10,7 @@ process HICUP_GENERATE_REPORT {
     path("HiCUP_summary_report*"),   emit: multiqc
 
     script:
-    def resourceDir = "${NXF_HOME}/assets/pavrilab/hicer-nf/resource"
+    def resourceDir = "${NXF_HOME}/assets/pavrilab/hicer-nf/assets"
 
     """
     hicupReportMerger.py \
