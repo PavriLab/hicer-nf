@@ -66,7 +66,7 @@ In general, the pipeline was designed to run with a predefined reference genome 
 We developed the pipeline with the aim to facilitate a smooth integration of the results into the two most widely used postprocessing frameworks [cooltools](https://cooltools.readthedocs.io/en/latest/index.html) and [juicer_tools](https://github.com/aidenlab/juicer/wiki/Download). This also included the possibility to directly view results on their respective browser right away. Thus, we prespecified a range of resolutions which will be computed by default (5000, 10000, 25000, 50000, 100000, 250000, 500000, 1000000) to meet this aim. The `--resolutions` parameter does not overwrite this default set but rather adds the specified resolutions to this list (duplicates are ignored). You can customize the default set as described below in `Customizing the resource requirements, igenomes_base and other parameters`. *Please be aware of this behaviour*
 
 ### Remarks on formats of the samples.txt and chrom.sizes file
-Please make sure that the format of these files meet exactly the specifications detailed below. This means the paths to the fastq files must be given as full paths otherwise the pipeline will not find the respective files on your harddrive (see `--samples` section for more details). The chrom.sizes fill must exactly contain two tab-separated columns containing chromosome name and its size (see `--chromSizes` section for more details). This format is crucial as juicer_tools [`pre`](https://github.com/aidenlab/juicer/wiki/Pre) will crash if there are more than these two columns.
+Please make sure that the format of these files meet exactly the specifications detailed below. This means the paths to the fastq files must be given as full paths otherwise the pipeline will not find the respective files on your harddrive (see `--input` section for more details). The chrom.sizes fill must exactly contain two tab-separated columns containing chromosome name and its size (see `--chromSizes` section for more details). This format is crucial as juicer_tools [`pre`](https://github.com/aidenlab/juicer/wiki/Pre) will crash if there are more than these two columns.
 
 ### Customizing the resource requirements, igenomes_base and other parameters
 The resource requirements of this pipeline were mostly tweaked for use with the CBE cluster at the Vienna Biocenter. Thus you might want to customize these settings accorting to your infrastructure. In order to do so for individual processes please make use of the way nextflow handles configuration overrides as described [here](https://www.nextflow.io/docs/latest/config.html). This will prevent any complication arising from directly editing the resource.config file. In brief, do the following:
@@ -127,7 +127,7 @@ If `-profile` is not specified at all the pipeline will be run locally and expec
 You will need to create a design file with information about the samples in your experiment before running the pipeline. Use this parameter to specify its location. It has to be a comma-separated file with 3 columns, and a header row as shown in the examples below. Specified input samples will be grouped by samplename and analyzed as a whole (i.e. fastq files will be concatenated)
 
 ```bash
---samples '[path to samples file]'
+--input '[path to samples file]'
 ```
 
 ```bash
