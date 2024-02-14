@@ -71,7 +71,7 @@ class WorkflowHicer {
                   .each{ genomeSize += it.@totalBases.toLong() }
 
         } else {
-              file( chromSizesFile ).eachLine{ str -> genomeSize += str.split('\t')[1].toLong() }
+              new File( chromSizesFile ).eachLine{ line -> genomeSize += line.split('\t')[1].toLong() }
         }
 
         def genomeSizeType = genomeSize > 4000000000 ? "large" : "small"
