@@ -186,7 +186,7 @@ This parameter is used to specify the genome fasta file and is only required if 
 
 #### `--chromSizes`
 
-This parameter is used to specify file containing the chromosome names and their size. This information is used by cooler for binning the genome. The file can either be a tab-separated file with two columns (preferred format)
+This parameter is used to specify file containing the chromosome names and their size. This information is used by cooler for binning the genome. The file can either be a tab-separated file with two columns (no header and empty lines)
 
 ```bash
 cat chrom.sizes.tsv
