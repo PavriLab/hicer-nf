@@ -1,3 +1,5 @@
+import groovy.xml.XmlParser
+
 class WorkflowHicer {
     // public methods
     public static void initialise(params, log) {
