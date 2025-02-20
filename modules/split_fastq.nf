@@ -20,5 +20,7 @@ process SPLIT_FASTQ {
 
     zcat ${reads[1]} | \
     split -l ${numberOfLinesPerSplit} -a 4 --additional-suffix _2.fq - ${meta.id}/${meta.id}_
+
+    wait
     """
 }
